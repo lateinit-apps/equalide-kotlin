@@ -7,14 +7,14 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
-import kotlinx.android.synthetic.main.app_bar_main_view.*
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_view)
+        setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
