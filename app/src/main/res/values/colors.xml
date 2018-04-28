@@ -4,4 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="primitiveColor_01">#673ab7</color>
+    <color name="primitiveColor_02">#03a9f4</color>
+    <color name="primitiveColor_03">#ffeb3b </color>
+    <color name="primitiveColor_04">#ff5722 </color>
+    <color name="primitiveColor_05">#4caf50 </color>
 </resources>
