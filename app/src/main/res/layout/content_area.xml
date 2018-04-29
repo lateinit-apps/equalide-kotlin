@@ -8,7 +8,7 @@
     tools:context=".MainView"
     tools:showIn="@layout/main_view">
 
-    <include layout="@layout/grid_view" />
-    <include layout="@layout/color_picker_view" />
+    <include layout="@layout/grid_area" />
+    <include layout="@layout/color_picker_area" />
 
 </LinearLayout>

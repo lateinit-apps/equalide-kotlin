@@ -7,8 +7,13 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.GridLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
+import android.util.Log
+import android.view.View
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -17,12 +22,31 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+
+        val colorPicker = findViewById(R.id.color_picker) as GridLayout
+
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-
+        addColors(colorPicker, 3)
         nav_view.setNavigationItemSelectedListener(this)
+
+        val gridArea = findViewById(R.id.grid) as GridLayout
+        gridArea.addOnLayoutChangeListener (object: View.OnLayoutChangeListener {
+            override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                val height = gridArea.getHeight()
+                val width = gridArea.getWidth()
+                Log.d("TAG","$height + $width")
+            }
+        })
+    }
+
+    fun addColors(picker: ViewGroup, numOfColors: Int) {
+        for (i in 1..numOfColors) {
+            val colorButton = Button(this)
+            picker.addView(colorButton)
+        }
     }
 
     override fun onBackPressed() {
