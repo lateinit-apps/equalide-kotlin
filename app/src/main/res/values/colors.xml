@@ -16,5 +16,7 @@
         <item>@color/Yellow_500</item>
         <item>@color/Deep_Orange_500</item>
         <item>@color/Green_500</item>
+        <item>@color/Green_500</item>
+        <item>@color/Green_500</item>
     </integer-array>
 </resources>

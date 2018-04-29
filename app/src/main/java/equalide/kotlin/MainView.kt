@@ -1,5 +1,6 @@
 package equalide.kotlin
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -16,8 +17,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.RelativeLayout
 import android.support.v4.content.ContextCompat
 import android.graphics.drawable.GradientDrawable
-
-import equalide.kotlin.Puzzle
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     var height: Int = 0
@@ -55,18 +54,18 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     fun calculateResolutionValues() {
-        val gridArea = findViewById<RelativeLayout>(R.id.content_area)
-        width  = gridArea.width
+        val contentArea = findViewById<RelativeLayout>(R.id.content_area)
+        width  = contentArea.width
         dp = resources.displayMetrics.density
-        colorPickerSize = (width - 2 * dp).toInt() / 7
-        height = gridArea.height - colorPickerSize
+        colorPickerSize = width / 7
+        height = contentArea.height - colorPickerSize
     }
 
     fun addColors(numOfColors: Int) {
         val picker = findViewById<LinearLayout>(R.id.color_picker)
-        var colors = resources.getIntArray(R.array.primitive_colors)
+        val colors = resources.getIntArray(R.array.primitive_colors)
 
-        for (i in 0..numOfColors - 1) {
+        for (i in 0 until numOfColors) {
             val colorButton = Button(this)
 
             // Set size
@@ -81,6 +80,27 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             // Add to picker
             picker.addView(colorButton)
         }
+    }
+
+    fun loadPuzzle(puzzle: Puzzle) {
+        val grid = findViewById<GridLayout>(R.id.grid)
+        val colors = resources.getIntArray(R.array.primitive_colors)
+
+        val size = minOf(width / puzzle.width, height / puzzle.height)
+
+        for (i in 0 until puzzle.height)
+            for (j in 0 until puzzle.width){
+                val primitive = Button(this)
+
+                // Set size
+                val params = LinearLayout.LayoutParams(size, size)
+                primitive.layoutParams = params
+
+                // Set color
+                val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
+                drawable.setColor(if (puzzle.body[i][j] != 0) puzzle.body[i][j] - 1 else Color.WHITE)
+                primitive.background = drawable
+            }
     }
 
     override fun onBackPressed() {
