@@ -10,10 +10,10 @@ import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.GridLayout
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.main_view.*
 import android.util.Log
 import android.view.View
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.main_view.*
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -33,13 +33,15 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         nav_view.setNavigationItemSelectedListener(this)
 
         val gridArea = findViewById(R.id.grid) as GridLayout
-        gridArea.addOnLayoutChangeListener (object: View.OnLayoutChangeListener {
-            override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                val height = gridArea.getHeight()
-                val width = gridArea.getWidth()
-                Log.d("TAG","$height + $width")
-            }
-        })
+        gridArea.addOnLayoutChangeListener({v,
+                                            left, top, right, bottom,
+                                            oldLeft, oldTop, oldRight, oldBottom  -> getSize(v)})
+    }
+
+    fun getSize(view: View) {
+        val height = view.getHeight()
+        val width = view.getWidth()
+        Log.d("TAG","$height + $width")
     }
 
     fun addColors(picker: ViewGroup, numOfColors: Int) {
