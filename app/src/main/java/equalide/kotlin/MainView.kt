@@ -1,6 +1,5 @@
 package equalide.kotlin
 
-import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -12,17 +11,13 @@ import android.util.Log
 import android.view.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
-import android.view.Gravity
 import android.widget.LinearLayout
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.RelativeLayout
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.Shape
 import android.support.v4.content.ContextCompat
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.GradientDrawable
 
+import equalide.kotlin.Puzzle
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     var height: Int = 0
@@ -55,6 +50,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
         addColors(5)
+        var pzl = Puzzle("111\n222\n000")
+        Log.d("TAG2","${pzl.width} + ${pzl.height} + ${pzl.parts} + ${pzl.body}")
     }
 
     fun calculateResolutionValues() {
