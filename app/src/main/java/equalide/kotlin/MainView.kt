@@ -49,16 +49,29 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
         addColors(5)
-        var pzl = Puzzle("111\n222\n000")
+        var pzl = Puzzle("000100\n" +
+                "101111\n" +
+                "111111\n" +
+                "111111\n" +
+                "011111\n" +
+                "011100\n" +
+                "010000")
+        loadPuzzle(pzl)
         Log.d("TAG2","${pzl.width} + ${pzl.height} + ${pzl.parts} + ${pzl.body}")
     }
 
     fun calculateResolutionValues() {
         val contentArea = findViewById<RelativeLayout>(R.id.content_area)
-        width  = contentArea.width
+        width = contentArea.width
         dp = resources.displayMetrics.density
         colorPickerSize = width / 7
         height = contentArea.height - colorPickerSize
+
+        val grid = findViewById<GridLayout>(R.id.grid)
+        val params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams(width, height))
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL)
+        params.addRule(RelativeLayout.CENTER_VERTICAL)
+        grid.layoutParams = params
     }
 
     fun addColors(numOfColors: Int) {
@@ -86,6 +99,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         val grid = findViewById<GridLayout>(R.id.grid)
         val colors = resources.getIntArray(R.array.primitive_colors)
 
+        grid.columnCount = puzzle.width
+        grid.rowCount = puzzle.height
         val size = minOf(width / puzzle.width, height / puzzle.height)
 
         for (i in 0 until puzzle.height)
@@ -98,8 +113,10 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
                 // Set color
                 val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
-                drawable.setColor(if (puzzle.body[i][j] != 0) puzzle.body[i][j] - 1 else Color.WHITE)
+                drawable.setColor(if (puzzle.body[i][j] != 0) Color.WHITE else Color.BLACK)
                 primitive.background = drawable
+
+                grid.addView(primitive)
             }
     }
 
