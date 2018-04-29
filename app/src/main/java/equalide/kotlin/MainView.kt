@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.main_view.*
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.widget.RelativeLayout
 
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -46,18 +47,27 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     fun onLayoutLoad() {
         calculateResolutionValues()
-
+        separateColorPicker()
         Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
         addColors(5)
     }
 
     fun calculateResolutionValues() {
-        var gridArea = findViewById<LinearLayout>(R.id.content_area)
+        val gridArea = findViewById<RelativeLayout>(R.id.content_area)
         width  = gridArea.width
-        height = gridArea.height
         dp = resources.displayMetrics.density
         colorPickerSize = (width - 2 * dp).toInt() / 7
+        height = gridArea.height - colorPickerSize
+
+        //val newPickerParams = LinearLayout.LayoutParams(width, colorPickerSize)
+        //findViewById<LinearLayout>(R.id.color_picker).layoutParams = newPickerParams
+
+    }
+
+    fun separateColorPicker() {
+
+
     }
 
     fun addColors(numOfColors: Int) {
