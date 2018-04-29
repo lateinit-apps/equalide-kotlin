@@ -13,18 +13,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
 import android.view.Gravity
 import android.widget.LinearLayout
-import android.view.ViewGroup
-import android.os.Build
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.view.ViewTreeObserver
-
-
-
 
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    var height = 0
-    var width = 0
     var colorPickerSize: Int = 0
     var primitiveSize = 0
 
@@ -41,30 +33,24 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
 
-        val gridArea = findViewById(R.id.grid) as GridLayout
+        val gridArea = findViewById<GridLayout>(R.id.grid)
 
-        val vto = gridArea.getViewTreeObserver()
+        val vto = gridArea.viewTreeObserver
+        var height: Int
+        var width: Int
         vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                gridArea.getViewTreeObserver().removeOnGlobalLayoutListener(this)
-                val width = gridArea.getMeasuredWidth()
-                val height = gridArea.getMeasuredHeight()
-                Log.d("TAG3","$height + $width")
+                gridArea.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                width = gridArea.width
+                height = gridArea.height
+                Log.d("TAG2","$height + $width")
                 addColors(3)
             }
         })
     }
 
-    fun getSize(view: View) {
-        this.height = view.getHeight()
-        this.width = view.getWidth()
-        this.colorPickerSize = this.width / 7
-        Log.d("TAG","$height + $width + ${this.colorPickerSize}")
-        //addColors(3)
-    }
-
     fun addColors(numOfColors: Int) {
-        val picker = findViewById(R.id.color_picker) as LinearLayout
+        val picker = findViewById<LinearLayout>(R.id.color_picker)
         for (i in 1..numOfColors) {
             val colorButton = Button(this)
             val params = LinearLayout.LayoutParams(100,100)
