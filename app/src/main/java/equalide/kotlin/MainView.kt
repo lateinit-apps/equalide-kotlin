@@ -1,6 +1,5 @@
 package equalide.kotlin
 
-import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -47,13 +46,14 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     fun onLayoutLoad() {
         calculateResolutionValues()
+
         Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
         addColors(5)
     }
 
     fun calculateResolutionValues() {
-        var gridArea = findViewById<GridLayout>(R.id.grid)
+        var gridArea = findViewById<LinearLayout>(R.id.content_area)
         width  = gridArea.width
         height = gridArea.height
         dp = resources.displayMetrics.density
