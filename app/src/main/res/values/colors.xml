@@ -4,9 +4,17 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="primitiveColor_01">#673ab7</color>
-    <color name="primitiveColor_02">#03a9f4</color>
-    <color name="primitiveColor_03">#ffeb3b </color>
-    <color name="primitiveColor_04">#ff5722 </color>
-    <color name="primitiveColor_05">#4caf50 </color>
+    <color name="Deep_Purple_500">#673ab7</color>
+    <color name="Light_Blue_500">#03a9f4</color>
+    <color name="Yellow_500">#ffeb3b </color>
+    <color name="Deep_Orange_500">#ff5722 </color>
+    <color name="Green_500">#4caf50 </color>
+
+    <string-array name="primitive_colors">
+        <item>@color/Deep_Purple_500</item>
+        <item>@color/Light_Blue_500</item>
+        <item>@color/Yellow_500</item>
+        <item>@color/Deep_Orange_500</item>
+        <item>@color/Green_500</item>
+    </string-array>
 </resources>

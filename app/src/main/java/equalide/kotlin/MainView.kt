@@ -13,45 +13,67 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
 import android.view.Gravity
 import android.widget.LinearLayout
-import android.util.TypedValue
+import android.view.ViewGroup
+import android.os.Build
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.view.ViewTreeObserver
+
+
+
+
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    var height = 0
+    var width = 0
+    var colorPickerSize: Int = 0
+    var primitiveSize = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val colorPicker = findViewById(R.id.color_picker) as LinearLayout
+        var colors = resources.getIntArray(R.array.primitive_colors)
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-        addColors(colorPicker, 3)
         nav_view.setNavigationItemSelectedListener(this)
 
         val gridArea = findViewById(R.id.grid) as GridLayout
-        gridArea.addOnLayoutChangeListener({v, _, _, _, _, _, _, _, _-> getSize(v)})
+
+        val vto = gridArea.getViewTreeObserver()
+        vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                gridArea.getViewTreeObserver().removeOnGlobalLayoutListener(this)
+                val width = gridArea.getMeasuredWidth()
+                val height = gridArea.getMeasuredHeight()
+                Log.d("TAG3","$height + $width")
+                addColors(3)
+            }
+        })
     }
 
     fun getSize(view: View) {
-        val height = view.getHeight()
-        val width = view.getWidth()
-        val dp = TypedValue.COMPLEX_UNIT_DIP
-        Log.d("TAG","$height + $width + $dp")
+        this.height = view.getHeight()
+        this.width = view.getWidth()
+        this.colorPickerSize = this.width / 7
+        Log.d("TAG","$height + $width + ${this.colorPickerSize}")
+        //addColors(3)
     }
 
-    fun addColors(picker: ViewGroup, numOfColors: Int) {
+    fun addColors(numOfColors: Int) {
+        val picker = findViewById(R.id.color_picker) as LinearLayout
         for (i in 1..numOfColors) {
             val colorButton = Button(this)
             val params = LinearLayout.LayoutParams(100,100)
             params.gravity = Gravity.BOTTOM
-            params.setMargins(1,1,1,1)
             colorButton.setBackgroundResource(R.drawable.primitive_border)
             colorButton.layoutParams = params
             picker.addView(colorButton)
         }
+        picker.invalidate() // re-draw color picker
     }
 
     override fun onBackPressed() {
