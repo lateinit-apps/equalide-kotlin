@@ -1,5 +1,6 @@
 package equalide.kotlin
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -15,6 +16,12 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.RelativeLayout
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.Shape
+import android.support.v4.content.ContextCompat
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.drawable.GradientDrawable
 
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -27,8 +34,6 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-        var colors = resources.getIntArray(R.array.primitive_colors)
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -47,7 +52,6 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     fun onLayoutLoad() {
         calculateResolutionValues()
-        separateColorPicker()
         Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
         addColors(5)
@@ -59,28 +63,27 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         dp = resources.displayMetrics.density
         colorPickerSize = (width - 2 * dp).toInt() / 7
         height = gridArea.height - colorPickerSize
-
-        //val newPickerParams = LinearLayout.LayoutParams(width, colorPickerSize)
-        //findViewById<LinearLayout>(R.id.color_picker).layoutParams = newPickerParams
-
-    }
-
-    fun separateColorPicker() {
-
-
     }
 
     fun addColors(numOfColors: Int) {
         val picker = findViewById<LinearLayout>(R.id.color_picker)
-        for (i in 1..numOfColors) {
+        var colors = resources.getIntArray(R.array.primitive_colors)
+
+        for (i in 0..numOfColors - 1) {
             val colorButton = Button(this)
+
+            // Set size
             val params = LinearLayout.LayoutParams(this.colorPickerSize,this.colorPickerSize)
-            params.gravity = Gravity.BOTTOM
-            colorButton.setBackgroundResource(R.drawable.primitive_border)
             colorButton.layoutParams = params
+
+            // Set color
+            val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
+            drawable.setColor(colors[i])
+            colorButton.background = drawable
+
+            // Add to picker
             picker.addView(colorButton)
         }
-        picker.invalidate() // re-draw color picker
     }
 
     override fun onBackPressed() {

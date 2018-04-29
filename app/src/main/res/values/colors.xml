@@ -10,11 +10,11 @@
     <color name="Deep_Orange_500">#ff5722 </color>
     <color name="Green_500">#4caf50 </color>
 
-    <string-array name="primitive_colors">
+    <integer-array name="primitive_colors">
         <item>@color/Deep_Purple_500</item>
         <item>@color/Light_Blue_500</item>
         <item>@color/Yellow_500</item>
         <item>@color/Deep_Orange_500</item>
         <item>@color/Green_500</item>
-    </string-array>
+    </integer-array>
 </resources>
