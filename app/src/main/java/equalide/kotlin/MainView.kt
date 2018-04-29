@@ -1,5 +1,6 @@
 package equalide.kotlin
 
+import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -17,8 +18,10 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    var height: Int = 0
+    var width:  Int = 0
     var colorPickerSize: Int = 0
-    var primitiveSize = 0
+    var dp: Float = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,27 +36,35 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
 
-        val gridArea = findViewById<GridLayout>(R.id.grid)
-
-        val vto = gridArea.viewTreeObserver
-        var height: Int
-        var width: Int
-        vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+        var gridArea = findViewById<GridLayout>(R.id.grid)
+        gridArea.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 gridArea.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                width = gridArea.width
-                height = gridArea.height
-                Log.d("TAG2","$height + $width")
-                addColors(3)
+                onLayoutLoad()
             }
         })
+    }
+
+    fun onLayoutLoad() {
+        calculateResolutionValues()
+        Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
+
+        addColors(5)
+    }
+
+    fun calculateResolutionValues() {
+        var gridArea = findViewById<GridLayout>(R.id.grid)
+        width  = gridArea.width
+        height = gridArea.height
+        dp = resources.displayMetrics.density
+        colorPickerSize = (width - 2 * dp).toInt() / 7
     }
 
     fun addColors(numOfColors: Int) {
         val picker = findViewById<LinearLayout>(R.id.color_picker)
         for (i in 1..numOfColors) {
             val colorButton = Button(this)
-            val params = LinearLayout.LayoutParams(100,100)
+            val params = LinearLayout.LayoutParams(this.colorPickerSize,this.colorPickerSize)
             params.gravity = Gravity.BOTTOM
             colorButton.setBackgroundResource(R.drawable.primitive_border)
             colorButton.layoutParams = params

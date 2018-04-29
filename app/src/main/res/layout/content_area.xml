@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="?android:attr/actionBarSize"
-    android:layout_marginLeft="1dp"
-    android:layout_marginRight="1dp"
+    android:layout_margin="1dp"
     android:orientation="vertical"
     tools:context=".MainView"
     tools:showIn="@layout/main_view">
