@@ -26,14 +26,12 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     var drawColor: Int = 0
     var colors: IntArray? = null
 
-    private val colorPickListener = object : View.OnClickListener {
-        override fun onClick(v: View) {
-            val picker = findViewById<LinearLayout>(R.id.color_picker)
-            if (v.tag != "colorButton_" + drawColor.toString()) {
-                picker.findViewWithTag<Button>(v.tag).text = "X"
-                picker.findViewWithTag<Button>("colorButton_" + drawColor.toString()).text = ""
-                drawColor = v.tag.toString().takeLast(1).toInt()
-            }
+    private val colorPickListener = { v: View ->
+        val picker = findViewById<LinearLayout>(R.id.color_picker)
+        if (v.tag != "colorButton_" + drawColor.toString()) {
+            picker.findViewWithTag<Button>(v.tag).text = "X"
+            picker.findViewWithTag<Button>("colorButton_" + drawColor.toString()).text = ""
+            drawColor = v.tag.toString().takeLast(1).toInt()
         }
     }
 
@@ -111,7 +109,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 colorButton.text = "X"
 
             // Set tag
-            colorButton.setTag("colorButton_" + i.toString())
+            colorButton.tag = "colorButton_" + i.toString()
 
             // Set event handler
             colorButton.setOnClickListener(colorPickListener)
