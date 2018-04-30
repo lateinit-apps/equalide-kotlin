@@ -16,7 +16,7 @@ class Puzzle(text: String) {
             for (j in 0 until width){
                 val digit = array[i][j].toInt() - 48
                 if (digit > max) max = digit
-                body[i][j] = if (digit == 0) 0 else 1
+                body[i][j] = if (digit == 0) -2 else -1
         }
         parts = max
     }

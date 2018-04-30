@@ -24,14 +24,33 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     var colorPickerSize: Int = 0
     var dp: Float = 0f
     var drawColor: Int = 0
+
+    // -2 out of puzzle
+    // -1 white
     var colors: IntArray? = null
+    var puzzle: Puzzle? = null
 
     private val colorPickListener = { v: View ->
         val picker = findViewById<LinearLayout>(R.id.color_picker)
+
         if (v.tag != "colorButton_" + drawColor.toString()) {
             picker.findViewWithTag<Button>(v.tag).text = "X"
             picker.findViewWithTag<Button>("colorButton_" + drawColor.toString()).text = ""
             drawColor = v.tag.toString().takeLast(1).toInt()
+        }
+    }
+
+    private val touchPrimitive = { v: View ->
+        val coord: IntArray = v.tag as IntArray
+        val grid = findViewById<GridLayout>(R.id.grid)
+        val colorMatch = puzzle!!.body[coord[0]][coord[1]] == drawColor
+        val primitive: Button = grid.findViewWithTag(coord)
+
+        if (puzzle!!.body[coord[0]][coord[1]] != -2 && !colorMatch) {
+            puzzle!!.body[coord[0]][coord[1]] = if (colorMatch) -1 else drawColor
+            var background = primitive.background as GradientDrawable
+            background.setColor(if (colorMatch) Color.WHITE else colors!![drawColor])
+            primitive.background = background
         }
     }
 
@@ -59,19 +78,19 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         calculateResolutionValues()
         //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
-        val pzl = Puzzle("000200\n" +
+        puzzle = Puzzle("000200\n" +
                 "202223\n" +
                 "222333\n" +
                 "233313\n" +
                 "013111\n" +
                 "011100\n" +
                 "010000")
-        drawColor = pzl.parts / 2
+        drawColor = puzzle!!.parts / 2
         colors = resources.getIntArray(resources.getIdentifier(
-                "primitive_colors_for_" + pzl.parts.toString(),
+                "primitive_colors_for_" + puzzle!!.parts.toString(),
                 "array", this.packageName))
-        addColors(pzl.parts)
-        loadPuzzle(pzl)
+        addColors(puzzle!!.parts)
+        loadPuzzle(puzzle!!)
         //Log.d("TAG2","${pzl.width} + ${pzl.height} + ${pzl.parts} + ${pzl.body}")
     }
 
@@ -136,9 +155,16 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
                 // Set color
                 val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
-                drawable.setColor(if (puzzle.body[i][j] == 0) Color.BLACK else Color.WHITE)
+                drawable.setColor(if (puzzle.body[i][j] == -2) Color.BLACK else Color.WHITE)
                 primitive.background = drawable
 
+                // Set tag
+                primitive.tag = intArrayOf(i, j)
+
+                // Set event handlers
+                primitive.setOnClickListener(touchPrimitive)
+
+                // Add to grid
                 grid.addView(primitive)
             }
     }
