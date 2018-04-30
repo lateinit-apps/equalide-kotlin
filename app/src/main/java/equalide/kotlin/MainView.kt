@@ -21,6 +21,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private var colorPickerSize: Int = 0
     private var dp: Float = 0f
     private var drawColor: Int = 0
+    private var touchCoords: IntArray? = null
+    private var isWriteModeOn: Boolean = false
+    private var firstTouchedColor: Int = -1
 
     // -2 out of puzzle
     // -1 white
@@ -37,38 +40,51 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         }
     }
 
-    private val touchPrimitive = { v: View ->
-        val coords: IntArray = v.tag as IntArray
-        val grid = findViewById<GridLayout>(R.id.grid)
-        val primitive: Button = grid.findViewWithTag(coords)
-
-        if (puzzle!!.body[coords[0]][coords[1]] != -2) {
-            val colorMatch = puzzle!!.body[coords[0]][coords[1]] == drawColor
-            puzzle!!.body[coords[0]][coords[1]] = if (colorMatch) -1 else drawColor
-            val background = primitive.background as GradientDrawable
-            background.setColor(if (colorMatch) Color.WHITE else colors!![drawColor])
-            primitive.background = background
-        }
-    }
-
     private val passToGrid = { _: View, _: MotionEvent -> false }
 
     private val gridListener = { _: View, e: MotionEvent ->
+        val coords = detectPrimitiveBy(e)
+        val touchedPrimitive = !coords.contentEquals(intArrayOf(-1, -1))
+
         when (e.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                Log.d("TAG","DOWN")
+                Log.d("TAG", "DOWN")
+
+                if (touchedPrimitive && puzzle!!.body[coords[0]][coords[1]] != -2) {
+                    touchCoords = coords.copyOf()
+                    val grid = findViewById<GridLayout>(R.id.grid)
+                    val primitive: Button = grid.findViewWithTag(coords)
+                    isWriteModeOn = puzzle!!.body[coords[0]][coords[1]] != drawColor
+                    puzzle!!.body[coords[0]][coords[1]] = if (isWriteModeOn) drawColor else -1
+                    val background = primitive.background as GradientDrawable
+                    background.setColor(if (isWriteModeOn) colors!![drawColor] else Color.WHITE)
+                    primitive.background = background
+                }
             }
             MotionEvent.ACTION_MOVE -> {
-                Log.d("TAG","MOVE")
+                Log.d("TAG", "MOVE")
             }
             MotionEvent.ACTION_UP -> {
-                Log.d("TAG","UP")
+                Log.d("TAG", "UP")
             }
             else -> {
                 Log.d("TAG", "SHIT")
             }
         }
         true
+    }
+
+    fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
+        val x = Math.round(ev.x)
+        val y = Math.round(ev.y)
+        val grid = findViewById<GridLayout>(R.id.grid)
+
+        for (i in 0 until grid.childCount) {
+            val primitive = grid.getChildAt(i) as Button
+            if (x > primitive.left && x < primitive.right && y > primitive.top && y < primitive.bottom)
+                return primitive.tag as IntArray
+        }
+        return intArrayOf(-1, -1)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
