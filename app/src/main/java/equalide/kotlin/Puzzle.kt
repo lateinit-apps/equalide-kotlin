@@ -14,8 +14,9 @@ class Puzzle(text: String) {
         var max = 0
         for (i in 0 until array.size)
             for (j in 0 until width){
-                body[i][j] = array[i][j].toInt() - 48
-                if (body[i][j] > max) max = body[i][j]
+                val digit = array[i][j].toInt() - 48
+                if (digit > max) max = digit
+                body[i][j] = if (digit == 0) 0 else 1
         }
         parts = max
     }

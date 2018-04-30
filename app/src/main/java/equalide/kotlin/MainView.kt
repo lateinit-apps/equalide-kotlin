@@ -23,6 +23,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     var width:  Int = 0
     var colorPickerSize: Int = 0
     var dp: Float = 0f
+    var drawColor: Int = 0
+    var colors: IntArray? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +37,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
 
-        var gridArea = findViewById<GridLayout>(R.id.grid)
+        val gridArea = findViewById<GridLayout>(R.id.grid)
         gridArea.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 gridArea.viewTreeObserver.removeOnGlobalLayoutListener(this)
@@ -48,19 +50,23 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         calculateResolutionValues()
         Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
-        addColors(5)
-        var pzl = Puzzle("000100\n" +
-                "101111\n" +
-                "111111\n" +
-                "111111\n" +
-                "011111\n" +
+        val pzl = Puzzle("000200\n" +
+                "202223\n" +
+                "222333\n" +
+                "233313\n" +
+                "013111\n" +
                 "011100\n" +
                 "010000")
+        drawColor = pzl.parts / 2
+        colors = resources.getIntArray(resources.getIdentifier(
+                "primitive_colors_for_" + pzl.parts.toString(),
+                "array", this.packageName))
+        addColors(pzl.parts)
         loadPuzzle(pzl)
         Log.d("TAG2","${pzl.width} + ${pzl.height} + ${pzl.parts} + ${pzl.body}")
     }
 
-    fun calculateResolutionValues() {
+    private fun calculateResolutionValues() {
         val contentArea = findViewById<RelativeLayout>(R.id.content_area)
         width = contentArea.width
         dp = resources.displayMetrics.density
@@ -74,9 +80,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         grid.layoutParams = params
     }
 
-    fun addColors(numOfColors: Int) {
+    private fun addColors(numOfColors: Int) {
         val picker = findViewById<LinearLayout>(R.id.color_picker)
-        val colors = resources.getIntArray(R.array.primitive_colors)
 
         for (i in 0 until numOfColors) {
             val colorButton = Button(this)
@@ -87,17 +92,17 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
             // Set color
             val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
-            drawable.setColor(colors[i])
+            drawable.setColor(colors!![i])
             colorButton.background = drawable
+
 
             // Add to picker
             picker.addView(colorButton)
         }
     }
 
-    fun loadPuzzle(puzzle: Puzzle) {
+    private fun loadPuzzle(puzzle: Puzzle) {
         val grid = findViewById<GridLayout>(R.id.grid)
-        val colors = resources.getIntArray(R.array.primitive_colors)
 
         grid.columnCount = puzzle.width
         grid.rowCount = puzzle.height
@@ -113,7 +118,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
                 // Set color
                 val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
-                drawable.setColor(if (puzzle.body[i][j] != 0) Color.WHITE else Color.BLACK)
+                drawable.setColor(if (puzzle.body[i][j] == 0) Color.BLACK else Color.WHITE)
                 primitive.background = drawable
 
                 grid.addView(primitive)
