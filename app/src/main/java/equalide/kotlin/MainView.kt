@@ -6,17 +6,14 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.widget.Button
-import android.widget.GridLayout
 import android.util.Log
 import android.view.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
-import android.widget.LinearLayout
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.widget.RelativeLayout
 import android.support.v4.content.ContextCompat
 import android.graphics.drawable.GradientDrawable
+import android.widget.*
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     var height: Int = 0
@@ -41,13 +38,13 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private val touchPrimitive = { v: View ->
-        val coord: IntArray = v.tag as IntArray
+        val coords: IntArray = v.tag as IntArray
         val grid = findViewById<GridLayout>(R.id.grid)
-        val colorMatch = puzzle!!.body[coord[0]][coord[1]] == drawColor
-        val primitive: Button = grid.findViewWithTag(coord)
+        val primitive: Button = grid.findViewWithTag(coords)
 
-        if (puzzle!!.body[coord[0]][coord[1]] != -2 && !colorMatch) {
-            puzzle!!.body[coord[0]][coord[1]] = if (colorMatch) -1 else drawColor
+        if (puzzle!!.body[coords[0]][coords[1]] != -2) {
+            val colorMatch = puzzle!!.body[coords[0]][coords[1]] == drawColor
+            puzzle!!.body[coords[0]][coords[1]] = if (colorMatch) -1 else drawColor
             var background = primitive.background as GradientDrawable
             background.setColor(if (colorMatch) Color.WHITE else colors!![drawColor])
             primitive.background = background
@@ -169,6 +166,18 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             }
     }
 
+    private fun refreshGrid() {
+        val grid = findViewById<GridLayout>(R.id.grid)
+
+        for (i in 0 until grid.childCount) {
+            val primitive = grid.getChildAt(i) as Button
+            val coords = primitive.tag as IntArray
+            var background = primitive.background as GradientDrawable
+            background.setColor(if (puzzle!!.body[coords[0]][coords[1]] == -2) Color.BLACK else Color.WHITE)
+            primitive.background = background
+        }
+    }
+
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
@@ -188,7 +197,10 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
-            //R.id.action_settings -> return true
+            R.id.clear_button -> {
+                refreshGrid()
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }
