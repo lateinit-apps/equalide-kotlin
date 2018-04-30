@@ -26,6 +26,17 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     var drawColor: Int = 0
     var colors: IntArray? = null
 
+    private val colorPickListener = object : View.OnClickListener {
+        override fun onClick(v: View) {
+            val picker = findViewById<LinearLayout>(R.id.color_picker)
+            if (v.tag != "colorButton_" + drawColor.toString()) {
+                picker.findViewWithTag<Button>(v.tag).text = "X"
+                picker.findViewWithTag<Button>("colorButton_" + drawColor.toString()).text = ""
+                drawColor = v.tag.toString().takeLast(1).toInt()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -48,7 +59,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     fun onLayoutLoad() {
         calculateResolutionValues()
-        Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
+        //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
         val pzl = Puzzle("000200\n" +
                 "202223\n" +
@@ -98,6 +109,12 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             // Set current selected color
             if (i == drawColor)
                 colorButton.text = "X"
+
+            // Set tag
+            colorButton.setTag("colorButton_" + i.toString())
+
+            // Set event handler
+            colorButton.setOnClickListener(colorPickListener)
 
             // Add to picker
             picker.addView(colorButton)
