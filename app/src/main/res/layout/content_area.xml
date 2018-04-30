@@ -9,6 +9,7 @@
     android:layout_marginRight="1dp"
     android:layout_marginBottom="1dp"
     tools:showIn="@layout/main_view"
+    android:background="@android:color/holo_blue_light"
     android:id="@+id/content_area">
 
     <include layout="@layout/grid_area" />
