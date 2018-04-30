@@ -23,6 +23,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private var drawColor: Int = 0
     private var prevTouchCoords: IntArray? = null
     private var writeModeOn: Boolean = false
+    private var primitiveSize: Int = 0
 
     // -2 out of puzzle
     // -1 white
@@ -94,13 +95,15 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
-        val x = ev.x
-        val y = ev.y
+        val x = ev.rawX
+        val y = ev.rawY
         val grid = findViewById<GridLayout>(R.id.grid)
 
         for (i in 0 until grid.childCount) {
             val primitive = grid.getChildAt(i) as Button
-            if (x > primitive.left && x < primitive.right && y > primitive.top && y < primitive.bottom)
+            val location = IntArray(2)
+            primitive.getLocationOnScreen(location)
+            if (x > location[0] && x < location[0] + primitiveSize && y > location[1] && y < location[1] + primitiveSize)
                 return primitive.tag as IntArray
         }
         return intArrayOf(-1, -1)
@@ -197,14 +200,14 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
         grid.columnCount = puzzle.width
         grid.rowCount = puzzle.height
-        val size = minOf(width / puzzle.width, height / puzzle.height)
+        primitiveSize = minOf(width / puzzle.width, height / puzzle.height)
 
         for (i in 0 until puzzle.height)
             for (j in 0 until puzzle.width){
                 val primitive = Button(this)
 
                 // Set size
-                val params = LinearLayout.LayoutParams(size, size)
+                val params = LinearLayout.LayoutParams(primitiveSize, primitiveSize)
                 primitive.layoutParams = params
 
                 // Set color
