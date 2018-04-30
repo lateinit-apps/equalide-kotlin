@@ -61,8 +61,10 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                     primitive.background = background
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if (prevTouchCoords == null)
+                    if (prevTouchCoords == null) {
                         writeModeOn = puzzle!!.body[coords[0]][coords[1]] != drawColor
+                        prevTouchCoords = intArrayOf(-1, -1)
+                    }
                     if (!coords.contentEquals(prevTouchCoords!!)) {
                         val colorMatch = puzzle!!.body[coords[0]][coords[1]] == drawColor
                         if (colorMatch && !writeModeOn || !colorMatch && writeModeOn) {
@@ -75,11 +77,13 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                             puzzle!!.body[coords[0]][coords[1]] = if (writeModeOn) drawColor else -1
                             background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
                             primitive.background = background
+                            primitive.invalidate()
                         }
                     }
                 }
                 MotionEvent.ACTION_UP -> {
                     Log.d("TAG", "UP")
+                    prevTouchCoords = null
                 }
                 else -> {
                     Log.d("TAG", "SHIT")
@@ -90,8 +94,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
-        val x = Math.round(ev.x)
-        val y = Math.round(ev.y)
+        val x = ev.x
+        val y = ev.y
         val grid = findViewById<GridLayout>(R.id.grid)
 
         for (i in 0 until grid.childCount) {
@@ -155,7 +159,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         params.addRule(RelativeLayout.CENTER_HORIZONTAL)
         params.addRule(RelativeLayout.CENTER_VERTICAL)
         grid.layoutParams = params
-        grid.setOnTouchListener(gridListener)
+        contentArea.setOnTouchListener(gridListener)
     }
 
     private fun addColors(numOfColors: Int) {
