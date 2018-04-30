@@ -16,18 +16,18 @@ import android.graphics.drawable.GradientDrawable
 import android.widget.*
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    var height: Int = 0
-    var width:  Int = 0
-    var colorPickerSize: Int = 0
-    var dp: Float = 0f
-    var drawColor: Int = 0
+    private var height: Int = 0
+    private var width:  Int = 0
+    private var colorPickerSize: Int = 0
+    private var dp: Float = 0f
+    private var drawColor: Int = 0
 
     // -2 out of puzzle
     // -1 white
-    var colors: IntArray? = null
-    var puzzle: Puzzle? = null
+    private var colors: IntArray? = null
+    private var puzzle: Puzzle? = null
 
-    private val colorPickListener = { v: View ->
+    private val colorPickerListener = { v: View ->
         val picker = findViewById<LinearLayout>(R.id.color_picker)
 
         if (v.tag != "colorButton_" + drawColor.toString()) {
@@ -45,10 +45,30 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         if (puzzle!!.body[coords[0]][coords[1]] != -2) {
             val colorMatch = puzzle!!.body[coords[0]][coords[1]] == drawColor
             puzzle!!.body[coords[0]][coords[1]] = if (colorMatch) -1 else drawColor
-            var background = primitive.background as GradientDrawable
+            val background = primitive.background as GradientDrawable
             background.setColor(if (colorMatch) Color.WHITE else colors!![drawColor])
             primitive.background = background
         }
+    }
+
+    private val passToGrid = { _: View, _: MotionEvent -> false }
+
+    private val gridListener = { _: View, e: MotionEvent ->
+        when (e.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                Log.d("TAG","DOWN")
+            }
+            MotionEvent.ACTION_MOVE -> {
+                Log.d("TAG","MOVE")
+            }
+            MotionEvent.ACTION_UP -> {
+                Log.d("TAG","UP")
+            }
+            else -> {
+                Log.d("TAG", "SHIT")
+            }
+        }
+        true
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +108,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 "array", this.packageName))
         addColors(puzzle!!.parts)
         loadPuzzle(puzzle!!)
+
         //Log.d("TAG2","${pzl.width} + ${pzl.height} + ${pzl.parts} + ${pzl.body}")
     }
 
@@ -103,6 +124,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         params.addRule(RelativeLayout.CENTER_HORIZONTAL)
         params.addRule(RelativeLayout.CENTER_VERTICAL)
         grid.layoutParams = params
+        grid.setOnTouchListener(gridListener)
     }
 
     private fun addColors(numOfColors: Int) {
@@ -128,7 +150,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             colorButton.tag = "colorButton_" + i.toString()
 
             // Set event handler
-            colorButton.setOnClickListener(colorPickListener)
+            colorButton.setOnClickListener(colorPickerListener)
 
             // Add to picker
             picker.addView(colorButton)
@@ -159,7 +181,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 primitive.tag = intArrayOf(i, j)
 
                 // Set event handlers
-                primitive.setOnClickListener(touchPrimitive)
+                primitive.setOnTouchListener(passToGrid)
+                primitive.isClickable = false
 
                 // Add to grid
                 grid.addView(primitive)
@@ -172,7 +195,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         for (i in 0 until grid.childCount) {
             val primitive = grid.getChildAt(i) as Button
             val coords = primitive.tag as IntArray
-            var background = primitive.background as GradientDrawable
+            val background = primitive.background as GradientDrawable
             background.setColor(if (puzzle!!.body[coords[0]][coords[1]] == -2) Color.BLACK else Color.WHITE)
             primitive.background = background
         }
