@@ -63,7 +63,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 "array", this.packageName))
         addColors(pzl.parts)
         loadPuzzle(pzl)
-        Log.d("TAG2","${pzl.width} + ${pzl.height} + ${pzl.parts} + ${pzl.body}")
+        //Log.d("TAG2","${pzl.width} + ${pzl.height} + ${pzl.parts} + ${pzl.body}")
     }
 
     private fun calculateResolutionValues() {
@@ -95,6 +95,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             drawable.setColor(colors!![i])
             colorButton.background = drawable
 
+            // Set current selected color
+            if (i == drawColor)
+                colorButton.text = "X"
 
             // Add to picker
             picker.addView(colorButton)

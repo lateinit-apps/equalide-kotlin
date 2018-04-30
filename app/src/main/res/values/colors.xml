@@ -4,6 +4,10 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="field_area_color">@android:color/black</color>
+    <color name="content_area_color">@android:color/black</color>
+    <color name="grid_color">@android:color/black</color>
+
     <color name="Deep_Purple_500">#673ab7</color>
     <color name="Light_Blue_500">#03a9f4</color>
     <color name="Yellow_500">#ffeb3b </color>
