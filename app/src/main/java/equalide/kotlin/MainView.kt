@@ -140,6 +140,11 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 "013111\n" +
                 "011100\n" +
                 "010000")
+     /*   puzzle = Puzzle("0200\n" +
+                "2223\n" +
+                "2333\n" +
+                "3313\n" +
+                "3111")*/
         drawColor = puzzle!!.parts / 2
         colors = resources.getIntArray(resources.getIdentifier(
                 "primitive_colors_for_" + puzzle!!.parts.toString(),
@@ -151,17 +156,12 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private fun calculateResolutionValues() {
-        val contentArea = findViewById<RelativeLayout>(R.id.content_area)
+        val contentArea = findViewById<LinearLayout>(R.id.content_area)
         width = contentArea.width
         dp = resources.displayMetrics.density
         colorPickerSize = width / 7
         height = contentArea.height - colorPickerSize
 
-        val grid = findViewById<GridLayout>(R.id.grid)
-        val params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams(width, height))
-        params.addRule(RelativeLayout.CENTER_HORIZONTAL)
-        params.addRule(RelativeLayout.CENTER_VERTICAL)
-        grid.layoutParams = params
         contentArea.setOnTouchListener(gridListener)
     }
 
@@ -201,6 +201,12 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         grid.columnCount = puzzle.width
         grid.rowCount = puzzle.height
         primitiveSize = minOf(width / puzzle.width, height / puzzle.height)
+
+        val gridParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams(
+                puzzle.width * primitiveSize, puzzle.height * primitiveSize))
+        gridParams.bottomMargin = (height - puzzle.height * primitiveSize) / 2
+
+        grid.layoutParams = gridParams
 
         for (i in 0 until puzzle.height)
             for (j in 0 until puzzle.width){
