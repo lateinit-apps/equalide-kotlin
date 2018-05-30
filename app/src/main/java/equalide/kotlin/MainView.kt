@@ -135,7 +135,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 onLayoutLoad()
             }
         })
-        findViewById<DrawerLayout>(R.id.drawer_layout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        //findViewById<DrawerLayout>(R.id.drawer_layout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
     fun onLayoutLoad() {

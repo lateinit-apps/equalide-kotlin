@@ -35,4 +35,44 @@
         <!--</menu>-->
     <!--</item>-->
 
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/level_01"
+            android:icon="@drawable/ic_lock_open"
+            android:title="Level 1" />
+        <item
+            android:id="@+id/level_02"
+            android:icon="@drawable/ic_lock"
+            android:title="Level 2" />
+        <item
+            android:id="@+id/level_03"
+            android:icon="@drawable/ic_lock"
+            android:title="Level 3" />
+        <item
+            android:id="@+id/level_04"
+            android:icon="@drawable/ic_lock"
+            android:title="Level 4" />
+        <item
+            android:id="@+id/level_05"
+            android:icon="@drawable/ic_lock"
+            android:title="Level 5" />
+        <item
+            android:id="@+id/level_06"
+            android:icon="@drawable/ic_lock"
+            android:title="Level 6" />
+        <item
+            android:id="@+id/level_07"
+            android:icon="@drawable/ic_lock"
+            android:title="Level 7" />
+        <item
+            android:id="@+id/level_08"
+            android:icon="@drawable/ic_lock"
+            android:title="Level 8" />
+        <item
+            android:id="@+id/level_09"
+            android:icon="@drawable/ic_lock"
+            android:title="Level 9" />
+    </group>
+
+
 </menu>
