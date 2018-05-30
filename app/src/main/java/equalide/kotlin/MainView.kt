@@ -31,7 +31,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private var primitiveSize: Int = 0
     private var solved: Boolean = false
     private var currentLevel: Int = 0
-    private var puzzles: Array<Puzzle>? = null
+    private var maxLevel: Int = 0
+    private var puzzles: Array<String>? = null
 
     private var menu: Menu? = null
 
@@ -58,7 +59,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         if (!coords.contentEquals(intArrayOf(-1, -1)) && puzzle!!.body[coords[0]][coords[1]] != -2 && !solved) {
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    Log.d("TAG", "DOWN")
+                    //Log.d("TAG", "DOWN")
 
                     prevTouchCoords = coords.copyOf()
                     writeModeOn = puzzle!!.body[coords[0]][coords[1]] != drawColor
@@ -98,7 +99,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                         handleSolvedPuzzle()
                 }
                 MotionEvent.ACTION_UP -> {
-                    Log.d("TAG", "UP")
+                    //Log.d("TAG", "UP")
                     prevTouchCoords = null
                 }
                 else -> {
@@ -155,7 +156,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         calculateResolutionValues()
         //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
-        puzzle = puzzles!![currentLevel]
+        puzzle = Puzzle(puzzles!![currentLevel])
 
 
         drawColor = puzzle!!.parts / 2
@@ -302,14 +303,12 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         }
     }
 
-    private fun loadFiles() : Array<Puzzle> {
-        val array = Array(9, { _ -> Puzzle("12\n12")})
+    private fun loadFiles() : Array<String> {
+        val array = Array(9, { _ -> ""})
 
-        for (i in 1..array.size) {
-            val string = application.assets.open("0" + i.toString() + ".txt").bufferedReader().use{
+        for (i in 1..array.size)
+            array[i - 1] = application.assets.open("0" + i.toString() + ".txt").bufferedReader().use{
                 it.readText() }
-            array[i - 1] = Puzzle(string)
-        }
 
         return array
     }
@@ -332,12 +331,16 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         val currentMenuItem = menu!!.findItem(currentLevelId)
         currentMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star))
 
-        if (currentLevel != 8) {
-            currentLevel++
-            val nextLevelId = puzzleIds[currentLevel]
-            val nextMenuItem = menu!!.findItem(nextLevelId)
-            nextMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_lock_open))
-        }
+        if (currentLevel != 8)
+            if (currentLevel == maxLevel) {
+                currentLevel++
+                maxLevel++
+                val nextLevelId = puzzleIds[currentLevel]
+                val nextMenuItem = menu!!.findItem(nextLevelId)
+                nextMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_lock_open))
+            }
+            else
+                currentLevel++
     }
 
     override fun onBackPressed() {
@@ -371,7 +374,19 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         // Handle navigation view item clicks here.
         var selectedLevel = 0
 
-        drawer_layout.closeDrawer(GravityCompat.START)
+        for (i in 0 until puzzleIds.size)
+            if (item.itemId == puzzleIds[i]) {
+                selectedLevel = i
+                refreshContentArea()
+                solved = false
+                onLayoutLoad()
+                break
+            }
+
+        if (selectedLevel <= maxLevel) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+            currentLevel = selectedLevel
+        }
         return true
     }
 }
