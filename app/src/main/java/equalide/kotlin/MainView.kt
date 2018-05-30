@@ -1,5 +1,6 @@
 package equalide.kotlin
 
+import android.content.ClipData
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -18,6 +19,7 @@ import android.support.design.widget.FloatingActionButton
 import android.widget.*
 import android.view.ViewGroup
 import android.view.Gravity
+import equalide.kotlin.R.id.drawer_layout
 
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -32,6 +34,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private var solved: Boolean = false
     private var currentLevel: Int = 0
     private var puzzles: Array<Puzzle>? = null
+
+    private var menu: Menu? = null
 
     // -2 out of puzzle
     // -1 white
@@ -133,6 +137,11 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
 
+        val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
+        menu = navigationView.menu
+
+        puzzles = loadFiles()
+
         val gridArea = findViewById<GridLayout>(R.id.grid)
         gridArea.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -147,20 +156,10 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     fun onLayoutLoad() {
         calculateResolutionValues()
         //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
-        puzzles = loadFiles()
-        puzzle = puzzles!![0]
-//                Puzzle("010000\n" +
-//        "011100\n" +
-//        "012111\n" +
-//        "322212\n" +
-//        "333222\n" +
-//        "303332\n" +
-//        "000300")
-     /*   puzzle = Puzzle("0200\n" +
-                "2223\n" +
-                "2333\n" +
-                "3313\n" +
-                "3111")*/
+
+        puzzle = puzzles!![currentLevel]
+
+
         drawColor = puzzle!!.parts / 2
         colors = resources.getIntArray(resources.getIdentifier(
                 "primitive_colors_for_" + puzzle!!.parts.toString(),
@@ -268,29 +267,43 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private fun handleSolvedPuzzle() {
-        Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
+            val picker = findViewById<LinearLayout>(R.id.color_picker)
+            val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
 
-        val picker = findViewById<LinearLayout>(R.id.color_picker)
-        val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
+            val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
+            drawable.setColor(Color.BLACK)
 
-        val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
-        drawable.setColor(Color.BLACK)
+            for (i in 0 until picker.childCount)
+                picker.getChildAt(i).background = drawable
 
-        for (i in 0 until picker.childCount)
-            picker.getChildAt(i).background = drawable
+        if (currentLevel != 8) {
+            solved = true
+            val fab = FloatingActionButton(this)
+            fab.setImageResource(R.drawable.ic_navigate_next)
+            fab.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
+            fab.isFocusable = true
+            val lay = CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT)
+            lay.gravity = Gravity.BOTTOM or Gravity.END
+            lay.setMargins(2, 2, 40, 60)
+            fab.layoutParams = lay
 
-        solved = true
-
-        val fab = FloatingActionButton(this)
-        fab.setImageResource(R.drawable.ic_navigate_next)
-        fab.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
-        fab.isFocusable = true
-        val lay = CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
-        lay.gravity = Gravity.BOTTOM or Gravity.END
-        lay.setMargins(2, 2, 40, 60)
-        fab.layoutParams = lay
-        mainView.addView(fab)
+            val fabId = View.generateViewId()
+            fab.id = fabId
+            fab.setOnClickListener { v: View ->
+                refreshContentArea()
+                val fb = findViewById<FloatingActionButton>(fabId)
+                mainView.removeView(fb)
+                unlockNewLevel()
+                onLayoutLoad()
+            }
+            mainView.addView(fab)
+            Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
+        }
+        else {
+            unlockNewLevel()
+            Toast.makeText(this, "You solved all puzzles!", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun loadFiles() : Array<Puzzle> {
@@ -305,6 +318,33 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         }
 
         return array
+    }
+
+    private fun refreshContentArea() {
+        val grid = findViewById<GridLayout>(R.id.grid)
+        val picker = findViewById<LinearLayout>(R.id.color_picker)
+
+        grid.removeAllViews()
+        picker.removeAllViews()
+    }
+
+    private val puzzleIds = arrayOf(R.id.level_01, R.id.level_02, R.id.level_03,
+            R.id.level_04, R.id.level_05, R.id.level_06,
+            R.id.level_07, R.id.level_08, R.id.level_09)
+
+    private fun unlockNewLevel() {
+        val currentLevelId = puzzleIds[currentLevel]
+        val currentMenuItem = menu!!.findItem(currentLevelId)
+        currentMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star))
+
+        if (currentLevel != 8) {
+            currentLevel++
+            val nextLevelId = puzzleIds[currentLevel]
+            val nextMenuItem = menu!!.findItem(nextLevelId)
+            nextMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_lock_open))
+        }
+
+        solved = false
     }
 
     override fun onBackPressed() {
@@ -336,26 +376,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
-//        when (item.itemId) {
-//            R.id.nav_camera -> {
-//                // Handle the camera action
-//            }
-//            R.id.nav_gallery -> {
-//
-//            }
-//            R.id.nav_slideshow -> {
-//
-//            }
-//            R.id.nav_manage -> {
-//
-//            }
-//            R.id.nav_share -> {
-//
-//            }
-//            R.id.nav_send -> {
-//
-//            }
-//        }
+        var selectedLevel = 0
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
