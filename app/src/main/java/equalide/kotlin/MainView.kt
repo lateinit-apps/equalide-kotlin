@@ -60,6 +60,10 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                     puzzle!!.body[coords[0]][coords[1]] = if (writeModeOn) drawColor else -1
                     background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
                     primitive.background = background
+
+                    if (puzzle!!.checkForSolution()) {
+                        Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (prevTouchCoords == null) {
@@ -81,13 +85,16 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                             primitive.invalidate()
                         }
                     }
+
+                    if (puzzle!!.checkForSolution())
+                        Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
                 }
                 MotionEvent.ACTION_UP -> {
                     Log.d("TAG", "UP")
                     prevTouchCoords = null
                 }
                 else -> {
-                    Log.d("TAG", "SHIT")
+                    Log.d("TAG", "ERROR")
                 }
             }
         }
