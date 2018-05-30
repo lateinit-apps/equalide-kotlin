@@ -13,8 +13,12 @@ import kotlinx.android.synthetic.main.main_view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.support.v4.content.ContextCompat
 import android.graphics.drawable.GradientDrawable
+import android.support.design.widget.CoordinatorLayout
+import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.widget.*
+import android.view.ViewGroup
+import android.view.Gravity
 
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -135,6 +139,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 onLayoutLoad()
             }
         })
+        //handleSolvedPuzzle()
         //findViewById<DrawerLayout>(R.id.drawer_layout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
@@ -261,8 +266,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private fun handleSolvedPuzzle() {
         //Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
 
-        Snackbar.make(findViewById(R.id.content_area), "Puzzle solved!", Snackbar.LENGTH_INDEFINITE).show()
+
         val picker = findViewById<LinearLayout>(R.id.color_picker)
+        val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
 
         val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
         drawable.setColor(Color.BLACK)
@@ -271,6 +277,19 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             picker.getChildAt(i).background = drawable
 
         solved = true
+
+        val fab = FloatingActionButton(this)
+        fab.setImageResource(R.drawable.ic_navigate_next)
+        fab.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
+        fab.isFocusable = true
+        val lay = CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT)
+        lay.gravity = Gravity.BOTTOM or Gravity.RIGHT
+        lay.setMargins(2, 2, 20, 20)
+        fab.layoutParams = lay
+        //fab.backgroundTintList = ColorStateList.valueOf(Color.MAGENTA)
+        Snackbar.make(mainView, "Puzzle solved!", Snackbar.LENGTH_INDEFINITE).show()
+        mainView.addView(fab)
     }
 
     override fun onBackPressed() {
