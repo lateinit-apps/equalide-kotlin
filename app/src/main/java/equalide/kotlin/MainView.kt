@@ -158,7 +158,6 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
         puzzle = Puzzle(puzzles!![currentLevel])
 
-
         drawColor = puzzle!!.parts / 2
         colors = resources.getIntArray(resources.getIdentifier(
                 "primitive_colors_for_" + puzzle!!.parts.toString(),
@@ -172,9 +171,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private fun calculateResolutionValues() {
         val contentArea = findViewById<LinearLayout>(R.id.content_area)
         width = contentArea.width
-        dp = resources.displayMetrics.density
-        colorPickerSize = width / 7
-        height = contentArea.height - colorPickerSize
+        colorPickerSize = width / 5
+        height = contentArea.height - (5 * colorPickerSize) / 4
 
         contentArea.setOnTouchListener(gridListener)
     }
@@ -195,12 +193,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             colorButton.background = drawable
 
             // Set current selected color
-            if (i == drawColor) {
-                //var image = ImageView(this)
-                //image.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
+            if (i == drawColor)
                 colorButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
-                //picker.addView(image)
-            }
 
             // Set tag
             colorButton.tag = "colorButton_" + i.toString()
