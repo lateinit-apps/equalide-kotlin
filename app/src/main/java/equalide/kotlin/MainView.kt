@@ -1,6 +1,5 @@
 package equalide.kotlin
 
-import android.content.ClipData
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -19,7 +18,6 @@ import android.support.design.widget.FloatingActionButton
 import android.widget.*
 import android.view.ViewGroup
 import android.view.Gravity
-import equalide.kotlin.R.id.drawer_layout
 
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -267,17 +265,17 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private fun handleSolvedPuzzle() {
-            val picker = findViewById<LinearLayout>(R.id.color_picker)
-            val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
+        val picker = findViewById<LinearLayout>(R.id.color_picker)
+        val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
 
-            val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
-            drawable.setColor(Color.BLACK)
+        val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
+        drawable.setColor(Color.BLACK)
 
-            for (i in 0 until picker.childCount)
-                picker.getChildAt(i).background = drawable
-
-        if (currentLevel != 8) {
-            solved = true
+        for (i in 0 until picker.childCount)
+            picker.getChildAt(i).background = drawable
+        solved = true
+        unlockNewLevel()
+        if (currentLevel != 9) {
             val fab = FloatingActionButton(this)
             fab.setImageResource(R.drawable.ic_navigate_next)
             fab.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
@@ -294,14 +292,12 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 refreshContentArea()
                 val fb = findViewById<FloatingActionButton>(fabId)
                 mainView.removeView(fb)
-                unlockNewLevel()
+                solved = false
                 onLayoutLoad()
             }
             mainView.addView(fab)
             Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
-        }
-        else {
-            unlockNewLevel()
+        } else {
             Toast.makeText(this, "You solved all puzzles!", Toast.LENGTH_LONG).show()
         }
     }
@@ -310,11 +306,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         val array = Array(9, { _ -> Puzzle("12\n12")})
 
         for (i in 1..array.size) {
-            Log.d("TAG" + i.toString(), "asd")
             val string = application.assets.open("0" + i.toString() + ".txt").bufferedReader().use{
                 it.readText() }
             array[i - 1] = Puzzle(string)
-            Log.d("TAG" + i.toString(), string)
         }
 
         return array
@@ -333,6 +327,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             R.id.level_07, R.id.level_08, R.id.level_09)
 
     private fun unlockNewLevel() {
+        Log.d("TAG", "Solved: " + currentLevel.toString())
         val currentLevelId = puzzleIds[currentLevel]
         val currentMenuItem = menu!!.findItem(currentLevelId)
         currentMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star))
@@ -343,8 +338,6 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             val nextMenuItem = menu!!.findItem(nextLevelId)
             nextMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_lock_open))
         }
-
-        solved = false
     }
 
     override fun onBackPressed() {
