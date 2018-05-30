@@ -15,7 +15,6 @@ import android.support.v4.content.ContextCompat
 import android.graphics.drawable.GradientDrawable
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
 import android.widget.*
 import android.view.ViewGroup
 import android.view.Gravity
@@ -30,7 +29,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private var prevTouchCoords: IntArray? = null
     private var writeModeOn: Boolean = false
     private var primitiveSize: Int = 0
-    private var solved = false
+    private var solved: Boolean = false
+    private var currentLevel: Int = 0
+    private var puzzles: Array<Puzzle>? = null
 
     // -2 out of puzzle
     // -1 white
@@ -106,7 +107,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         true
     }
 
-    fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
+    private fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
         val x = ev.rawX
         val y = ev.rawY
         val grid = findViewById<GridLayout>(R.id.grid)
@@ -146,14 +147,15 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     fun onLayoutLoad() {
         calculateResolutionValues()
         //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
-
-        puzzle = Puzzle("010000\n" +
-        "011100\n" +
-        "012111\n" +
-        "322212\n" +
-        "333222\n" +
-        "303332\n" +
-        "000300")
+        puzzles = loadFiles()
+        puzzle = puzzles!![0]
+//                Puzzle("010000\n" +
+//        "011100\n" +
+//        "012111\n" +
+//        "322212\n" +
+//        "333222\n" +
+//        "303332\n" +
+//        "000300")
      /*   puzzle = Puzzle("0200\n" +
                 "2223\n" +
                 "2333\n" +
@@ -252,20 +254,21 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private fun refreshGrid() {
-        val grid = findViewById<GridLayout>(R.id.grid)
+        if (!solved) {
+            val grid = findViewById<GridLayout>(R.id.grid)
 
-        for (i in 0 until grid.childCount) {
-            val primitive = grid.getChildAt(i) as Button
-            val coords = primitive.tag as IntArray
-            val background = primitive.background as GradientDrawable
-            background.setColor(if (puzzle!!.body[coords[0]][coords[1]] == -2) Color.BLACK else Color.WHITE)
-            primitive.background = background
+            for (i in 0 until grid.childCount) {
+                val primitive = grid.getChildAt(i) as Button
+                val coords = primitive.tag as IntArray
+                val background = primitive.background as GradientDrawable
+                background.setColor(if (puzzle!!.body[coords[0]][coords[1]] == -2) Color.BLACK else Color.WHITE)
+                primitive.background = background
+            }
         }
     }
 
     private fun handleSolvedPuzzle() {
-        //Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
-
+        Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
 
         val picker = findViewById<LinearLayout>(R.id.color_picker)
         val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
@@ -284,12 +287,24 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         fab.isFocusable = true
         val lay = CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT)
-        lay.gravity = Gravity.BOTTOM or Gravity.RIGHT
-        lay.setMargins(2, 2, 20, 20)
+        lay.gravity = Gravity.BOTTOM or Gravity.END
+        lay.setMargins(2, 2, 40, 60)
         fab.layoutParams = lay
-        //fab.backgroundTintList = ColorStateList.valueOf(Color.MAGENTA)
-        Snackbar.make(mainView, "Puzzle solved!", Snackbar.LENGTH_INDEFINITE).show()
         mainView.addView(fab)
+    }
+
+    private fun loadFiles() : Array<Puzzle> {
+        val array = Array(9, { _ -> Puzzle("12\n12")})
+
+        for (i in 1..array.size) {
+            Log.d("TAG" + i.toString(), "asd")
+            val string = application.assets.open("0" + i.toString() + ".txt").bufferedReader().use{
+                it.readText() }
+            array[i - 1] = Puzzle(string)
+            Log.d("TAG" + i.toString(), string)
+        }
+
+        return array
     }
 
     override fun onBackPressed() {

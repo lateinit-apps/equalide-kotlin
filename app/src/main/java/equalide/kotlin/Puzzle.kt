@@ -8,8 +8,10 @@ class Puzzle(text: String) {
     val parts: Int
     val body: Array<IntArray>
     val solution: String
+    val solved: Boolean
 
     init {
+        solved = false
         val array = text.split("\n", "\r\n")
         solution = array.joinToString("")
         height = array.size
