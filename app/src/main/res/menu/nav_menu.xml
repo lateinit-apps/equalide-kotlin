@@ -72,6 +72,10 @@
             android:id="@+id/level_09"
             android:icon="@drawable/ic_lock"
             android:title="Level 9" />
+        <item
+            android:id="@+id/unlock"
+            android:icon="@drawable/ic_extension"
+            android:title="Unlock all" />
     </group>
 
 

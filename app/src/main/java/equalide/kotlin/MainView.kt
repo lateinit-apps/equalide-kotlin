@@ -151,6 +151,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     fun onLayoutLoad() {
+        val ab = supportActionBar
+        ab!!.title = "Level " + (currentLevel + 1).toString()
+
         calculateResolutionValues()
         //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
@@ -283,7 +286,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
             val fabId = View.generateViewId()
             fab.id = fabId
-            fab.setOnClickListener { v: View ->
+            fab.setOnClickListener {
                 refreshContentArea()
                 val fb = findViewById<FloatingActionButton>(fabId)
                 mainView.removeView(fb)
@@ -370,6 +373,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
+
+        if (item.itemId != R.id.unlock) {
         var selectedLevel = 0
 
         for (i in 0 until puzzleIds.size)
@@ -384,7 +389,16 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             refreshContentArea()
             solved = false
             onLayoutLoad()
+        }}
+        else {
+            for (i in maxLevel..8) {
+                val levelId = puzzleIds[i]
+                val menuItem = menu!!.findItem(levelId)
+                menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_lock_open))
+            }
+            maxLevel = 8
         }
+
         return true
     }
 }
