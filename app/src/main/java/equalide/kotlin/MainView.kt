@@ -19,12 +19,10 @@ import android.widget.*
 import android.view.ViewGroup
 import android.view.Gravity
 
-
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private var height: Int = 0
     private var width:  Int = 0
     private var colorPickerSize: Int = 0
-    private var dp: Float = 0f
     private var drawColor: Int = 0
     private var prevTouchCoords: IntArray? = null
     private var writeModeOn: Boolean = false
@@ -32,7 +30,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private var solved: Boolean = false
     private var currentLevel: Int = 0
     private var maxLevel: Int = 0
-    private var puzzles: Array<String>? = null
+    private var puzzles: Array<Puzzle>? = null
 
     private var menu: Menu? = null
 
@@ -156,7 +154,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         calculateResolutionValues()
         //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
-        puzzle = Puzzle(puzzles!![currentLevel])
+        puzzle = puzzles!![currentLevel]
+        puzzle!!.refresh()
 
         drawColor = puzzle!!.parts / 2
         colors = resources.getIntArray(resources.getIdentifier(
@@ -269,8 +268,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         for (i in 0 until picker.childCount)
             picker.getChildAt(i).background = drawable
         solved = true
-        unlockNewLevel()
-        if (currentLevel != 9) {
+
+        if (currentLevel != 8) {
+            unlockNewLevel()
             val fab = FloatingActionButton(this)
             fab.setImageResource(R.drawable.ic_navigate_next)
             fab.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
@@ -293,16 +293,20 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             mainView.addView(fab)
             Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
         } else {
+            unlockNewLevel()
             Toast.makeText(this, "You solved all puzzles!", Toast.LENGTH_LONG).show()
         }
     }
 
-    private fun loadFiles() : Array<String> {
-        val array = Array(9, { _ -> ""})
+    private fun loadFiles() : Array<Puzzle> {
+        val array = Array(9, { _ -> Puzzle("12\n12")})
 
-        for (i in 1..array.size)
-            array[i - 1] = application.assets.open("0" + i.toString() + ".txt").bufferedReader().use{
-                it.readText() }
+        for (i in 1..array.size) {
+            val string = application.assets.open("0" + i.toString() + ".txt").bufferedReader().use {
+                it.readText()
+            }
+            array[i - 1] = Puzzle(string)
+        }
 
         return array
     }
@@ -325,16 +329,16 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         val currentMenuItem = menu!!.findItem(currentLevelId)
         currentMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star))
 
-        if (currentLevel != 8)
+        if (currentLevel != 8) {
             if (currentLevel == maxLevel) {
                 currentLevel++
                 maxLevel++
                 val nextLevelId = puzzleIds[currentLevel]
                 val nextMenuItem = menu!!.findItem(nextLevelId)
                 nextMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_lock_open))
-            }
-            else
+            } else
                 currentLevel++
+        }
     }
 
     override fun onBackPressed() {
@@ -371,15 +375,15 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         for (i in 0 until puzzleIds.size)
             if (item.itemId == puzzleIds[i]) {
                 selectedLevel = i
-                refreshContentArea()
-                solved = false
-                onLayoutLoad()
                 break
             }
 
         if (selectedLevel <= maxLevel) {
             drawer_layout.closeDrawer(GravityCompat.START)
             currentLevel = selectedLevel
+            refreshContentArea()
+            solved = false
+            onLayoutLoad()
         }
         return true
     }

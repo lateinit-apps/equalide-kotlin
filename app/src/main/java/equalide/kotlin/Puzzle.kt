@@ -58,4 +58,12 @@ class Puzzle(text: String) {
 
         return solution.compareTo(translated) == 0
     }
+
+    fun refresh() {
+        for (i in 0 until body.size) {
+            for (j in 0 until body[0].size) {
+                body[i][j] = if (body[i][j] >= 0) -1 else body[i][j]
+            }
+        }
+    }
 }
