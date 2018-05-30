@@ -6,4 +6,5 @@
     android:orientation="horizontal"
     android:id="@+id/color_picker">
 
+
 </LinearLayout>

@@ -142,13 +142,13 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         calculateResolutionValues()
         //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
-        puzzle = Puzzle("000200\n" +
-                "202223\n" +
-                "222333\n" +
-                "233313\n" +
-                "013111\n" +
-                "011100\n" +
-                "010000")
+        puzzle = Puzzle("010000\n" +
+        "011100\n" +
+        "012111\n" +
+        "322212\n" +
+        "333222\n" +
+        "303332\n" +
+        "000300")
      /*   puzzle = Puzzle("0200\n" +
                 "2223\n" +
                 "2333\n" +
@@ -190,8 +190,12 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             colorButton.background = drawable
 
             // Set current selected color
-            if (i == drawColor)
+            if (i == drawColor) {
+                //var image = ImageView(this)
+                //image.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
                 colorButton.text = "X"
+                //picker.addView(image)
+            }
 
             // Set tag
             colorButton.tag = "colorButton_" + i.toString()
@@ -283,26 +287,26 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
-        when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
-            }
-            R.id.nav_gallery -> {
-
-            }
-            R.id.nav_slideshow -> {
-
-            }
-            R.id.nav_manage -> {
-
-            }
-            R.id.nav_share -> {
-
-            }
-            R.id.nav_send -> {
-
-            }
-        }
+//        when (item.itemId) {
+//            R.id.nav_camera -> {
+//                // Handle the camera action
+//            }
+//            R.id.nav_gallery -> {
+//
+//            }
+//            R.id.nav_slideshow -> {
+//
+//            }
+//            R.id.nav_manage -> {
+//
+//            }
+//            R.id.nav_share -> {
+//
+//            }
+//            R.id.nav_send -> {
+//
+//            }
+//        }
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
