@@ -13,8 +13,9 @@ import kotlinx.android.synthetic.main.main_view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.support.v4.content.ContextCompat
 import android.graphics.drawable.GradientDrawable
-import android.support.v4.widget.DrawerLayout
+import android.support.design.widget.Snackbar
 import android.widget.*
+
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private var height: Int = 0
@@ -25,6 +26,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private var prevTouchCoords: IntArray? = null
     private var writeModeOn: Boolean = false
     private var primitiveSize: Int = 0
+    private var solved = false
 
     // -2 out of puzzle
     // -1 white
@@ -46,7 +48,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private val gridListener = { _: View, e: MotionEvent ->
         val coords = detectPrimitiveBy(e)
 
-        if (!coords.contentEquals(intArrayOf(-1, -1)) && puzzle!!.body[coords[0]][coords[1]] != -2) {
+        if (!coords.contentEquals(intArrayOf(-1, -1)) && puzzle!!.body[coords[0]][coords[1]] != -2 && !solved) {
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     Log.d("TAG", "DOWN")
@@ -62,9 +64,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                     background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
                     primitive.background = background
 
-                    if (puzzle!!.checkForSolution()) {
-                        Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
-                    }
+                    if (puzzle!!.checkForSolution())
+                        handleSolvedPuzzle()
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (prevTouchCoords == null) {
@@ -86,9 +87,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                             primitive.invalidate()
                         }
                     }
-
                     if (puzzle!!.checkForSolution())
-                        Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
+                        handleSolvedPuzzle()
                 }
                 MotionEvent.ACTION_UP -> {
                     Log.d("TAG", "UP")
@@ -256,6 +256,21 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             background.setColor(if (puzzle!!.body[coords[0]][coords[1]] == -2) Color.BLACK else Color.WHITE)
             primitive.background = background
         }
+    }
+
+    private fun handleSolvedPuzzle() {
+        //Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
+
+        Snackbar.make(findViewById(R.id.content_area), "Puzzle solved!", Snackbar.LENGTH_INDEFINITE).show()
+        val picker = findViewById<LinearLayout>(R.id.color_picker)
+
+        val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
+        drawable.setColor(Color.BLACK)
+
+        for (i in 0 until picker.childCount)
+            picker.getChildAt(i).background = drawable
+
+        solved = true
     }
 
     override fun onBackPressed() {
