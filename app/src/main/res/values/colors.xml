@@ -5,7 +5,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="field_area_color">@android:color/black</color>
-    <color name="content_area_color">@android:color/holo_blue_light</color>
+    <color name="content_area_color">@android:color/black</color>
     <color name="grid_color">@android:color/black</color>
 
     <color name="Deep_Purple_500">#673ab7</color>

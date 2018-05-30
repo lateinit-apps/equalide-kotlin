@@ -13,6 +13,7 @@ import kotlinx.android.synthetic.main.main_view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.support.v4.content.ContextCompat
 import android.graphics.drawable.GradientDrawable
+import android.support.v4.widget.DrawerLayout
 import android.widget.*
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -134,6 +135,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 onLayoutLoad()
             }
         })
+        findViewById<DrawerLayout>(R.id.drawer_layout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
     fun onLayoutLoad() {
