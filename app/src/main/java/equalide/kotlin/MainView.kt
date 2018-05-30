@@ -35,8 +35,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         val picker = findViewById<LinearLayout>(R.id.color_picker)
 
         if (v.tag != "colorButton_" + drawColor.toString()) {
-            picker.findViewWithTag<Button>(v.tag).text = "X"
-            picker.findViewWithTag<Button>("colorButton_" + drawColor.toString()).text = ""
+            picker.findViewWithTag<ImageButton>(v.tag).setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
+            picker.findViewWithTag<ImageButton>("colorButton_" + drawColor.toString()).setImageResource(android.R.color.transparent)
             drawColor = v.tag.toString().takeLast(1).toInt()
         }
     }
@@ -178,7 +178,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         val picker = findViewById<LinearLayout>(R.id.color_picker)
 
         for (i in 0 until numOfColors) {
-            val colorButton = Button(this)
+            val colorButton = ImageButton(this)
 
             // Set size
             val params = LinearLayout.LayoutParams(this.colorPickerSize,this.colorPickerSize)
@@ -193,7 +193,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             if (i == drawColor) {
                 //var image = ImageView(this)
                 //image.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
-                colorButton.text = "X"
+                colorButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
                 //picker.addView(image)
             }
 
