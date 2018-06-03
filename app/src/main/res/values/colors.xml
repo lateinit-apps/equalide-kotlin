@@ -1,8 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF80CBC4</color>
 
     <color name="field_area_color">@android:color/black</color>
     <color name="content_area_color">@android:color/black</color>
+    <color name="grid_color">@android:color/black</color>
 
+    <color name="Deep_Purple_500">#673ab7</color>
+    <color name="Blue_400">#42a5f5</color>
+    <color name="Blue_300">#60b4f4</color>
+    <color name="Light_Blue_500">#03a9f4</color>
+    <color name="Cyan_500">#00bcd4</color>
+    <color name="Teal_500">#009688</color>
+    <color name="Yellow_500">#ffeb3b</color>
+    <color name="Amber_300">#ffd54f</color>
+    <color name="Deep_Orange_500">#ff5722</color>
+    <color name="Green_500">#4caf50</color>
+    <color name="Green_400">#66bb6a</color>
+    <color name="Blue_Grey_500">#607d8b</color>
+    <color name="Red_500">#f44336</color>
+    <color name="Indigo_500">#3f51b5</color>
+    <color name="Indigo_400">#5c6bc0</color>
+
+    <integer-array name="primitive_colors_for_2">
+        <item>@color/Indigo_400</item>
+        <item>@color/Amber_300</item>
+    </integer-array>
+
+    <integer-array name="primitive_colors_for_3">
+        <item>@color/Indigo_400</item>
+        <item>@color/Amber_300</item>
+        <item>@color/Green_500</item>
+    </integer-array>
+
+    <!--<integer-array name="primitive_colors_for_3">-->
+        <!--<item>@color/Deep_Purple_500</item>-->
+        <!--<item>@color/Green_500</item>-->
+        <!--<item>@color/Yellow_500</item>-->
+    <!--</integer-array>-->
+
+    <integer-array name="primitive_colors_for_4">
+        <item>@color/Deep_Purple_500</item>
+        <item>@color/Light_Blue_500</item>
+        <item>@color/Yellow_500</item>
+        <item>@color/Deep_Orange_500</item>
+    </integer-array>
+
+    <integer-array name="primitive_colors_for_5">
+        <item>@color/Deep_Purple_500</item>
+        <item>@color/Light_Blue_500</item>
+        <item>@color/Yellow_500</item>
+        <item>@color/Deep_Orange_500</item>
+        <item>@color/Green_500</item>
+    </integer-array>
+
+    <integer-array name="primitive_colors_for_6">
+        <item>@color/Deep_Purple_500</item>
+        <item>@color/Light_Blue_500</item>
+        <item>@color/Yellow_500</item>
+        <item>@color/Deep_Orange_500</item>
+        <item>@color/Green_500</item>
+        <item>@color/Green_500</item>
+    </integer-array>
+
+    <integer-array name="primitive_colors_for_7">
+        <item>@color/Deep_Purple_500</item>
+        <item>@color/Light_Blue_500</item>
+        <item>@color/Yellow_500</item>
+        <item>@color/Deep_Orange_500</item>
+        <item>@color/Green_500</item>
+        <item>@color/Green_500</item>
+        <item>@color/Green_500</item>
+    </integer-array>
 </resources>

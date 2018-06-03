@@ -7,11 +7,10 @@ class Puzzle(text: String) {
     val height: Int
     val parts: Int
     val body: Array<IntArray>
-    val solution: String
-    val solved: Boolean
+    private val solution: String
+    private val solved: Boolean = false
 
     init {
-        solved = false
         val array = text.split("\n", "\r\n")
         solution = array.joinToString("")
         height = array.size

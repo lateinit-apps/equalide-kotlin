@@ -1,161 +1,134 @@
 package equalide.kotlin
 
-import android.graphics.Color
 import android.os.Bundle
-import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.view.*
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.main_view.*
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.support.v4.content.ContextCompat
-import android.graphics.drawable.GradientDrawable
+import android.support.design.widget.NavigationView
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.FloatingActionButton
-import android.widget.*
+import android.util.Log
+import android.view.*
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.Gravity
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.main_view.*
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.widget.*
 
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    private var height: Int = 0
-    private var width:  Int = 0
+    // Sizes
+    private val gridArea = object {
+        var width: Int = 0
+        var height: Int = 0
+    }
     private var colorPickerSize: Int = 0
+    private var primitiveSize: Int = 0
+
+    // Draw related
     private var drawColor: Int = 0
     private var prevTouchCoords: IntArray? = null
     private var writeModeOn: Boolean = false
-    private var primitiveSize: Int = 0
+    private var colors: IntArray? = null
+
+    // Puzzle related
+    private var puzzles: Array<Puzzle>? = null
+    private var puzzle: Puzzle? = null
+    private val puzzleIds = arrayOf(R.id.level_01, R.id.level_02, R.id.level_03,
+        R.id.level_04, R.id.level_05, R.id.level_06,
+        R.id.level_07, R.id.level_08, R.id.level_09)
+
+    // Walkthrough related
     private var solved: Boolean = false
     private var currentLevel: Int = 0
     private var maxLevel: Int = 0
-    private var puzzles: Array<Puzzle>? = null
 
+    // Other
     private var menu: Menu? = null
-
-    // -2 out of puzzle
-    // -1 white
-    private var colors: IntArray? = null
-    private var puzzle: Puzzle? = null
-
-    private val colorPickerListener = { v: View ->
-        val picker = findViewById<LinearLayout>(R.id.color_picker)
-
-        if (v.tag != "colorButton_" + drawColor.toString()) {
-            picker.findViewWithTag<ImageButton>(v.tag).setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
-            picker.findViewWithTag<ImageButton>("colorButton_" + drawColor.toString()).setImageResource(android.R.color.transparent)
-            drawColor = v.tag.toString().takeLast(1).toInt()
-        }
-    }
-
-    private val passToGrid = { _: View, _: MotionEvent -> false }
-
-    private val gridListener = { _: View, e: MotionEvent ->
-        val coords = detectPrimitiveBy(e)
-
-        if (!coords.contentEquals(intArrayOf(-1, -1)) && puzzle!!.body[coords[0]][coords[1]] != -2 && !solved) {
-            when (e.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    //Log.d("TAG", "DOWN")
-
-                    prevTouchCoords = coords.copyOf()
-                    writeModeOn = puzzle!!.body[coords[0]][coords[1]] != drawColor
-
-                    val grid = findViewById<GridLayout>(R.id.grid)
-                    val primitive: Button = grid.findViewWithTag(coords)
-                    val background = primitive.background as GradientDrawable
-
-                    puzzle!!.body[coords[0]][coords[1]] = if (writeModeOn) drawColor else -1
-                    background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
-                    primitive.background = background
-
-                    if (puzzle!!.checkForSolution())
-                        handleSolvedPuzzle()
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    if (prevTouchCoords == null) {
-                        writeModeOn = puzzle!!.body[coords[0]][coords[1]] != drawColor
-                        prevTouchCoords = intArrayOf(-1, -1)
-                    }
-                    if (!coords.contentEquals(prevTouchCoords!!)) {
-                        val colorMatch = puzzle!!.body[coords[0]][coords[1]] == drawColor
-                        if (colorMatch && !writeModeOn || !colorMatch && writeModeOn) {
-                            prevTouchCoords = coords.copyOf()
-
-                            val grid = findViewById<GridLayout>(R.id.grid)
-                            val primitive: Button = grid.findViewWithTag(coords)
-                            val background = primitive.background as GradientDrawable
-
-                            puzzle!!.body[coords[0]][coords[1]] = if (writeModeOn) drawColor else -1
-                            background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
-                            primitive.background = background
-                            primitive.invalidate()
-                        }
-                    }
-                    if (puzzle!!.checkForSolution())
-                        handleSolvedPuzzle()
-                }
-                MotionEvent.ACTION_UP -> {
-                    //Log.d("TAG", "UP")
-                    prevTouchCoords = null
-                }
-                else -> {
-                    Log.d("TAG", "ERROR")
-                }
-            }
-        }
-        true
-    }
-
-    private fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
-        val x = ev.rawX
-        val y = ev.rawY
-        val grid = findViewById<GridLayout>(R.id.grid)
-
-        for (i in 0 until grid.childCount) {
-            val primitive = grid.getChildAt(i) as Button
-            val location = IntArray(2)
-            primitive.getLocationOnScreen(location)
-            if (x > location[0] && x < location[0] + primitiveSize && y > location[1] && y < location[1] + primitiveSize)
-                return primitive.tag as IntArray
-        }
-        return intArrayOf(-1, -1)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
 
-        val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
-        menu = navigationView.menu
-
         puzzles = loadFiles()
+        menu = findViewById<NavigationView>(R.id.nav_view).menu
 
-        val gridArea = findViewById<GridLayout>(R.id.grid)
-        gridArea.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+        val grid = findViewById<GridLayout>(R.id.grid)
+        grid.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                gridArea.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                grid.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 onLayoutLoad()
             }
         })
-        //handleSolvedPuzzle()
-        //findViewById<DrawerLayout>(R.id.drawer_layout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+        } else
+            super.onBackPressed()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.actionbar, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        when (item.itemId) {
+            R.id.clear_button -> refreshGrid()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        // Handle navigation view item clicks here.
+        if (item.itemId != R.id.unlock) {
+            var selectedLevel = 0
+
+            for (i in 0 until puzzleIds.size)
+                if (item.itemId == puzzleIds[i]) {
+                    selectedLevel = i
+                    break
+                }
+
+            if (selectedLevel <= maxLevel) {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                currentLevel = selectedLevel
+                refreshContentArea()
+                solved = false
+                onLayoutLoad()
+            }}
+        else {
+            for (i in maxLevel..8) {
+                val levelId = puzzleIds[i]
+                val menuItem = menu!!.findItem(levelId)
+                menuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
+            }
+            maxLevel = 8
+        }
+        return true
     }
 
     fun onLayoutLoad() {
-        val ab = supportActionBar
-        ab!!.title = "Level " + (currentLevel + 1).toString()
+        supportActionBar?.title = "Level " + (currentLevel + 1).toString()
 
         calculateResolutionValues()
-        //Log.d("TAG2","$height + $width + $dp + $colorPickerSize")
 
         puzzle = puzzles!![currentLevel]
         puzzle!!.refresh()
@@ -166,15 +139,14 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 "array", this.packageName))
         addColors(puzzle!!.parts)
         loadPuzzle(puzzle!!)
-
-        //Log.d("TAG2","${pzl.width} + ${pzl.height} + ${pzl.parts} + ${pzl.body}")
     }
 
     private fun calculateResolutionValues() {
         val contentArea = findViewById<LinearLayout>(R.id.content_area)
-        width = contentArea.width
-        colorPickerSize = width / 5
-        height = contentArea.height - (5 * colorPickerSize) / 4
+
+        gridArea.width = contentArea.width
+        colorPickerSize = gridArea.width / 5
+        gridArea.height = contentArea.height - (5 * colorPickerSize) / 4
 
         contentArea.setOnTouchListener(gridListener)
     }
@@ -194,17 +166,12 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             drawable.setColor(colors!![i])
             colorButton.background = drawable
 
-            // Set current selected color
+            // Set background image
             if (i == drawColor)
                 colorButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
 
-            // Set tag
             colorButton.tag = "colorButton_" + i.toString()
-
-            // Set event handler
             colorButton.setOnClickListener(colorPickerListener)
-
-            // Add to picker
             picker.addView(colorButton)
         }
     }
@@ -214,12 +181,11 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
         grid.columnCount = puzzle.width
         grid.rowCount = puzzle.height
-        primitiveSize = minOf(width / puzzle.width, height / puzzle.height)
+        primitiveSize = minOf(gridArea.width / puzzle.width, gridArea.height / puzzle.height)
 
         val gridParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams(
                 puzzle.width * primitiveSize, puzzle.height * primitiveSize))
-        gridParams.bottomMargin = (height - puzzle.height * primitiveSize) / 2
-
+        gridParams.bottomMargin = (gridArea.height - puzzle.height * primitiveSize) / 2
         grid.layoutParams = gridParams
 
         for (i in 0 until puzzle.height)
@@ -235,14 +201,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 drawable.setColor(if (puzzle.body[i][j] == -2) Color.BLACK else Color.WHITE)
                 primitive.background = drawable
 
-                // Set tag
                 primitive.tag = intArrayOf(i, j)
-
-                // Set event handlers
-                primitive.setOnTouchListener(passToGrid)
+                primitive.setOnTouchListener { _: View, _: MotionEvent -> false }
                 primitive.isClickable = false
-
-                // Add to grid
                 grid.addView(primitive)
             }
     }
@@ -322,10 +283,6 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         picker.removeAllViews()
     }
 
-    private val puzzleIds = arrayOf(R.id.level_01, R.id.level_02, R.id.level_03,
-            R.id.level_04, R.id.level_05, R.id.level_06,
-            R.id.level_07, R.id.level_08, R.id.level_09)
-
     private fun unlockNewLevel() {
         Log.d("TAG", "Solved: " + currentLevel.toString())
         val currentLevelId = puzzleIds[currentLevel]
@@ -344,61 +301,72 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         }
     }
 
-    override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
+    private fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
+        val x = ev.rawX
+        val y = ev.rawY
+        val grid = findViewById<GridLayout>(R.id.grid)
+
+        for (i in 0 until grid.childCount) {
+            val primitive = grid.getChildAt(i) as Button
+            val location = IntArray(2)
+            primitive.getLocationOnScreen(location)
+            if (x > location[0] && x < location[0] + primitiveSize && y > location[1] && y < location[1] + primitiveSize)
+                return primitive.tag as IntArray
+        }
+        return intArrayOf(-1, -1)
+    }
+
+    private fun drawPrimitive(coords: IntArray) {
+        val grid = findViewById<GridLayout>(R.id.grid)
+        val primitive: Button = grid.findViewWithTag(coords)
+        val background = primitive.background as GradientDrawable
+
+        puzzle!!.body[coords[0]][coords[1]] = if (writeModeOn) drawColor else -1
+        background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
+        primitive.background = background
+
+        if (puzzle!!.checkForSolution())
+            handleSolvedPuzzle()
+    }
+
+    private val colorPickerListener = { v: View ->
+        val picker = findViewById<LinearLayout>(R.id.color_picker)
+
+        if (v.tag != "colorButton_" + drawColor.toString()) {
+            picker.findViewWithTag<ImageButton>(v.tag).setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
+            picker.findViewWithTag<ImageButton>("colorButton_" + drawColor.toString()).setImageResource(android.R.color.transparent)
+            drawColor = v.tag.toString().takeLast(1).toInt()
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.actionbar, menu)
-        return true
-    }
+    private val gridListener = { _: View, e: MotionEvent ->
+        val coords = detectPrimitiveBy(e)
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        when (item.itemId) {
-            R.id.clear_button -> {
-                refreshGrid()
+        if (!coords.contentEquals(intArrayOf(-1, -1)) && puzzle!!.body[coords[0]][coords[1]] != -2 && !solved) {
+            when (e.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    prevTouchCoords = coords.copyOf()
+                    writeModeOn = puzzle!!.body[coords[0]][coords[1]] != drawColor
+                    drawPrimitive(coords)
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    if (prevTouchCoords == null) {
+                        writeModeOn = puzzle!!.body[coords[0]][coords[1]] != drawColor
+                        prevTouchCoords = intArrayOf(-1, -1)
+                    }
+                    if (!coords.contentEquals(prevTouchCoords!!)) {
+                        val colorMatch = puzzle!!.body[coords[0]][coords[1]] == drawColor
+                        if (colorMatch && !writeModeOn || !colorMatch && writeModeOn) {
+                            prevTouchCoords = coords.copyOf()
+                            drawPrimitive(coords)
+                        }
+                    }
+
+                }
+                MotionEvent.ACTION_UP -> prevTouchCoords = null
+                else -> Log.d("TAG", "ERROR")
             }
-            else -> return super.onOptionsItemSelected(item)
         }
-        return true
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-
-        if (item.itemId != R.id.unlock) {
-        var selectedLevel = 0
-
-        for (i in 0 until puzzleIds.size)
-            if (item.itemId == puzzleIds[i]) {
-                selectedLevel = i
-                break
-            }
-
-        if (selectedLevel <= maxLevel) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-            currentLevel = selectedLevel
-            refreshContentArea()
-            solved = false
-            onLayoutLoad()
-        }}
-        else {
-            for (i in maxLevel..8) {
-                val levelId = puzzleIds[i]
-                val menuItem = menu!!.findItem(levelId)
-                menuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
-            }
-            maxLevel = 8
-        }
-
-        return true
+        true
     }
 }
