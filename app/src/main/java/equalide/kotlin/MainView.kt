@@ -330,7 +330,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         Log.d("TAG", "Solved: " + currentLevel.toString())
         val currentLevelId = puzzleIds[currentLevel]
         val currentMenuItem = menu!!.findItem(currentLevelId)
-        currentMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star))
+        currentMenuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_star)
 
         if (currentLevel != 8) {
             if (currentLevel == maxLevel) {
@@ -338,7 +338,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 maxLevel++
                 val nextLevelId = puzzleIds[currentLevel]
                 val nextMenuItem = menu!!.findItem(nextLevelId)
-                nextMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_lock_open))
+                nextMenuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
             } else
                 currentLevel++
         }
@@ -365,10 +365,10 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         when (item.itemId) {
             R.id.clear_button -> {
                 refreshGrid()
-                return true
             }
             else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -394,7 +394,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             for (i in maxLevel..8) {
                 val levelId = puzzleIds[i]
                 val menuItem = menu!!.findItem(levelId)
-                menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_lock_open))
+                menuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
             }
             maxLevel = 8
         }
