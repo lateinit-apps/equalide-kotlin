@@ -37,45 +37,33 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/level_01"
+            android:id="@+id/pack_01"
             android:icon="@drawable/ic_lock_open"
-            android:title="Level 1" />
+            android:title="Pack 1" />
         <item
-            android:id="@+id/level_02"
+            android:id="@+id/pack_02"
             android:icon="@drawable/ic_lock"
-            android:title="Level 2" />
+            android:title="Pack 2" />
         <item
-            android:id="@+id/level_03"
+            android:id="@+id/pack_03"
             android:icon="@drawable/ic_lock"
-            android:title="Level 3" />
+            android:title="Pack 3" />
         <item
-            android:id="@+id/level_04"
+            android:id="@+id/pack_04"
             android:icon="@drawable/ic_lock"
-            android:title="Level 4" />
+            android:title="Pack 4" />
         <item
-            android:id="@+id/level_05"
+            android:id="@+id/pack_05"
             android:icon="@drawable/ic_lock"
-            android:title="Level 5" />
+            android:title="Pack 5" />
         <item
-            android:id="@+id/level_06"
+            android:id="@+id/pack_06"
             android:icon="@drawable/ic_lock"
-            android:title="Level 6" />
+            android:title="Pack 6" />
         <item
-            android:id="@+id/level_07"
+            android:id="@+id/pack_07"
             android:icon="@drawable/ic_lock"
-            android:title="Level 7" />
-        <item
-            android:id="@+id/level_08"
-            android:icon="@drawable/ic_lock"
-            android:title="Level 8" />
-        <item
-            android:id="@+id/level_09"
-            android:icon="@drawable/ic_lock"
-            android:title="Level 9" />
-        <item
-            android:id="@+id/unlock"
-            android:icon="@drawable/ic_extension"
-            android:title="Unlock all" />
+            android:title="Pack 7" />
     </group>
 
 
