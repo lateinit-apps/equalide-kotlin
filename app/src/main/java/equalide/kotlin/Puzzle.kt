@@ -2,13 +2,11 @@ package equalide.kotlin
 
 import android.util.Log
 
-class Puzzle(text: String) {
+class Puzzle(text: String, val parts: Int) {
     val width: Int
     val height: Int
-    val parts: Int
     val body: Array<IntArray>
     private val solution: String
-    private val solved: Boolean = false
 
     init {
         val array = text.split("\n", "\r\n")
@@ -23,7 +21,6 @@ class Puzzle(text: String) {
                 if (digit > max) max = digit
                 body[i][j] = if (digit == 0) -2 else -1
         }
-        parts = max
     }
 
     fun checkForSolution() : Boolean {

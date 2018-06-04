@@ -18,6 +18,7 @@ import android.graphics.drawable.GradientDrawable
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
+import java.io.InputStream
 
 typealias Pack = Array<Puzzle>
 
@@ -128,7 +129,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
         calculateResolutionValues()
 
-        loadedPuzzle = puzzles!![currentLevel]
+        Log.d("ERROR", "ASDASD")
+        loadedPuzzle = packs!![0][currentLevel]
         loadedPuzzle!!.refresh()
 
         drawColor = loadedPuzzle!!.parts / 2
@@ -262,14 +264,23 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     private fun loadPacks() : Array<Pack> {
         val array = Array(packIds.size, { _ -> ArrayList<Puzzle>(0)})
+        var file: InputStream? = null
+        var parts = 2
 
         for (i in 1..packIds.size)
             for (j in 1..packSize) {
-                val string =
-                    application.assets.open("0" + i.toString() + ".txt").bufferedReader().use {
-                        it.readText()
+                try {
+                    file = assets.open("$i/${j.toString().padStart(2, '0')}-$parts.txt")
+                } catch (_ : Exception) {
+                    try {
+                        parts++
+                        file = assets.open("$i/${j.toString().padStart(2, '0')}-$parts.txt")
                     }
-                array[i - 1].add(Puzzle(string))
+                    catch (e: Exception) {
+                        Log.d("ERROR", e.toString())
+                    }
+                }
+                array[i - 1].add(Puzzle(file!!.bufferedReader().use { it.readText() }, parts))
             }
         return Array(packIds.size, { i -> array[i].toTypedArray() } )
     }
