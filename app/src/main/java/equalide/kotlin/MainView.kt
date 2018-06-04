@@ -198,7 +198,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
                 // Set color
                 val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
-                drawable.setColor(if (puzzle.body[i][j] == -2) Color.BLACK else Color.WHITE)
+                drawable.setColor(if (puzzle[i, j] == 'b') Color.BLACK else Color.WHITE)
                 primitive.background = drawable
 
                 primitive.tag = intArrayOf(i, j)
@@ -216,7 +216,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 val primitive = grid.getChildAt(i) as Button
                 val coords = primitive.tag as IntArray
                 val background = primitive.background as GradientDrawable
-                background.setColor(if (loadedPuzzle!!.body[coords[0]][coords[1]] == -2) Color.BLACK else Color.WHITE)
+                background.setColor(if (loadedPuzzle!![coords[0], coords[1]] == 'b') Color.BLACK else Color.WHITE)
                 primitive.background = background
             }
         }
@@ -331,7 +331,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         val primitive: Button = grid.findViewWithTag(coords)
         val background = primitive.background as GradientDrawable
 
-        loadedPuzzle!!.body[coords[0]][coords[1]] = if (writeModeOn) drawColor else -1
+        loadedPuzzle!![coords[0], coords[1]] = if (writeModeOn) drawColor.toChar() else 'w'
         background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
         primitive.background = background
 
@@ -352,20 +352,20 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private val gridListener = { _: View, e: MotionEvent ->
         val coords = detectPrimitiveBy(e)
 
-        if (!coords.contentEquals(intArrayOf(-1, -1)) && loadedPuzzle!!.body[coords[0]][coords[1]] != -2 && !solved) {
+        if (!coords.contentEquals(intArrayOf(-1, -1)) && loadedPuzzle!![coords[0], coords[1]] != 'b' && !solved) {
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     prevTouchCoords = coords.copyOf()
-                    writeModeOn = loadedPuzzle!!.body[coords[0]][coords[1]] != drawColor
+                    writeModeOn = loadedPuzzle!![coords[0], coords[1]].toInt() != drawColor
                     drawPrimitive(coords)
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (prevTouchCoords == null) {
-                        writeModeOn = loadedPuzzle!!.body[coords[0]][coords[1]] != drawColor
+                        writeModeOn = loadedPuzzle!![coords[0], coords[1]].toInt() != drawColor
                         prevTouchCoords = intArrayOf(-1, -1)
                     }
                     if (!coords.contentEquals(prevTouchCoords!!)) {
-                        val colorMatch = loadedPuzzle!!.body[coords[0]][coords[1]] == drawColor
+                        val colorMatch = loadedPuzzle!![coords[0], coords[1]].toInt() == drawColor
                         if (colorMatch && !writeModeOn || !colorMatch && writeModeOn) {
                             prevTouchCoords = coords.copyOf()
                             drawPrimitive(coords)
