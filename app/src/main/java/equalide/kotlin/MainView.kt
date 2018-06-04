@@ -219,6 +219,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 background.setColor(if (loadedPuzzle!![coords[0], coords[1]] == 'b') Color.BLACK else Color.WHITE)
                 primitive.background = background
             }
+
+            loadedPuzzle?.refresh()
         }
     }
 
@@ -331,7 +333,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         val primitive: Button = grid.findViewWithTag(coords)
         val background = primitive.background as GradientDrawable
 
-        loadedPuzzle!![coords[0], coords[1]] = if (writeModeOn) drawColor.toChar() else 'w'
+        loadedPuzzle!![coords[0], coords[1]] = if (writeModeOn) drawColor.toString() else "w"
         background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
         primitive.background = background
 
