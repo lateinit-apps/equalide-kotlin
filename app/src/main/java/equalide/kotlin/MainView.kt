@@ -26,7 +26,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         var width: Int = 0
         var height: Int = 0
     }
-    private var colorPickerSize: Int = 0
+    private var colorPaletteSize: Int = 0
     private var primitiveSize: Int = 0
 
     // Draw related
@@ -106,26 +106,19 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
-        var selectedLevel = 0
+        var selectedPack = 0
 
         for (i in 0 until packIds.size)
             if (item.itemId == packIds[i]) {
-                selectedLevel = i
+                selectedPack = i
                 break
             }
 
-//        if (selectedLevel <= maxLevel) {
-//            drawer_layout.closeDrawer(GravityCompat.START)
-//            currentLevel = selectedLevel
-//            refreshContentArea()
-//            solved = false
-//            onLayoutLoad()
-//        }
         return true
     }
 
     fun onLayoutLoad() {
-        calculateResolutionValues()
+        calculateResolution()
 
         Log.d("ERROR", "ASDASD")
         loadedPuzzle = packs!![0].puzzles[current.level]
@@ -135,28 +128,51 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         colors = resources.getIntArray(resources.getIdentifier(
                 "primitive_colors_for_" + loadedPuzzle!!.parts.toString(),
                 "array", this.packageName))
-        addColors(loadedPuzzle!!.parts)
+        createColorPalette(loadedPuzzle!!.parts)
         loadPuzzle(loadedPuzzle!!)
     }
 
-    private fun calculateResolutionValues() {
+    private fun loadPacks() : Array<Pack> {
+        val array = Array(packIds.size, { _ -> ArrayList<Puzzle>(0)})
+        var file: InputStream? = null
+        var parts = 2
+
+        for (i in 1..packIds.size)
+            for (j in 1..packSize) {
+                try {
+                    file = assets.open("$i/${j.toString().padStart(2, '0')}-$parts.txt")
+                } catch (_ : Exception) {
+                    try {
+                        parts++
+                        file = assets.open("$i/${j.toString().padStart(2, '0')}-$parts.txt")
+                    }
+                    catch (e: Exception) {
+                        Log.d("ERROR", e.toString())
+                    }
+                }
+                array[i - 1].add(Puzzle(file!!.bufferedReader().use { it.readText() }, parts))
+            }
+        return Array(packIds.size, { i -> Pack(array[i].toTypedArray()) } )
+    }
+
+    private fun calculateResolution() {
         val contentArea = findViewById<LinearLayout>(R.id.content_area)
 
         gridArea.width = contentArea.width
-        colorPickerSize = gridArea.width / 5
-        gridArea.height = contentArea.height - (5 * colorPickerSize) / 4
+        colorPaletteSize = gridArea.width / 5
+        gridArea.height = contentArea.height - (5 * colorPaletteSize) / 4
 
         contentArea.setOnTouchListener(gridListener)
     }
 
-    private fun addColors(numOfColors: Int) {
+    private fun createColorPalette(numOfColors: Int) {
         val picker = findViewById<LinearLayout>(R.id.color_picker)
 
         for (i in 0 until numOfColors) {
             val colorButton = ImageButton(this)
 
             // Set size
-            val params = LinearLayout.LayoutParams(this.colorPickerSize,this.colorPickerSize)
+            val params = LinearLayout.LayoutParams(this.colorPaletteSize,this.colorPaletteSize)
             colorButton.layoutParams = params
 
             // Set color
@@ -169,7 +185,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 colorButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.color_picker))
 
             colorButton.tag = "colorButton_" + i.toString()
-            colorButton.setOnClickListener(colorPickerListener)
+            colorButton.setOnClickListener(colorPaletteListener)
             picker.addView(colorButton)
         }
     }
@@ -222,6 +238,14 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         }
     }
 
+    private fun refreshContentArea() {
+        val grid = findViewById<GridLayout>(R.id.grid)
+        val picker = findViewById<LinearLayout>(R.id.color_picker)
+
+        grid.removeAllViews()
+        picker.removeAllViews()
+    }
+
     private fun handleSolvedPuzzle() {
         val picker = findViewById<LinearLayout>(R.id.color_picker)
         val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
@@ -262,37 +286,6 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         }
     }
 
-    private fun loadPacks() : Array<Pack> {
-        val array = Array(packIds.size, { _ -> ArrayList<Puzzle>(0)})
-        var file: InputStream? = null
-        var parts = 2
-
-        for (i in 1..packIds.size)
-            for (j in 1..packSize) {
-                try {
-                    file = assets.open("$i/${j.toString().padStart(2, '0')}-$parts.txt")
-                } catch (_ : Exception) {
-                    try {
-                        parts++
-                        file = assets.open("$i/${j.toString().padStart(2, '0')}-$parts.txt")
-                    }
-                    catch (e: Exception) {
-                        Log.d("ERROR", e.toString())
-                    }
-                }
-                array[i - 1].add(Puzzle(file!!.bufferedReader().use { it.readText() }, parts))
-            }
-        return Array(packIds.size, { i -> Pack(array[i].toTypedArray()) } )
-    }
-
-    private fun refreshContentArea() {
-        val grid = findViewById<GridLayout>(R.id.grid)
-        val picker = findViewById<LinearLayout>(R.id.color_picker)
-
-        grid.removeAllViews()
-        picker.removeAllViews()
-    }
-
     private fun unlockNewLevel() {
         Log.d("TAG", "Solved: " + current.level.toString())
         val currentLevelId = packIds[current.level]
@@ -311,7 +304,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 //        }
     }
 
-    private fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
+    private fun detectPrimitive(ev: MotionEvent) : IntArray {
         val x = ev.rawX
         val y = ev.rawY
         val grid = findViewById<GridLayout>(R.id.grid)
@@ -326,7 +319,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         return intArrayOf(-1, -1)
     }
 
-    private fun drawPrimitive(coords: IntArray) {
+    private fun paintPrimitive(coords: IntArray) {
         val grid = findViewById<GridLayout>(R.id.grid)
         val primitive: Button = grid.findViewWithTag(coords)
         val background = primitive.background as GradientDrawable
@@ -339,7 +332,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             handleSolvedPuzzle()
     }
 
-    private val colorPickerListener = { v: View ->
+    private val colorPaletteListener = { v: View ->
         val picker = findViewById<LinearLayout>(R.id.color_picker)
 
         if (v.tag != "colorButton_" + drawColor.toString()) {
@@ -350,14 +343,14 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private val gridListener = { _: View, e: MotionEvent ->
-        val coords = detectPrimitiveBy(e)
+        val coords = detectPrimitive(e)
 
         if (!coords.contentEquals(intArrayOf(-1, -1)) && loadedPuzzle!![coords[0], coords[1]] != 'b' && !current.levelSolved) {
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     prevTouchCoords = coords.copyOf()
                     writeModeOn = (loadedPuzzle!![coords[0], coords[1]].toInt() - 48) != drawColor
-                    drawPrimitive(coords)
+                    paintPrimitive(coords)
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (prevTouchCoords == null) {
@@ -368,7 +361,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                         val colorMatch = (loadedPuzzle!![coords[0], coords[1]].toInt() - 48) == drawColor
                         if (colorMatch && !writeModeOn || !colorMatch && writeModeOn) {
                             prevTouchCoords = coords.copyOf()
-                            drawPrimitive(coords)
+                            paintPrimitive(coords)
                         }
                     }
                 }
