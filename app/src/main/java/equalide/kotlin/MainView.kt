@@ -373,7 +373,6 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                             drawPrimitive(coords)
                         }
                     }
-
                 }
                 MotionEvent.ACTION_UP -> prevTouchCoords = null
                 else -> Log.d("TAG", "ERROR")

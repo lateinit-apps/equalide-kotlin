@@ -60,15 +60,17 @@ class Element(private var body: String, var width: Int) {
     private fun compare(other: Element) : Boolean {
         var result =
             this.width == other.width &&
-            this.height == other.height &&
-            this.body == other.body
+                    this.height == other.height &&
+                    this.body == other.body
 
-        for (i in 0 until 3) {
+        var i = 0
+        while (!result && i < 3) {
             this.rotateClockWise()
             result = result or (
                     this.width == other.width &&
-                    this.height == other.height &&
-                    this.body == other.body)
+                            this.height == other.height &&
+                            this.body == other.body)
+            i++
         }
         return result
     }
