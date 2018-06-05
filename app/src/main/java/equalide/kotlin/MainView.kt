@@ -127,7 +127,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         calculateResolution()
 
         Log.d("ERROR", "ASDASD")
-        loadedPuzzle = packs!![0].puzzles[current.level]
+        loadedPuzzle = packs!![current.pack].puzzles[current.level]
         loadedPuzzle!!.refresh()
 
         drawColor = loadedPuzzle!!.parts / 2
@@ -266,13 +266,13 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
         if (!packs!![current.pack].solved && checkIfPackSolved(packs!![current.pack])) {
             packs!![current.pack].solved = true
-            menu!!.findItem(packIds[current.pack + 1]).icon =
+            menu!!.findItem(packIds[current.pack]).icon =
                     ContextCompat.getDrawable(this, R.drawable.ic_star)
             Toast.makeText(this, "Pack ${current.pack + 1} solved!", Toast.LENGTH_LONG).show()
         } else
             Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
 
-        if (current.level != packSize - 1 && current.pack != packIds.size - 1) {
+        if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
             unlockNextLevel()
             createFabButton()
         }
