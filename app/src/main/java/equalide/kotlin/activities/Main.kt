@@ -1,5 +1,7 @@
 package equalide.kotlin.activities
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.view.GravityCompat
 import android.support.v4.content.ContextCompat
@@ -73,13 +75,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
+        menu = findViewById<NavigationView>(R.id.nav_view).menu
 
         packs = loadPacks()
-        packs!![0].opened = true
-        for (i in 0 until openDelta)
-            packs!![0].puzzles[i].opened = true
-
-        menu = findViewById<NavigationView>(R.id.nav_view).menu
+        loadUserProgress()
 
         val grid = findViewById<GridLayout>(R.id.grid)
         grid.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
@@ -129,6 +128,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 findViewById<CoordinatorLayout>(R.id.main_view).removeView(fab)
                 fab = null
             }
+            var levelData = ""
+            for (level in packs!![selectedPack].puzzles)
+                levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
+
+            val intent = Intent(this, SelectPuzzle::class.java).apply {
+                putExtra("pack", (current.pack + 1).toString())
+                putExtra("level data", levelData)
+            }
+            startActivity(intent)
         }
         return true
     }
@@ -146,6 +154,78 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 "array", this.packageName))
         createColorPalette(loadedPuzzle!!.parts)
         loadPuzzle(loadedPuzzle!!)
+    }
+
+    private fun loadUserProgress() {
+        val preferences = getSharedPreferences(
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val packProgress = preferences.getString("Pack progress", null)
+        val levelProgress = preferences.getString("Level progress", null)
+        val currentState = preferences.getString("Current position", null)
+
+        if (packProgress == null || levelProgress == null || currentState == null) {
+            packs!![0].opened = true
+            for (i in 0 until openDelta)
+                packs!![0].puzzles[i].opened = true
+        } else {
+            // Load pack data
+            for (i in 0 until packProgress.length) {
+                when (packProgress[i]) {
+                    's' -> {
+                        packs!![i].opened = true
+                        packs!![i].solved = true
+                        menu!!.findItem(packIds[current.pack]).icon =
+                                ContextCompat.getDrawable(this, R.drawable.ic_star)
+                    }
+                    'o' -> {
+                        packs!![i].opened = true
+                        menu!!.findItem(packIds[current.pack]).icon =
+                                ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
+                    }
+                }
+            }
+
+            // Load level data
+            val levelData = levelProgress.split("\n")
+            for (i in 0 until levelData.size - 1)
+                for (j in 0 until levelData[i].length) {
+                when (levelData[i][j]) {
+                    's' -> {
+                        packs!![i].puzzles[j].opened = true
+                        packs!![i].puzzles[j].solved = true
+                    }
+                    'o' -> packs!![i].puzzles[j].opened = true
+                }
+            }
+
+            // Load current level
+            current.pack = currentState.substring(0..0).toInt()
+            current.level = currentState.substring(1).toInt()
+        }
+    }
+
+    private fun saveUserProgress() {
+        val currentPosition = current.pack.toString() + current.level.toString()
+
+        var packProgress = ""
+        for (pack in packs!!)
+            packProgress += if (pack.solved) "s" else if (pack.opened) "o" else "c"
+
+        var levelProgress = ""
+        for (pack in packs!!) {
+            for (level in pack.puzzles)
+                levelProgress += if (level.solved) "s" else if (level.opened) "o" else "c"
+            levelProgress += "\n"
+        }
+
+        val preferences = getSharedPreferences(
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        with(preferences.edit()) {
+            putString("Pack progress", packProgress)
+            putString("Level progress", levelProgress)
+            putString("Current position", currentPosition)
+            apply()
+        }
     }
 
     private fun loadPacks() : Array<Pack> {
@@ -296,6 +376,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
             unlockNextLevel()
             createFabButton()
+            saveUserProgress()
         }
     }
 
