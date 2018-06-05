@@ -1,6 +1,4 @@
-package equalide.kotlin
-
-import android.util.Log
+package equalide.kotlin.logic
 
 class Puzzle(text: String, val parts: Int) {
     private val source: String
@@ -61,12 +59,16 @@ class Puzzle(text: String, val parts: Int) {
         for (c in unical) {
             val first = figure.indexOf(c)
             val last = figure.lastIndexOf(c)
-            result.add(Element(figure
-                .substring(
-                    first - first % width,
-                    last + width - last % width)
-                .replace("[^$c]".toRegex(), "w")
-                .replace(c, '1'), width)
+            result.add(
+                Element(
+                    figure
+                        .substring(
+                            first - first % width,
+                            last + width - last % width
+                        )
+                        .replace("[^$c]".toRegex(), "w")
+                        .replace(c, '1'), width
+                )
             )
         }
         return result

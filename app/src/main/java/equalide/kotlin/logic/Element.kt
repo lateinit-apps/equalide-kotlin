@@ -1,4 +1,4 @@
-package equalide.kotlin
+package equalide.kotlin.logic
 
 class Element(private var body: String, var width: Int) {
     var height: Int
