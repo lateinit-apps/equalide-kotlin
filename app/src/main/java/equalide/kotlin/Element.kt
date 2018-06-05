@@ -51,6 +51,15 @@ class Element(private var body: String, var width: Int) {
         height = body.length / width
     }
 
+    private fun mirrorByHeight() : String {
+        var result = ""
+
+        for (i in 0 until height)
+            for (j in width - 1 downTo 0)
+                result += body[i * width + j]
+        return result
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is Element)
             return false
@@ -58,19 +67,18 @@ class Element(private var body: String, var width: Int) {
     }
 
     private fun compare(other: Element) : Boolean {
-        var result =
-            this.width == other.width &&
-                    this.height == other.height &&
-                    this.body == other.body
+        var result = this.width == other.width && this.height == other.height &&
+                (this.body == other.body || this.mirrorByHeight() == other.body)
 
-        var i = 0
-        while (!result && i < 3) {
-            this.rotateClockWise()
-            result = result or (
-                    this.width == other.width &&
-                            this.height == other.height &&
-                            this.body == other.body)
-            i++
+        if (!result) {
+            for (i in 0 until 3) {
+                this.rotateClockWise()
+                if (this.width == other.width && this.height == other.height &&
+                    (this.body == other.body || this.mirrorByHeight() == other.body)) {
+                    result = true
+                    break
+                }
+            }
         }
         return result
     }
