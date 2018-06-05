@@ -71,6 +71,10 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         nav_view.setNavigationItemSelectedListener(this)
 
         packs = loadPacks()
+        packs!![0].opened = true
+        for (i in 0 until openDelta)
+            packs!![0].puzzles[i].opened = true
+
         menu = findViewById<NavigationView>(R.id.nav_view).menu
 
         val grid = findViewById<GridLayout>(R.id.grid)
@@ -249,6 +253,8 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private fun handleSolvedPuzzle() {
+        packs!![current.pack].puzzles[current.level].solved = true
+
         val picker = findViewById<LinearLayout>(R.id.color_picker)
 
         val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
@@ -258,11 +264,18 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             picker.getChildAt(i).background = drawable
         current.levelSolved = true
 
-        if (current.level != packSize - 1 && current.pack != packIds.size) {
+        if (!packs!![current.pack].solved && checkIfPackSolved(packs!![current.pack])) {
+            packs!![current.pack].solved = true
+            menu!!.findItem(packIds[current.pack + 1]).icon =
+                    ContextCompat.getDrawable(this, R.drawable.ic_star)
+            Toast.makeText(this, "Pack ${current.pack + 1} solved!", Toast.LENGTH_LONG).show()
+        } else
+            Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
+
+        if (current.level != packSize - 1 && current.pack != packIds.size - 1) {
             unlockNextLevel()
             createFabButton()
         }
-        Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
     }
 
     private fun createFabButton() {
@@ -289,26 +302,50 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         mainView.addView(fab)
     }
 
+    private fun checkIfPackSolved(pack: Pack) : Boolean {
+        var solved = true
+
+        for (i in 0 until packSize)
+            if (!pack.puzzles[i].solved) {
+                solved = false
+                break
+            }
+
+        return solved
+    }
+
     private fun unlockNextLevel() {
+        // Open levels in current pack
         if (current.level < packSize - 1 - openDelta) {
-
+            for (i in 1..openDelta)
+                packs!![current.pack].puzzles[current.level + i].opened = true
             current.level++
-        }
+        } else {
+            // Open next pack if it exists and is locked
+            if (current.pack != packIds.size && !packs!![current.pack + 1].opened) {
+                packs!![current.pack + 1].opened = true
+                menu!!.findItem(packIds[current.pack + 1]).icon =
+                        ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
+            }
 
-        val currentLevelId = packIds[current.level]
-        val currentMenuItem = menu!!.findItem(currentLevelId)
-        currentMenuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_star)
-//
-//        if (current.level != 8) {
-//            if (current.level == maxLevel) {
-//                current.level++
-//                maxLevel++
-//                val nextLevelId = packIds[currentLevel]
-//                val nextMenuItem = menu!!.findItem(nextLevelId)
-//                nextMenuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
-//            } else
-//                currentLevel++
-//        }
+            if (current.level != packSize - 1) {
+                // Open levels until end of pack
+                for (i in (current.level + 1)..(packSize - 1))
+                    packs!![current.pack].puzzles[i].opened = true
+                // Open levels in next pack if possible
+                if (current.pack != packIds.size) {
+                    for (i in 0 until packSize - 1 - current.level)
+                        packs!![current.pack + 1].puzzles[i].opened = true
+                }
+                current.level++
+            } else {
+                // Open levels in next pack
+                current.level = 0
+                current.pack++
+                for (i in 0 until openDelta)
+                    packs!![current.pack].puzzles[i].opened = true
+            }
+        }
     }
 
     private fun detectPrimitive(ev: MotionEvent) : IntArray {

@@ -5,8 +5,8 @@ import android.util.Log
 class Puzzle(text: String, val parts: Int) {
     private val source: String
     private var body: String
-    private var opened: Boolean
-    private var solved: Boolean
+    var opened: Boolean
+    var solved: Boolean
     val width: Int
     val height: Int
 
