@@ -35,27 +35,36 @@ class Puzzle(text: String, val parts: Int) {
     }
 
     fun checkForSolution() : Boolean {
-        val partition = getPartition(body, 4)
+        if (body.indexOf('w') != -1)
+            return false
 
-       return false
+        val partition = getPartition(body, width)
+        if (partition.size != parts)
+            return false
+
+        val element = partition[0]
+        var result = true
+
+        for (i in 1 until partition.size)
+            result = result and (element == partition[i])
+
+        return result
     }
 
     private fun getPartition(figure: String, width: Int) : ArrayList<Element> {
-        val figure1 =
-            "ww2w" + "3221" + "w111" + "w333" + "w3ww"
-
-        val unical = figure1.toSet().filter { c: Char -> c != 'b' && c != 'w' }
+        val unical = figure.toSet().filter { c: Char -> c != 'b' && c != 'w' }
         val result = ArrayList<Element>()
 
 
         for (c in unical) {
-            val first = figure1.indexOf(c)
-            val last = figure1.lastIndexOf(c)
-            result.add(Element(
-                figure1.substring(
+            val first = figure.indexOf(c)
+            val last = figure.lastIndexOf(c)
+            result.add(Element(figure
+                .substring(
                     first - first % width,
-                    last + (if (last % width != 0) width - 1 - last % width else 0) + 1
-                ).replace("[^$c]".toRegex(), "w"), width)
+                    last + width - last % width)
+                .replace("[^$c]".toRegex(), "w")
+                .replace(c, '1'), width)
             )
         }
         return result

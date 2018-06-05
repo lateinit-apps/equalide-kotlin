@@ -358,16 +358,16 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     prevTouchCoords = coords.copyOf()
-                    writeModeOn = loadedPuzzle!![coords[0], coords[1]].toInt() != drawColor
+                    writeModeOn = (loadedPuzzle!![coords[0], coords[1]].toInt() - 48) != drawColor
                     drawPrimitive(coords)
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (prevTouchCoords == null) {
-                        writeModeOn = loadedPuzzle!![coords[0], coords[1]].toInt() != drawColor
+                        writeModeOn = (loadedPuzzle!![coords[0], coords[1]].toInt() - 48) != drawColor
                         prevTouchCoords = intArrayOf(-1, -1)
                     }
                     if (!coords.contentEquals(prevTouchCoords!!)) {
-                        val colorMatch = loadedPuzzle!![coords[0], coords[1]].toInt() == drawColor
+                        val colorMatch = (loadedPuzzle!![coords[0], coords[1]].toInt() - 48) == drawColor
                         if (colorMatch && !writeModeOn || !colorMatch && writeModeOn) {
                             prevTouchCoords = coords.copyOf()
                             drawPrimitive(coords)
