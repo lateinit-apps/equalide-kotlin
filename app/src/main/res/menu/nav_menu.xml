@@ -66,5 +66,10 @@
             android:title="Pack 7" />
     </group>
 
+    <item
+        android:id="@+id/nav_mail"
+        android:icon="@drawable/ic_email"
+        android:title="Send feedback" />
+
 
 </menu>

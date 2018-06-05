@@ -51,9 +51,11 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
         var pack: Int = 0
         var levelSolved: Boolean = false
     }
+    private val openDelta: Int = 3
 
     // Other
     private var menu: Menu? = null
+    private var fab: FloatingActionButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -248,7 +250,6 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
     private fun handleSolvedPuzzle() {
         val picker = findViewById<LinearLayout>(R.id.color_picker)
-        val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
 
         val drawable = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
         drawable.setColor(Color.BLACK)
@@ -257,37 +258,43 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
             picker.getChildAt(i).background = drawable
         current.levelSolved = true
 
-        if (current.level != 8) {
-            unlockNewLevel()
-            val fab = FloatingActionButton(this)
-            fab.setImageResource(R.drawable.ic_navigate_next)
-            fab.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
-            fab.isFocusable = true
-            val lay = CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT)
-            lay.gravity = Gravity.BOTTOM or Gravity.END
-            lay.setMargins(2, 2, 40, 60)
-            fab.layoutParams = lay
-
-            val fabId = View.generateViewId()
-            fab.id = fabId
-            fab.setOnClickListener {
-                refreshContentArea()
-                val fb = findViewById<FloatingActionButton>(fabId)
-                mainView.removeView(fb)
-                current.levelSolved = false
-                onLayoutLoad()
-            }
-            mainView.addView(fab)
-            Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
-        } else {
-            unlockNewLevel()
-            Toast.makeText(this, "You solved all puzzles!", Toast.LENGTH_LONG).show()
+        if (current.level != packSize - 1 && current.pack != packIds.size) {
+            unlockNextLevel()
+            createFabButton()
         }
+        Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
     }
 
-    private fun unlockNewLevel() {
-        Log.d("TAG", "Solved: " + current.level.toString())
+    private fun createFabButton() {
+        val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
+
+        fab = FloatingActionButton(this)
+        fab?.id = View.generateViewId()
+        fab?.setImageResource(R.drawable.ic_navigate_next)
+        fab?.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
+        fab?.isFocusable = true
+
+        val layoutParams = CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT)
+        layoutParams.gravity = Gravity.BOTTOM or Gravity.END
+        layoutParams.setMargins(2, 2, 40, 60)
+        fab?.layoutParams = layoutParams
+
+        fab?.setOnClickListener {
+            refreshContentArea()
+            mainView.removeView(fab)
+            current.levelSolved = false
+            onLayoutLoad()
+        }
+        mainView.addView(fab)
+    }
+
+    private fun unlockNextLevel() {
+        if (current.level < packSize - 1 - openDelta) {
+
+            current.level++
+        }
+
         val currentLevelId = packIds[current.level]
         val currentMenuItem = menu!!.findItem(currentLevelId)
         currentMenuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_star)
