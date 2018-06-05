@@ -20,8 +20,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
 import java.io.InputStream
 
-typealias Pack = Array<Puzzle>
-
 class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     // Sizes
     private val gridArea = object {
@@ -48,9 +46,11 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     )
 
     // Walkthrough related
-    private var solved: Boolean = false
-    private var currentLevel: Int = 0
-    private var maxLevel: Int = 0
+    private val current = object {
+        var level: Int = 0
+        var pack: Int = 0
+        var levelSolved: Boolean = false
+    }
 
     // Other
     private var menu: Menu? = null
@@ -114,23 +114,21 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 break
             }
 
-        if (selectedLevel <= maxLevel) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-            currentLevel = selectedLevel
-            refreshContentArea()
-            solved = false
-            onLayoutLoad()
-        }
+//        if (selectedLevel <= maxLevel) {
+//            drawer_layout.closeDrawer(GravityCompat.START)
+//            currentLevel = selectedLevel
+//            refreshContentArea()
+//            solved = false
+//            onLayoutLoad()
+//        }
         return true
     }
 
     fun onLayoutLoad() {
-        supportActionBar?.title = "Level " + (currentLevel + 1).toString()
-
         calculateResolutionValues()
 
         Log.d("ERROR", "ASDASD")
-        loadedPuzzle = packs!![0][currentLevel]
+        loadedPuzzle = packs!![0].puzzles[current.level]
         loadedPuzzle!!.refresh()
 
         drawColor = loadedPuzzle!!.parts / 2
@@ -209,7 +207,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private fun refreshGrid() {
-        if (!solved) {
+        if (!current.levelSolved) {
             val grid = findViewById<GridLayout>(R.id.grid)
 
             for (i in 0 until grid.childCount) {
@@ -233,9 +231,9 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
 
         for (i in 0 until picker.childCount)
             picker.getChildAt(i).background = drawable
-        solved = true
+        current.levelSolved = true
 
-        if (currentLevel != 8) {
+        if (current.level != 8) {
             unlockNewLevel()
             val fab = FloatingActionButton(this)
             fab.setImageResource(R.drawable.ic_navigate_next)
@@ -253,7 +251,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 refreshContentArea()
                 val fb = findViewById<FloatingActionButton>(fabId)
                 mainView.removeView(fb)
-                solved = false
+                current.levelSolved = false
                 onLayoutLoad()
             }
             mainView.addView(fab)
@@ -284,7 +282,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
                 }
                 array[i - 1].add(Puzzle(file!!.bufferedReader().use { it.readText() }, parts))
             }
-        return Array(packIds.size, { i -> array[i].toTypedArray() } )
+        return Array(packIds.size, { i -> Pack(array[i].toTypedArray()) } )
     }
 
     private fun refreshContentArea() {
@@ -296,21 +294,21 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     }
 
     private fun unlockNewLevel() {
-        Log.d("TAG", "Solved: " + currentLevel.toString())
-        val currentLevelId = packIds[currentLevel]
+        Log.d("TAG", "Solved: " + current.level.toString())
+        val currentLevelId = packIds[current.level]
         val currentMenuItem = menu!!.findItem(currentLevelId)
         currentMenuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_star)
-
-        if (currentLevel != 8) {
-            if (currentLevel == maxLevel) {
-                currentLevel++
-                maxLevel++
-                val nextLevelId = packIds[currentLevel]
-                val nextMenuItem = menu!!.findItem(nextLevelId)
-                nextMenuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
-            } else
-                currentLevel++
-        }
+//
+//        if (current.level != 8) {
+//            if (current.level == maxLevel) {
+//                current.level++
+//                maxLevel++
+//                val nextLevelId = packIds[currentLevel]
+//                val nextMenuItem = menu!!.findItem(nextLevelId)
+//                nextMenuItem.icon = ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
+//            } else
+//                currentLevel++
+//        }
     }
 
     private fun detectPrimitiveBy(ev: MotionEvent) : IntArray {
@@ -354,7 +352,7 @@ class MainView : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLis
     private val gridListener = { _: View, e: MotionEvent ->
         val coords = detectPrimitiveBy(e)
 
-        if (!coords.contentEquals(intArrayOf(-1, -1)) && loadedPuzzle!![coords[0], coords[1]] != 'b' && !solved) {
+        if (!coords.contentEquals(intArrayOf(-1, -1)) && loadedPuzzle!![coords[0], coords[1]] != 'b' && !current.levelSolved) {
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     prevTouchCoords = coords.copyOf()

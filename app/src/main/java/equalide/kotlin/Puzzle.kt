@@ -5,6 +5,7 @@ import android.util.Log
 class Puzzle(text: String, val parts: Int) {
     private val source: String
     private var body: String
+    private var opened: Boolean
     private var solved: Boolean
     val width: Int
     val height: Int
@@ -19,6 +20,7 @@ class Puzzle(text: String, val parts: Int) {
             .replace('1', 'w')
         body = source
 
+        opened = false
         solved = false
     }
 
