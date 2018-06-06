@@ -487,10 +487,13 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         fab?.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
         fab?.isFocusable = true
 
+        val scale = resources.displayMetrics.density
+        val margin = (16 * scale + 0.5f).toInt()
+
         val layoutParams = CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT)
         layoutParams.gravity = Gravity.BOTTOM or Gravity.END
-        layoutParams.setMargins(2, 2, 40, 60)
+        layoutParams.setMargins(margin, margin, margin, margin)
         fab?.layoutParams = layoutParams
 
         fab?.setOnClickListener {
