@@ -92,10 +92,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        drawer_layout.closeDrawer(GravityCompat.START)
-
         val selectedLevel = intent?.getStringExtra("selected level")?.toInt()
         if (selectedLevel != null) {
+            drawer_layout.closeDrawer(GravityCompat.START)
             current.level = selectedLevel
             current.levelSolved = false
             refreshContentArea()
