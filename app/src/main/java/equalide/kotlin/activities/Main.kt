@@ -367,6 +367,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun handleSolvedPuzzle() {
+        val alreadySolved = packs!![current.pack].puzzles[current.level].solved
         packs!![current.pack].puzzles[current.level].solved = true
 
         val picker = findViewById<LinearLayout>(R.id.color_picker)
@@ -387,7 +388,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
 
         if (!checkIfAllLevelsSolved()) {
-            unlockNextLevel()
+            openNextLevels()
+            selectNextLevel(alreadySolved)
             createFabButton()
             saveUserProgress()
         }
@@ -441,12 +443,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         return solved
     }
 
-    private fun unlockNextLevel() {
+    private fun openNextLevels() {
         // Open levels in current pack
         if (current.level < packSize - 1 - openDelta) {
             for (i in 1..openDelta)
                 packs!![current.pack].puzzles[current.level + i].opened = true
-            current.level++
         } else {
             // Open next pack if it exists and is locked
             if (current.pack != packIds.size && !packs!![current.pack + 1].opened) {
@@ -464,14 +465,52 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     for (i in 0 until packSize - 1 - current.level)
                         packs!![current.pack + 1].puzzles[i].opened = true
                 }
-                current.level++
             } else {
                 // Open levels in next pack
+                for (i in 0 until openDelta)
+                    packs!![current.pack + 1].puzzles[i].opened = true
+            }
+        }
+
+
+    }
+
+    private fun selectNextLevel(alreadySolved: Boolean) {
+        if (alreadySolved &&
+            (current.level != packSize - 1 || current.pack != packIds.size - 1)
+        ) {
+            if (current.level < packSize - 1)
+                current.level++
+            else {
                 current.level = 0
                 current.pack++
-                for (i in 0 until openDelta)
-                    packs!![current.pack].puzzles[i].opened = true
             }
+        } else {
+
+            // Try to find next level in end of current pack
+            for (i in (current.level + 1)..(packSize - 1))
+                if (packs!![current.pack].puzzles[i].opened && !packs!![current.pack].puzzles[i].solved) {
+                    current.level = i
+                    return
+                }
+
+            // Try to find next level in all levels until last in game
+            for (i in current.pack + 1 until packIds.size)
+                for (j in 0 until packSize)
+                    if (packs!![i].puzzles[j].opened && !packs!![i].puzzles[j].solved) {
+                        current.level = j
+                        current.pack = i
+                        return
+                    }
+
+            // Try to find next level in all levels before current
+            for (i in 0 until current.pack)
+                for (j in 0 until packSize)
+                    if (packs!![i].puzzles[j].opened && !packs!![i].puzzles[j].solved) {
+                        current.level = j
+                        current.pack = i
+                        return
+                    }
         }
     }
 
