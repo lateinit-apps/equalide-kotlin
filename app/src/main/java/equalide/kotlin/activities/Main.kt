@@ -460,7 +460,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         } else
             Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
 
-        if (!checkIfAllLevelsSolved()) {
+        if (!checkIfAllLevelsSolved() || current.level != packSize - 1 || current.pack != packIds.size - 1) {
             openNextLevels()
             createFabButton()
             saveUserProgress()
@@ -546,7 +546,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 packs!![current.pack].puzzles[current.level + i].opened = true
         } else {
             // Open next pack if it exists and is locked
-            if (current.pack != packIds.size && !packs!![current.pack + 1].opened) {
+            if (current.pack != packIds.size - 1 && !packs!![current.pack + 1].opened) {
                 packs!![current.pack + 1].opened = true
                 menu!!.findItem(packIds[current.pack + 1]).icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
