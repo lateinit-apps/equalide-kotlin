@@ -30,6 +30,14 @@ class Puzzle(text: String, val parts: Int) {
         body = body.replaceRange(i * width + j, i * width + j + 1, c)
     }
 
+    fun getPartition() : String {
+        return this.body
+    }
+
+    fun setPartition(partition: String) {
+        this.body = partition
+    }
+
     fun refresh() {
         body = source
     }
