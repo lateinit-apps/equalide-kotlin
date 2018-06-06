@@ -68,12 +68,17 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val toggle = ActionBarDrawerToggle(
+        val toggle = object : ActionBarDrawerToggle(
             this, drawer_layout, toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
-        )
+        ) {
+            override fun onDrawerClosed(drawerView: View) {
+                menu?.getItem(selectedPack)?.isChecked = false
+            }
+        }
         drawer_layout.addDrawerListener(toggle)
+
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
         menu = findViewById<NavigationView>(R.id.nav_view).menu
@@ -134,6 +139,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         for (i in 0 until packIds.size)
             if (item.itemId == packIds[i]) {
                 selectedPack = i
+                menu?.getItem(selectedPack)?.isChecked = true
                 break
             }
 
