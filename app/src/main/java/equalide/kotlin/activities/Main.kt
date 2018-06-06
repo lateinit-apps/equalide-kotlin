@@ -486,7 +486,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 current.pack++
             }
         } else {
-
             // Try to find next level in end of current pack
             for (i in (current.level + 1)..(packSize - 1))
                 if (packs!![current.pack].puzzles[i].opened && !packs!![current.pack].puzzles[i].solved) {
