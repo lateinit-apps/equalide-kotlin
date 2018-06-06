@@ -105,6 +105,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             refreshContentArea()
             if (fab != null) {
                 findViewById<CoordinatorLayout>(R.id.main_view).removeView(fab)
+                saveFabStatus(false)
                 fab = null
             }
             current.level = selectedLevel
@@ -239,8 +240,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
 
         // Load current level partition
-        if (levelPartition != null)
-        packs!![current.pack].puzzles[current.level].setPartition(levelPartition)
+        if (levelPartition != null) {
+            val puzzle = packs!![current.pack].puzzles[current.level]
+            if (levelPartition.length == puzzle.width * puzzle.height)
+                puzzle.setPartition(levelPartition)
+            else {
+                puzzle.refresh()
+                Log.d("ERORR", "Incorrect load ocurred!")
+            }
+        }
 
         // Show fab if exited on opened fab
         if (reloadFab) {
@@ -266,7 +274,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         with(preferences.edit()) {
             putString("Pack progress", packProgress)
             putString("Level progress", levelProgress)
-            putBoolean("Fab status", true)
             apply()
         }
     }
@@ -293,11 +300,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun saveFabStatus() {
+    private fun saveFabStatus(status: Boolean) {
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         with(preferences.edit()) {
-            putBoolean("Fab status", false)
+            putBoolean("Fab status", status)
             apply()
         }
     }
@@ -424,6 +431,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun refreshGrid() {
+        loadedPuzzle?.refresh()
+        savePartition()
+
         if (!current.levelSolved) {
             val grid = findViewById<GridLayout>(R.id.grid)
 
@@ -434,8 +444,17 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 background.setColor(if (loadedPuzzle!![coords[0], coords[1]] == 'b') Color.BLACK else Color.WHITE)
                 primitive.background = background
             }
+        } else {
+            refreshContentArea()
+            findViewById<CoordinatorLayout>(R.id.main_view).removeView(fab)
+            saveFabStatus(false)
+            fab = null
 
-            loadedPuzzle?.refresh()
+            current.levelSolved = false
+
+            drawColor = packs!![current.pack].puzzles[current.level].parts / 2
+            savePaletteStatus()
+            onLayoutLoad()
         }
     }
 
@@ -463,6 +482,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (!checkIfAllLevelsSolved() || current.level != packSize - 1 || current.pack != packIds.size - 1) {
             openNextLevels()
             createFabButton()
+            saveFabStatus(true)
             saveUserProgress()
         }
     }
@@ -499,7 +519,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         fab?.setOnClickListener {
             refreshContentArea()
             mainView.removeView(fab)
-            saveFabStatus()
+            saveFabStatus(false)
 
             current.levelSolved = false
             selectNextLevel(packs!![current.pack].puzzles[current.level].solved)
