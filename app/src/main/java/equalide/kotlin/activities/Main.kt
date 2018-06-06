@@ -255,7 +255,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (reloadFab) {
             current.levelSolved = true
 
-            if (current.level != packSize - 1 || current.pack != packIds.size - 1)
+            if (!checkIfAllLevelsSolved() || current.level != packSize - 1 || current.pack != packIds.size - 1)
                 createFabButton()
         }
     }
@@ -586,13 +586,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                         packs!![current.pack + 1].puzzles[i].opened = true
                 }
             } else {
-                // Open levels in next pack
-                for (i in 0 until openDelta)
-                    packs!![current.pack + 1].puzzles[i].opened = true
+                // Open levels in next pack if possible
+                if (current.pack != packIds.size - 1)
+                    for (i in 0 until openDelta)
+                        packs!![current.pack + 1].puzzles[i].opened = true
             }
         }
-
-
     }
 
     private fun selectNextLevel(alreadySolved: Boolean) {
