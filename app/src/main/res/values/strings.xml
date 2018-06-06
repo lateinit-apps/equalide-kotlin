@@ -3,7 +3,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Equalide</string>
-    <string name="nav_header_subtitle">Early Acess</string>
+    <string name="nav_header_subtitle">Early Access</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="refresh_button">Refresh</string>
     <string name="preference_file_key">equalide.kotlin.PREFERENCE_FILE_KEY</string>

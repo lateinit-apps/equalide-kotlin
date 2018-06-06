@@ -100,7 +100,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val selectedLevel = intent?.getStringExtra("selected level")?.toInt()
         if (selectedLevel != null) {
-            drawer_layout.closeDrawer(GravityCompat.START)
+            if (fab != null) {
+                findViewById<CoordinatorLayout>(R.id.main_view).removeView(fab)
+                fab = null
+            }
             current.level = selectedLevel
             current.pack = selectedPack
             current.levelSolved = false
@@ -144,10 +147,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
 
         if (packs!![selectedPack].opened) {
-            if (fab != null) {
-                findViewById<CoordinatorLayout>(R.id.main_view).removeView(fab)
-                fab = null
-            }
+            drawer_layout.closeDrawer(GravityCompat.START)
+
             var levelData = ""
             for (level in packs!![selectedPack].puzzles)
                 levelData += if (level.solved) "s" else if (level.opened) "o" else "c"

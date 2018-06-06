@@ -23,6 +23,7 @@
         </activity>
         <activity android:name=".activities.SelectPuzzle"
             android:parentActivityName=".activities.Main"
+            android:theme="@style/AppTheme"
             android:launchMode="singleTask"></activity>
     </application>
 
