@@ -299,7 +299,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             // Set background image
             if (i == drawColor)
                 colorButton.setImageDrawable(ContextCompat.getDrawable(this,
-                    R.drawable.color_picker
+                    R.drawable.ic_edit
                 ))
 
             colorButton.tag = "colorButton_" + i.toString()
@@ -546,7 +546,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         if (v.tag != "colorButton_" + drawColor.toString()) {
             picker.findViewWithTag<ImageButton>(v.tag).setImageDrawable(ContextCompat.getDrawable(this,
-                R.drawable.color_picker
+                R.drawable.ic_edit
             ))
             picker.findViewWithTag<ImageButton>("colorButton_" + drawColor.toString()).setImageResource(android.R.color.transparent)
             drawColor = v.tag.toString().takeLast(1).toInt()

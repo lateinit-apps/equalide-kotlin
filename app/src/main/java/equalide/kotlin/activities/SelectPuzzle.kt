@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.Gravity
 import android.view.View
 import android.view.ViewTreeObserver
@@ -66,6 +67,9 @@ class SelectPuzzle : AppCompatActivity() {
             horizontalMargin, verticalMargin)
         grid.layoutParams = gridParams
 
+        val colorPrimary = ContextCompat.getColor(this, R.color.colorPrimary)
+        val colorPrimaryDark = ContextCompat.getColor(this, R.color.colorPrimaryDark)
+
         for (i in 0 until grid.rowCount)
             for (j in 0 until grid.columnCount){
                 val level = Button(this)
@@ -82,12 +86,12 @@ class SelectPuzzle : AppCompatActivity() {
                     level.text = (i * grid.columnCount + j + 1).toString()
                     level.textSize = 17.toFloat()
 
-                    level.setTextColor(if (levelData[i * grid.columnCount + j] != 's')
-                        Color.WHITE else Color.WHITE)
-                    level.setBackgroundColor(if (levelData[i * grid.columnCount + j] != 's')
-                        Color.GREEN else Color.YELLOW)
+                    level.setTextColor(if (levelData[i * grid.columnCount + j] == 's')
+                        colorPrimary else colorPrimaryDark)
+                    level.setBackgroundColor(if (levelData[i * grid.columnCount + j] == 's')
+                        colorPrimaryDark else Color.WHITE)
                 } else
-                    level.setBackgroundColor(Color.BLACK)
+                    level.setBackgroundColor(Color.WHITE)
 
                 level.tag = i * grid.columnCount + j
                 level.setOnClickListener(levelButtonListener)
