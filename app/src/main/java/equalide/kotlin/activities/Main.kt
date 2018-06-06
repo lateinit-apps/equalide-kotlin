@@ -89,6 +89,20 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         })
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        drawer_layout.closeDrawer(GravityCompat.START)
+
+        val selectedLevel = intent?.getStringExtra("selected level")?.toInt()
+        if (selectedLevel != null) {
+            current.level = selectedLevel
+            current.levelSolved = false
+            refreshContentArea()
+            onLayoutLoad()
+        }
+    }
+
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
@@ -144,7 +158,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     fun onLayoutLoad() {
         calculateResolution()
 
-        Log.d("ERROR", "ASDASD")
         loadedPuzzle = packs!![current.pack].puzzles[current.level]
         loadedPuzzle!!.refresh()
 
@@ -373,7 +386,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         } else
             Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_LONG).show()
 
-        if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
+        if (!checkIfAllLevelsSolved()) {
             unlockNextLevel()
             createFabButton()
             saveUserProgress()
@@ -413,6 +426,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 break
             }
 
+        return solved
+    }
+
+    private fun checkIfAllLevelsSolved() : Boolean {
+        var solved = true
+
+        mainLoop@ for (pack in packs!!)
+            for (puzzle in pack.puzzles)
+                if (!puzzle.solved) {
+                    solved = false
+                    break@mainLoop
+                }
         return solved
     }
 

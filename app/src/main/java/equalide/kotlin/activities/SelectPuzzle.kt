@@ -77,12 +77,17 @@ class SelectPuzzle : AppCompatActivity() {
                 params.setMargins(primitiveMargin, primitiveMargin, primitiveMargin, primitiveMargin)
                 level.layoutParams = params
 
-                level.setBackgroundColor(Color.BLACK)
+                if (levelData[i * grid.columnCount + j] != 'c') {
+                    level.gravity = Gravity.CENTER
+                    level.text = (i * grid.columnCount + j + 1).toString()
+                    level.textSize = 17.toFloat()
 
-                level.gravity = Gravity.CENTER
-                level.text = (i * grid.columnCount + j + 1).toString()
-                level.setTextColor(Color.WHITE)
-                level.textSize = 17.toFloat()
+                    level.setTextColor(if (levelData[i * grid.columnCount + j] != 's')
+                        Color.WHITE else Color.WHITE)
+                    level.setBackgroundColor(if (levelData[i * grid.columnCount + j] != 's')
+                        Color.GREEN else Color.YELLOW)
+                } else
+                    level.setBackgroundColor(Color.BLACK)
 
                 level.tag = i * grid.columnCount + j
                 level.setOnClickListener(levelButtonListener)
@@ -93,7 +98,7 @@ class SelectPuzzle : AppCompatActivity() {
     private val levelButtonListener = { v: View ->
         if (levelData[v.tag as Int] != 'c') {
             val intent = Intent(this, Main::class.java).apply {
-                putExtra("selected level", v.tag as Int)
+                putExtra("selected level", v.tag.toString())
             }
             startActivity(intent)
         }
