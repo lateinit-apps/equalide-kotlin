@@ -406,7 +406,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     this,
                     R.drawable.primitive_border
                 ) as GradientDrawable
-                val index = puzzle[i, j].toInt() - 48
+
                 drawable.setColor(
                     when (puzzle[i, j]) {
                         'b' -> Color.BLACK
@@ -541,7 +541,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     private fun openNextLevels() {
         // Open levels in current pack
-        if (current.level < packSize - 1 - openDelta) {
+        if (current.level <= packSize - 1 - openDelta) {
             for (i in 1..openDelta)
                 packs!![current.pack].puzzles[current.level + i].opened = true
         } else {
@@ -557,7 +557,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 for (i in (current.level + 1)..(packSize - 1))
                     packs!![current.pack].puzzles[i].opened = true
                 // Open levels in next pack if possible
-                if (current.pack != packIds.size) {
+                if (current.pack != packIds.size - 1) {
                     for (i in 0 until packSize - 1 - current.level)
                         packs!![current.pack + 1].puzzles[i].opened = true
                 }
