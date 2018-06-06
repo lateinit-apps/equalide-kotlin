@@ -49,6 +49,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         R.id.pack_04, R.id.pack_05, R.id.pack_06,
         R.id.pack_07
     )
+    private var selectedPack: Int = 0
 
     // Walkthrough related
     private val current = object {
@@ -96,6 +97,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (selectedLevel != null) {
             drawer_layout.closeDrawer(GravityCompat.START)
             current.level = selectedLevel
+            current.pack = selectedPack
             current.levelSolved = false
             refreshContentArea()
             onLayoutLoad()
@@ -128,7 +130,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
-        var selectedPack = 0
 
         for (i in 0 until packIds.size)
             if (item.itemId == packIds[i]) {
@@ -146,7 +147,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
 
             val intent = Intent(this, SelectPuzzle::class.java).apply {
-                putExtra("pack", (current.pack + 1).toString())
+                putExtra("pack", (selectedPack + 1).toString())
                 putExtra("level data", levelData)
             }
             startActivity(intent)
@@ -186,12 +187,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     's' -> {
                         packs!![i].opened = true
                         packs!![i].solved = true
-                        menu!!.findItem(packIds[current.pack]).icon =
+                        menu!!.findItem(packIds[i]).icon =
                                 ContextCompat.getDrawable(this, R.drawable.ic_star)
                     }
                     'o' -> {
                         packs!![i].opened = true
-                        menu!!.findItem(packIds[current.pack]).icon =
+                        menu!!.findItem(packIds[i]).icon =
                                 ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
                     }
                 }

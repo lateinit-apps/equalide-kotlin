@@ -16,8 +16,8 @@ import equalide.kotlin.R
 class SelectPuzzle : AppCompatActivity() {
 
     private var primitiveSize: Int = 0
-    var horizontalMargin: Int = 0
-    var verticalMargin: Int = 0
+    private var horizontalMargin: Int = 0
+    private var verticalMargin: Int = 0
     private var primitiveMargin: Int = 0
     private var levelData: String = ""
 
