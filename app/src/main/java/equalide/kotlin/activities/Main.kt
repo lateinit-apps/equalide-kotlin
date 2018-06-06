@@ -59,6 +59,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         var levelSolved: Boolean = false
     }
     private val openDelta: Int = 3
+    private var skipSolved: Boolean = true
 
     // Other
     private var menu: Menu? = null
@@ -196,6 +197,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val levelPartition = preferences.getString("Level partition", null)
         val currentState = preferences.getString("Current position", null)
         reloadFab = preferences.getBoolean("Fab status", false)
+        skipSolved = preferences.getBoolean("Skip status", true)
         drawColor = preferences.getInt("Palette status", 0)
 
         if (packProgress == null || levelProgress == null) {
@@ -317,6 +319,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         with(preferences.edit()) {
             putInt("Palette status", drawColor)
+            apply()
+        }
+    }
+
+    private fun saveSkipStatus() {
+        val preferences = getSharedPreferences(
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        with(preferences.edit()) {
+            putBoolean("Skip status", skipSolved)
             apply()
         }
     }
@@ -470,6 +481,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun handleSolvedPuzzle() {
+        skipSolved = !packs!![current.pack].puzzles[current.level].solved
+        saveSkipStatus()
+
         packs!![current.pack].puzzles[current.level].solved = true
 
         hideColorPalette()
@@ -526,7 +540,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             saveFabStatus(false)
 
             current.levelSolved = false
-            selectNextLevel(packs!![current.pack].puzzles[current.level].solved)
+            selectNextLevel()
             saveCurrentSelectedLevel()
             packs!![current.pack].puzzles[current.level].refresh()
             savePartition()
@@ -594,8 +608,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun selectNextLevel(alreadySolved: Boolean) {
-        if (alreadySolved &&
+    private fun selectNextLevel() {
+        if (!skipSolved &&
             (current.level != packSize - 1 || current.pack != packIds.size - 1)
         ) {
             if (current.level < packSize - 1)
@@ -606,7 +620,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         } else {
             // Try to find next level in end of current pack
-            for (i in (current.level + 1)..(packSize - 1))
+            for (i in current.level + 1 until packSize)
                 if (packs!![current.pack].puzzles[i].opened && !packs!![current.pack].puzzles[i].solved) {
                     current.level = i
                     return
