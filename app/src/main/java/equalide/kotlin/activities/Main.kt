@@ -105,9 +105,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             refreshContentArea()
             if (fab != null) {
                 findViewById<CoordinatorLayout>(R.id.main_view).removeView(fab)
-                saveFabStatus(false)
                 fab = null
             }
+            saveFabStatus(false)
+
             current.level = selectedLevel
             current.pack = selectedPack
             current.levelSolved = false
@@ -253,7 +254,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // Show fab if exited on opened fab
         if (reloadFab) {
             current.levelSolved = true
-            createFabButton()
+
+            if (current.level != packSize - 1 || current.pack != packIds.size - 1)
+                createFabButton()
         }
     }
 
@@ -484,7 +487,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             createFabButton()
             saveFabStatus(true)
             saveUserProgress()
-        }
+        } else
+            saveFabStatus(true)
     }
 
     private fun hideColorPalette() {
