@@ -23,6 +23,8 @@
     <color name="Red_500">#f44336</color>
     <color name="Indigo_500">#3f51b5</color>
     <color name="Indigo_400">#5c6bc0</color>
+    <color name="Grey_800">#424242</color>
+    <color name="Grey_400">#e0e0e0</color>
 
     <integer-array name="primitive_colors_for_2">
         <item>@color/Indigo_400</item>

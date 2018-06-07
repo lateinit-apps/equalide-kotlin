@@ -120,11 +120,14 @@ class SelectPuzzle : AppCompatActivity() {
 
     private val levelButtonListener = { v: View ->
         if (levelData[v.tag as Int] != 'c') {
+            v.setBackgroundColor(if (levelData[v.tag as Int] == 's')
+                ContextCompat.getColor(this, R.color.Grey_800) else
+                ContextCompat.getColor(this, R.color.Grey_400))
             val intent = Intent(this, Main::class.java).apply {
                 putExtra("selected level", v.tag.toString())
             }
             startActivity(intent)
-            overridePendingTransition(R.anim.no_animation, R.anim.no_animation)
+            overridePendingTransition(R.anim.zoom_in, R.anim.no_animation)
         }
     }
 }
