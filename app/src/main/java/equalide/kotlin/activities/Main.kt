@@ -175,6 +175,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     fun onLayoutLoad() {
         calculateResolution()
+        supportActionBar?.title = "Equalide   ${current.pack + 1}-${(current.level + 1).toString().padStart(2, '0')}"
 
         loadedPuzzle = packs!![current.pack].puzzles[current.level]
 
@@ -501,18 +502,17 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             createFabButton()
             saveFabStatus(true)
             saveUserProgress()
-        } else
+        } else {
+            drawer_layout.openDrawer(GravityCompat.START)
             saveFabStatus(true)
+        }
     }
 
     private fun hideColorPalette() {
         val palette = findViewById<LinearLayout>(R.id.color_picker)
 
-        val background = ContextCompat.getDrawable(this, R.drawable.primitive_border) as GradientDrawable
-        background.setColor(Color.BLACK)
-
         for (i in 0 until palette.childCount)
-            palette.getChildAt(i).background = background
+            palette.getChildAt(i).setBackgroundColor(Color.BLACK)
         current.levelSolved = true
     }
 
