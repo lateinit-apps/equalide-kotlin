@@ -65,6 +65,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var menu: Menu? = null
     private var fab: FloatingActionButton? = null
     private var reloadFab: Boolean = false
+    private var onSelectScreen: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,8 +99,20 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (onSelectScreen && drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            onSelectScreen = false
+            drawer_layout.closeDrawer(GravityCompat.START, false)
+        }
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+
+        val closeDrawer = intent?.getBooleanExtra("close drawer", false)
+        if (closeDrawer != null) {}
+
 
         val selectedLevel = intent?.getStringExtra("selected level")?.toInt()
         if (selectedLevel != null) {
@@ -158,8 +171,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
 
         if (packs!![selectedPack].opened) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-
             var levelData = ""
             for (level in packs!![selectedPack].puzzles)
                 levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
@@ -168,7 +179,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 putExtra("pack", (selectedPack + 1).toString())
                 putExtra("level data", levelData)
             }
+            onSelectScreen = true
             startActivity(intent)
+            overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
         }
         return true
     }

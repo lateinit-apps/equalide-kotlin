@@ -90,12 +90,13 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
-                            <entry key="height" value="108" />
-                            <entry key="outputName" value="ic_nav_icon" />
+                            <entry key="height" value="500" />
+                            <entry key="outputName" value="ic_blackred" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="D:\Downloads\secret-agent.svg" />
-                            <entry key="width" value="108" />
+                            <entry key="sourceFile" value="D:\Downloads\blackred.svg" />
+                            <entry key="width" value="500" />
                           </map>
                         </option>
                       </PersistentState>

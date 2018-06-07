@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.view.Gravity
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.Button
@@ -43,6 +44,24 @@ class SelectPuzzle : AppCompatActivity() {
     private fun onLayoutLoad() {
         calculateResolution()
         createGrid(levelData)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+        // Respond to the action bar's Up/Home button
+            android.R.id.home -> {
+                //NavUtils.navigateUpFromSameTask(this);
+                finish()
+                overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun calculateResolution() {
@@ -105,6 +124,7 @@ class SelectPuzzle : AppCompatActivity() {
                 putExtra("selected level", v.tag.toString())
             }
             startActivity(intent)
+            overridePendingTransition(R.anim.no_animation, R.anim.no_animation)
         }
     }
 }
