@@ -2,9 +2,9 @@ package equalide.kotlin.activities
 
 import android.content.Intent
 import android.graphics.Color
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
@@ -13,9 +13,6 @@ import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import equalide.kotlin.R
-import android.view.animation.AnimationUtils
-import android.view.animation.Animation
-
 
 
 class SelectPuzzle : AppCompatActivity() {

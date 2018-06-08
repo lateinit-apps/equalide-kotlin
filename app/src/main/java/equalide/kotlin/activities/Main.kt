@@ -345,7 +345,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun loadPacks() : Array<Pack> {
+    private fun loadPacks(): Array<Pack> {
         val array = Array(packIds.size, { _ -> ArrayList<Puzzle>(0)})
         var file: InputStream? = null
         var parts = 2
@@ -527,7 +527,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         current.levelSolved = true
     }
 
-    private fun checkIfPackSolved(pack: Pack) : Boolean {
+    private fun checkIfPackSolved(pack: Pack): Boolean {
         var solved = true
 
         for (i in 0 until packSize)
@@ -539,7 +539,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         return solved
     }
 
-    private fun checkIfAllLevelsSolved() : Boolean {
+    private fun checkIfAllLevelsSolved(): Boolean {
         var solved = true
 
         mainLoop@ for (pack in packs!!)
@@ -620,7 +620,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun detectPrimitive(ev: MotionEvent) : IntArray {
+    private fun detectPrimitive(ev: MotionEvent): IntArray {
         val x = ev.rawX
         val y = ev.rawY
         val grid = findViewById<GridLayout>(R.id.grid)

@@ -51,7 +51,7 @@ class Element(private var body: String, var width: Int) {
         height = body.length / width
     }
 
-    private fun mirrorByHeight() : String {
+    private fun mirrorByHeight(): String {
         var result = ""
 
         for (i in 0 until height)
@@ -66,7 +66,7 @@ class Element(private var body: String, var width: Int) {
         return this.compare(other)
     }
 
-    private fun compare(other: Element) : Boolean {
+    private fun compare(other: Element): Boolean {
         var result = this.width == other.width && this.height == other.height &&
                 (this.body == other.body || this.mirrorByHeight() == other.body)
 
@@ -80,6 +80,39 @@ class Element(private var body: String, var width: Int) {
                 }
             }
         }
+        return result
+    }
+
+    fun checkConnectivity(): Boolean {
+        val checkedIndexes = mutableSetOf<Int>()
+        val pendingIndexes = mutableSetOf(body.indexOf('1'))
+        val findIndexes = mutableSetOf<Int>()
+        var result = true
+
+        while (pendingIndexes.size != 0) {
+            for (index in pendingIndexes) {
+                val up = if (index - width >= 0) index - width else null
+                val down = if (index + width < body.length) index + width else null
+                val left = if (index % width != 0) index - 1 else null
+                val right = if (index % width != width - 1) index + 1 else null
+
+                val indexesForCheck = listOf(up, down, left, right)
+                for (i in indexesForCheck)
+                    if (i != null && body[i] == '1' && i !in checkedIndexes)
+                        findIndexes.add(i)
+            }
+            checkedIndexes.addAll(pendingIndexes)
+            pendingIndexes.clear()
+            pendingIndexes.addAll(findIndexes)
+            findIndexes.clear()
+        }
+
+        for (i in 0 until body.length)
+            if (i !in checkedIndexes) {
+                result = false
+                break
+            }
+
         return result
     }
 }

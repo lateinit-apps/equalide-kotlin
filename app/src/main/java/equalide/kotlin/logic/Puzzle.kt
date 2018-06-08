@@ -22,7 +22,7 @@ class Puzzle(text: String, val parts: Int) {
         solved = false
     }
 
-    operator fun get(i: Int, j: Int) : Char {
+    operator fun get(i: Int, j: Int): Char {
         return body[i * width + j]
     }
 
@@ -30,7 +30,7 @@ class Puzzle(text: String, val parts: Int) {
         body = body.replaceRange(i * width + j, i * width + j + 1, c)
     }
 
-    fun getPartition() : String {
+    fun getPartition(): String {
         return this.body
     }
 
@@ -42,7 +42,7 @@ class Puzzle(text: String, val parts: Int) {
         body = source
     }
 
-    fun checkForSolution() : Boolean {
+    fun checkForSolution(): Boolean {
         if (body.indexOf('w') != -1)
             return false
 
@@ -56,10 +56,13 @@ class Puzzle(text: String, val parts: Int) {
         for (i in 1 until partition.size)
             result = result and (element == partition[i])
 
+        if (result && !element.checkConnectivity())
+            result = false
+
         return result
     }
 
-    private fun getPartition(figure: String, width: Int) : ArrayList<Element> {
+    private fun getPartition(figure: String, width: Int): ArrayList<Element> {
         val unical = figure.toSet().filter { c: Char -> c != 'b' && c != 'w' }
         val result = ArrayList<Element>()
 
