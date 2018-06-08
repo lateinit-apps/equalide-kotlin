@@ -1,27 +1,24 @@
 package equalide.kotlin.activities
 
+import android.os.Bundle
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.support.v4.view.GravityCompat
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.app.ActionBarDrawerToggle
 import android.support.design.widget.NavigationView
-import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.FloatingActionButton
 import android.util.Log
 import android.view.*
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.view.Gravity
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.support.v4.view.ViewCompat
 import android.widget.*
+import equalide.kotlin.R
 import equalide.kotlin.logic.Pack
 import equalide.kotlin.logic.Puzzle
-import equalide.kotlin.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
 import java.io.InputStream
@@ -63,8 +60,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     // Other
     private var menu: Menu? = null
-    private var fab: FloatingActionButton? = null
-    private var reloadFab: Boolean = false
+    private var fabIsShowed: Boolean = false
     private var onSelectScreen: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,6 +85,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         packs = loadPacks()
         loadUserProgress()
+
+        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener(fabListener)
 
         val grid = findViewById<GridLayout>(R.id.grid)
         grid.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
@@ -117,11 +115,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val selectedLevel = intent?.getStringExtra("selected level")?.toInt()
         if (selectedLevel != null) {
             refreshContentArea()
-            if (fab != null) {
-                findViewById<CoordinatorLayout>(R.id.main_view).removeView(fab)
-                fab = null
+            if (fabIsShowed) {
+                findViewById<FloatingActionButton>(R.id.fab).hide()
+                saveFabStatus(false)
             }
-            saveFabStatus(false)
 
             current.level = selectedLevel
             current.pack = selectedPack
@@ -196,9 +193,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 "primitive_colors_for_" + loadedPuzzle!!.parts.toString(),
                 "array", this.packageName))
         createColorPalette(loadedPuzzle!!.parts)
-        if (reloadFab) {
+        if (fabIsShowed) {
             hideColorPalette()
-            reloadFab = false
+            fabIsShowed = false
         }
         loadPuzzle(loadedPuzzle!!)
     }
@@ -210,7 +207,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val levelProgress = preferences.getString("Level progress", null)
         val levelPartition = preferences.getString("Level partition", null)
         val currentState = preferences.getString("Current position", null)
-        reloadFab = preferences.getBoolean("Fab status", false)
+        fabIsShowed = preferences.getBoolean("Fab status", false)
         skipSolved = preferences.getBoolean("Skip status", true)
         drawColor = preferences.getInt("Palette status", 0)
 
@@ -268,11 +265,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
 
         // Show fab if exited on opened fab
-        if (reloadFab) {
+        if (fabIsShowed) {
             current.levelSolved = true
 
             if (!checkIfAllLevelsSolved() || current.level != packSize - 1 || current.pack != packIds.size - 1)
-                createFabButton()
+                findViewById<FloatingActionButton>(R.id.fab).show()
         }
     }
 
@@ -320,6 +317,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun saveFabStatus(status: Boolean) {
+        fabIsShowed = status
+
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         with(preferences.edit()) {
@@ -474,9 +473,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         } else {
             refreshContentArea()
-            findViewById<CoordinatorLayout>(R.id.main_view).removeView(fab)
+            findViewById<FloatingActionButton>(R.id.fab).hide()
             saveFabStatus(false)
-            fab = null
 
             current.levelSolved = false
 
@@ -511,9 +509,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
 
         if (!checkIfAllLevelsSolved() || current.level != packSize - 1 || current.pack != packIds.size - 1) {
-            openNextLevels()
-            createFabButton()
+            findViewById<FloatingActionButton>(R.id.fab).show()
             saveFabStatus(true)
+            openNextLevels()
             saveUserProgress()
         } else {
             drawer_layout.openDrawer(GravityCompat.START)
@@ -527,43 +525,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         for (i in 0 until palette.childCount)
             palette.getChildAt(i).setBackgroundColor(Color.BLACK)
         current.levelSolved = true
-    }
-
-    private fun createFabButton() {
-        val mainView = findViewById<CoordinatorLayout>(R.id.main_view)
-
-        fab = FloatingActionButton(this)
-        fab?.id = ViewCompat.generateViewId()
-        fab?.setImageResource(R.drawable.ic_navigate_next)
-        fab?.size = android.support.design.widget.FloatingActionButton.SIZE_AUTO
-        fab?.isFocusable = true
-
-        val scale = resources.displayMetrics.density
-        val margin = (16 * scale + 0.5f).toInt()
-
-        val layoutParams = CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT)
-        layoutParams.gravity = Gravity.BOTTOM or Gravity.END
-        layoutParams.setMargins(margin, margin, margin, margin)
-        fab?.layoutParams = layoutParams
-
-        fab?.setOnClickListener {
-            refreshContentArea()
-            mainView.removeView(fab)
-            saveFabStatus(false)
-
-            current.levelSolved = false
-            selectNextLevel()
-            saveCurrentSelectedLevel()
-            packs!![current.pack].puzzles[current.level].refresh()
-            savePartition()
-
-            drawColor = packs!![current.pack].puzzles[current.level].parts / 2
-            savePaletteStatus()
-
-            onLayoutLoad()
-        }
-        mainView.addView(fab)
     }
 
     private fun checkIfPackSolved(pack: Pack) : Boolean {
@@ -729,5 +690,22 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         }
         true
+    }
+
+    private val fabListener = {v: View ->
+        (v as FloatingActionButton).hide()
+        refreshContentArea()
+        saveFabStatus(false)
+
+        current.levelSolved = false
+        selectNextLevel()
+        saveCurrentSelectedLevel()
+        packs!![current.pack].puzzles[current.level].refresh()
+        savePartition()
+
+        drawColor = packs!![current.pack].puzzles[current.level].parts / 2
+        savePaletteStatus()
+
+        onLayoutLoad()
     }
 }
