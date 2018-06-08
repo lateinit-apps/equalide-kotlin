@@ -81,7 +81,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/editor/ic_monetization_on_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/content/ic_mail_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -91,13 +91,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="assetSourceType" value="FILE" />
-                            <entry key="color" value="ffffff" />
-                            <entry key="height" value="500" />
-                            <entry key="outputName" value="ic_nav_icon" />
+                            <entry key="outputName" value="ic_mail" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="D:\Downloads\logo.svg" />
-                            <entry key="width" value="500" />
                           </map>
                         </option>
                       </PersistentState>

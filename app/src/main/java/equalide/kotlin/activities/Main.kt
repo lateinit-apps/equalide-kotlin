@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
 import android.widget.*
 import equalide.kotlin.R
 import equalide.kotlin.logic.Pack
@@ -162,25 +163,37 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
 
-        for (i in 0 until packIds.size)
-            if (item.itemId == packIds[i]) {
-                selectedPack = i
-                menu?.getItem(selectedPack)?.isChecked = true
-                break
-            }
+        if (item.itemId == R.id.send_feedback) {
+//            val uri = Uri.parse("mailto:feedback@example.com")
+//            val intent = Intent(Intent.ACTION_SENDTO, uri)
+//            intent.putExtra(Intent.EXTRA_SUBJECT, "Equalide Feedback")
+//            intent.putExtra(Intent.EXTRA_TEXT, "I'm email body.")
+//            startActivity(intent)
+            val intent = Intent(Intent.ACTION_SENDTO)
+            intent.data = Uri.parse("mailto:feedback@example.com")
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Equalide feedback")
+            startActivity(Intent.createChooser(intent, "Send feedback"))
+        } else {
+            for (i in 0 until packIds.size)
+                if (item.itemId == packIds[i]) {
+                    selectedPack = i
+                    menu?.getItem(selectedPack)?.isChecked = true
+                    break
+                }
 
-        if (packs!![selectedPack].opened) {
-            var levelData = ""
-            for (level in packs!![selectedPack].puzzles)
-                levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
+            if (packs!![selectedPack].opened) {
+                var levelData = ""
+                for (level in packs!![selectedPack].puzzles)
+                    levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
 
-            val intent = Intent(this, SelectPuzzle::class.java).apply {
-                putExtra("pack", (selectedPack + 1).toString())
-                putExtra("level data", levelData)
+                val intent = Intent(this, SelectPuzzle::class.java).apply {
+                    putExtra("pack", (selectedPack + 1).toString())
+                    putExtra("level data", levelData)
+                }
+                onSelectScreen = true
+                startActivity(intent)
+                overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
             }
-            onSelectScreen = true
-            startActivity(intent)
-            overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
         }
         return true
     }

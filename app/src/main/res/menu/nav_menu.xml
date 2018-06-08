@@ -3,7 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/menu_top"
+        android:checkableBehavior="single">
+
         <item
             android:id="@+id/pack_01"
             android:icon="@drawable/ic_lock_open"
@@ -32,6 +35,16 @@
             android:id="@+id/pack_07"
             android:icon="@drawable/ic_lock"
             android:title="Pack 7" />
+    </group>
+
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="none">
+
+        <item
+            android:id="@+id/send_feedback"
+            android:icon="@drawable/ic_mail"
+            android:title="Send feedback" />
     </group>
 
 </menu>
