@@ -23,7 +23,6 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="scalingPercent" value="111" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -45,11 +44,13 @@
                                   </option>
                                   <option name="values">
                                     <map>
+                                      <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="ffffff" />
                                       <entry key="backgroundImage" value="D:\Downloads\void.png" />
-                                      <entry key="foregroundImage" value="D:\Downloads\icon.png" />
+                                      <entry key="foregroundImage" value="D:\Downloads\logo.png" />
                                       <entry key="legacyIconShape" value="CIRCLE" />
                                       <entry key="showGrid" value="true" />
+                                      <entry key="webIconShape" value="CIRCLE" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -93,9 +94,9 @@
                             <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
                             <entry key="height" value="500" />
-                            <entry key="outputName" value="ic_blackred" />
+                            <entry key="outputName" value="ic_nav_icon" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="D:\Downloads\blackred.svg" />
+                            <entry key="sourceFile" value="D:\Downloads\logo.svg" />
                             <entry key="width" value="500" />
                           </map>
                         </option>
