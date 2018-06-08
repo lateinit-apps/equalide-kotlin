@@ -62,6 +62,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var menu: Menu? = null
     private var fabIsShowed: Boolean = false
     private var onSelectScreen: Boolean = false
+    private var toast: Toast? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +87,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         packs = loadPacks()
         loadUserProgress()
 
+        toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener(fabListener)
 
         val grid = findViewById<GridLayout>(R.id.grid)
@@ -472,6 +474,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 primitive.background = background
             }
         } else {
+            toast?.cancel()
+
             refreshContentArea()
             findViewById<FloatingActionButton>(R.id.fab).hide()
             saveFabStatus(false)
@@ -504,9 +508,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             packs!![current.pack].solved = true
             menu!!.findItem(packIds[current.pack]).icon =
                     ContextCompat.getDrawable(this, R.drawable.ic_star)
-            Toast.makeText(this, "Pack ${current.pack + 1} solved!", Toast.LENGTH_LONG).show()
-        } else
-            Toast.makeText(this, "Puzzle solved!", Toast.LENGTH_SHORT).show()
+
+            toast?.setText("Pack ${current.pack + 1} solved!")
+            toast?.duration = Toast.LENGTH_LONG
+        } else {
+            toast?.setText("Puzzle solved!")
+            toast?.duration = Toast.LENGTH_SHORT
+        }
+        toast?.show()
 
         if (!checkIfAllLevelsSolved() || current.level != packSize - 1 || current.pack != packIds.size - 1) {
             findViewById<FloatingActionButton>(R.id.fab).show()
@@ -693,6 +702,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private val fabListener = {v: View ->
+        toast?.cancel()
+
         (v as FloatingActionButton).hide()
         refreshContentArea()
         saveFabStatus(false)
