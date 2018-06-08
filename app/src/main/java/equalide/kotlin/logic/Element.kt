@@ -86,10 +86,12 @@ class Element(private var body: String, var width: Int) {
     fun checkConnectivity(): Boolean {
         val checkedIndexes = mutableSetOf<Int>()
         val pendingIndexes = mutableSetOf(body.indexOf('1'))
-        val findIndexes = mutableSetOf<Int>()
+        val findedIndexes = mutableSetOf<Int>()
         var result = true
 
         while (pendingIndexes.size != 0) {
+            findedIndexes.clear()
+
             for (index in pendingIndexes) {
                 val up = if (index - width >= 0) index - width else null
                 val down = if (index + width < body.length) index + width else null
@@ -99,16 +101,15 @@ class Element(private var body: String, var width: Int) {
                 val indexesForCheck = listOf(up, down, left, right)
                 for (i in indexesForCheck)
                     if (i != null && body[i] == '1' && i !in checkedIndexes)
-                        findIndexes.add(i)
+                        findedIndexes.add(i)
             }
             checkedIndexes.addAll(pendingIndexes)
             pendingIndexes.clear()
-            pendingIndexes.addAll(findIndexes)
-            findIndexes.clear()
+            pendingIndexes.addAll(findedIndexes)
         }
 
         for (i in 0 until body.length)
-            if (i !in checkedIndexes) {
+            if (body[i] == '1' && i !in checkedIndexes) {
                 result = false
                 break
             }
