@@ -13,6 +13,10 @@ import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import equalide.kotlin.R
+import android.view.animation.AnimationUtils
+import android.view.animation.Animation
+
+
 
 class SelectPuzzle : AppCompatActivity() {
 
@@ -127,7 +131,7 @@ class SelectPuzzle : AppCompatActivity() {
                 putExtra("selected level", v.tag.toString())
             }
             startActivity(intent)
-            overridePendingTransition(R.anim.zoom_in, R.anim.no_animation)
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
     }
 }
