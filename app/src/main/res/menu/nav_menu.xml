@@ -44,7 +44,7 @@
         <item
             android:id="@+id/send_feedback"
             android:icon="@drawable/ic_mail"
-            android:title="Send feedback" />
+            android:title="Contact developer" />
     </group>
 
 </menu>

@@ -23,6 +23,10 @@ import equalide.kotlin.logic.Puzzle
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_view.*
 import java.io.InputStream
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+
+
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     // Sizes
@@ -164,15 +168,19 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // Handle navigation view item clicks here.
 
         if (item.itemId == R.id.send_feedback) {
-//            val uri = Uri.parse("mailto:feedback@example.com")
-//            val intent = Intent(Intent.ACTION_SENDTO, uri)
-//            intent.putExtra(Intent.EXTRA_SUBJECT, "Equalide Feedback")
-//            intent.putExtra(Intent.EXTRA_TEXT, "I'm email body.")
-//            startActivity(intent)
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = Uri.parse("mailto:feedback@example.com")
             intent.putExtra(Intent.EXTRA_SUBJECT, "Equalide feedback")
-            startActivity(Intent.createChooser(intent, "Send feedback"))
+            val appList = this.packageManager.queryIntentActivities(intent,
+                PackageManager.MATCH_DEFAULT_ONLY or PackageManager.GET_RESOLVED_FILTER)
+            if (appList.size == 1) {
+                intent.setClassName(
+                    appList[0].activityInfo.packageName,
+                    appList[0].activityInfo.name
+                )
+                startActivity(intent)
+            } else
+                startActivity(Intent.createChooser(intent, "Send feedback"))
         } else {
             for (i in 0 until packIds.size)
                 if (item.itemId == packIds[i]) {
