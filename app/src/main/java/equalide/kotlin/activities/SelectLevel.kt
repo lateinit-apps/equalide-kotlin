@@ -21,33 +21,38 @@ import equalide.kotlin.R
 
 class SelectLevel : AppCompatActivity() {
 
-    private var primitiveSize: Int = 0
+    // Tile related
+    private val rowCount = 6
+    private val columnCount = 4
+    private var tileSize: Int = 0
+    private var levelData: String = ""
+    private var grid: GridLayout? = null
+
+    // Margin related
     private var horizontalMargin: Int = 0
     private var verticalMargin: Int = 0
     private var primitiveMargin: Int = 0
-    private var levelData: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_select_level)
+
+        grid = findViewById(R.id.level_grid)
 
         val packNumber = intent.getStringExtra("pack")
         supportActionBar?.title = "Pack $packNumber"
 
         levelData = intent.getStringExtra("level data")
 
-        val grid = findViewById<GridLayout>(R.id.level_grid)
-        grid.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+        // Listener to detect when layout is loaded to get it's resolution properties
+        grid?.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                grid.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                onLayoutLoad()
+                grid?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
+                calculateViewsSizes()
+                createGrid(levelData)
             }
         })
-    }
-
-    private fun onLayoutLoad() {
-        calculateResolution()
-        createGrid(levelData)
     }
 
     override fun onBackPressed() {
@@ -56,69 +61,66 @@ class SelectLevel : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-        // Respond to the action bar's Up/Home button
-            android.R.id.home -> {
-                //NavUtils.navigateUpFromSameTask(this);
-                finish()
-                overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
-                return true
-            }
+        if (item.itemId == android.R.id.home) {
+            finish()
+            overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
+            return true
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun calculateResolution() {
-        val contentArea = findViewById<LinearLayout>(R.id.activity_select_level)
+    private fun calculateViewsSizes() {
+        val selectView = findViewById<LinearLayout>(R.id.activity_select_level)
 
-        primitiveSize = (0.195 * contentArea.width).toInt()
-        primitiveMargin = ((0.2 / 14) * contentArea.width).toInt()
+        tileSize = (0.195 * selectView.width).toInt()
+        primitiveMargin = ((0.2 / 14) * selectView.width).toInt()
 
-        horizontalMargin = (4 * (0.2 / 14) * contentArea.width).toInt()
-        verticalMargin = (contentArea.height - 6 * primitiveSize - 12 * primitiveMargin) / 2
+        horizontalMargin = (4 * (0.2 / 14) * selectView.width).toInt()
+        verticalMargin = (selectView.height - 6 * tileSize - 12 * primitiveMargin) / 2
     }
 
     private fun createGrid(levelData: String) {
-        val grid = findViewById<GridLayout>(R.id.level_grid)
-
-        grid.columnCount = 4
-        grid.rowCount = 6
+        grid?.rowCount = rowCount
+        grid?.columnCount = columnCount
 
         val gridParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT)
-        gridParams.setMargins(horizontalMargin, verticalMargin,
-            horizontalMargin, verticalMargin)
-        grid.layoutParams = gridParams
+        gridParams.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
+        grid?.layoutParams = gridParams
 
         val colorPrimary = ContextCompat.getColor(this, R.color.colorPrimary)
         val colorPrimaryDark = ContextCompat.getColor(this, R.color.colorPrimaryDark)
 
-        for (i in 0 until grid.rowCount)
-            for (j in 0 until grid.columnCount){
-                val level = Button(this)
+        for (i in 0 until rowCount)
+            for (j in 0 until columnCount){
+                val tile = Button(this)
+                val level = i * columnCount + j
 
-                // Set size
+                // Set size and margins
                 val params = GridLayout.LayoutParams()
-                params.width = primitiveSize
-                params.height = primitiveSize
+                params.width = tileSize
+                params.height = tileSize
                 params.setMargins(primitiveMargin, primitiveMargin, primitiveMargin, primitiveMargin)
-                level.layoutParams = params
+                tile.layoutParams = params
 
-                if (levelData[i * grid.columnCount + j] != 'c') {
-                    level.gravity = Gravity.CENTER
-                    level.text = (i * grid.columnCount + j + 1).toString()
-                    level.textSize = 17.toFloat()
+                if (levelData[level] != 'c') {
+                    tile.gravity = Gravity.CENTER
 
-                    level.setTextColor(if (levelData[i * grid.columnCount + j] == 's')
+                    tile.text = (level + 1).toString()
+                    tile.textSize = 17.toFloat()
+
+                    tile.setTextColor(if (levelData[level] == 's')
                         colorPrimary else colorPrimaryDark)
-                    level.setBackgroundColor(if (levelData[i * grid.columnCount + j] == 's')
+                    tile.setBackgroundColor(if (levelData[level] == 's')
                         colorPrimaryDark else Color.WHITE)
                 } else
-                    level.setBackgroundColor(Color.WHITE)
+                    tile.setBackgroundColor(Color.WHITE)
 
-                level.tag = i * grid.columnCount + j
-                level.setOnClickListener(levelButtonListener)
-                grid.addView(level)
+                tile.tag = level
+
+                tile.setOnClickListener(levelButtonListener)
+
+                grid?.addView(tile)
             }
     }
 
@@ -127,6 +129,7 @@ class SelectLevel : AppCompatActivity() {
             v.setBackgroundColor(if (levelData[v.tag as Int] == 's')
                 ContextCompat.getColor(this, R.color.grey_800) else
                 ContextCompat.getColor(this, R.color.grey_400))
+
             val intent = Intent(this, Main::class.java).apply {
                 putExtra("selected level", v.tag as Int)
             }
