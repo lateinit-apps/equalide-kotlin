@@ -15,4 +15,6 @@
     <string name="pack_06">Pack 6</string>
     <string name="pack_07">Pack 7</string>
     <string name="send_mail_icon_description">Contact developer</string>
+    <string name="contact_mail_address">feedback@example.com</string>
+    <string name="mail_chooser_title">Send mail</string>
 </resources>

@@ -4,6 +4,7 @@ package equalide.kotlin.logic
 // 'c' - non-empty cell
 // 'e' - empty cell
 class Element(private var body: String, var width: Int) {
+
     var height: Int
 
     init {

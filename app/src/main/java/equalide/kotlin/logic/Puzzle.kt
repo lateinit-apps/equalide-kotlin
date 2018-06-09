@@ -5,12 +5,15 @@ package equalide.kotlin.logic
 // 'e' - empty cell, can be colored
 // 'b' - blank cell, can't be colored
 class Puzzle(text: String, val parts: Int) {
+
     private val source: String
     private var body: String
-    var opened: Boolean
-    var solved: Boolean
+
     val width: Int
     val height: Int
+
+    var opened: Boolean
+    var solved: Boolean
 
     init {
         val lines = text.lines()
@@ -31,8 +34,8 @@ class Puzzle(text: String, val parts: Int) {
         return body[i * width + j]
     }
 
-    operator fun set(i: Int, j: Int, c: Char) {
-        body = body.replaceRange(i * width + j, i * width + j + 1, c.toString())
+    operator fun set(i: Int, j: Int, c: String) {
+        body = body.replaceRange(i * width + j, i * width + j + 1, c)
     }
 
     fun getPartition(): String {
@@ -47,7 +50,7 @@ class Puzzle(text: String, val parts: Int) {
         body = source
     }
 
-    fun checkForSolution(): Boolean {
+    fun checkIfSolved(): Boolean {
         // Checks if puzzle contains any unpainted primitive
         if (body.indexOf('e') != -1)
             return false

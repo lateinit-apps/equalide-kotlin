@@ -1,19 +1,23 @@
 package equalide.kotlin.activities
 
+import android.os.Bundle
 import android.content.Intent
-import android.graphics.Color
+
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
+
+import android.graphics.Color
+
+import android.view.View
 import android.view.Gravity
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
-import equalide.kotlin.R
 
+import equalide.kotlin.R
 
 class SelectLevel : AppCompatActivity() {
 
@@ -33,8 +37,7 @@ class SelectLevel : AppCompatActivity() {
         levelData = intent.getStringExtra("level data")
 
         val grid = findViewById<GridLayout>(R.id.level_grid)
-        grid.viewTreeObserver.addOnGlobalLayoutListener(object :
-            ViewTreeObserver.OnGlobalLayoutListener {
+        grid.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 grid.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 onLayoutLoad()
@@ -125,7 +128,7 @@ class SelectLevel : AppCompatActivity() {
                 ContextCompat.getColor(this, R.color.grey_800) else
                 ContextCompat.getColor(this, R.color.grey_400))
             val intent = Intent(this, Main::class.java).apply {
-                putExtra("selected level", v.tag.toString())
+                putExtra("selected level", v.tag as Int)
             }
             startActivity(intent)
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="nav_text_selected">@android:color/black</color>
 
     <color name="colorPrimary">#FFF5F5F5</color>
     <color name="colorPrimaryDark">#FF757575</color>
