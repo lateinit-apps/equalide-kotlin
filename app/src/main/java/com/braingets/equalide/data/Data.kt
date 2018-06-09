@@ -1,7 +1,7 @@
-package equalide.kotlin.data
+package com.braingets.equalide.data
 
-import equalide.kotlin.logic.Pack
-import equalide.kotlin.logic.Puzzle
+import com.braingets.equalide.logic.Pack
+import com.braingets.equalide.logic.Puzzle
 
 class Data(val packs: Array<Pack>)
 

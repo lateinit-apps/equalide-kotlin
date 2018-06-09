@@ -9,7 +9,7 @@ android {
     }
     compileSdkVersion 27
     defaultConfig {
-        applicationId "equalide.kotlin"
+        applicationId "com.braingets.equalide"
         minSdkVersion 16
         targetSdkVersion 27
         versionCode 1

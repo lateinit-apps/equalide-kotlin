@@ -1,4 +1,4 @@
-package equalide.kotlin.logic
+package com.braingets.equalide.logic
 
 // Contains element with next representation:
 // 'c' - non-empty cell

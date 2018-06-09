@@ -1,4 +1,4 @@
-package equalide.kotlin.activities
+package com.braingets.equalide.activities
 
 import android.net.Uri
 import android.util.Log
@@ -32,10 +32,10 @@ import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_screen.*
 
-import equalide.kotlin.R
-import equalide.kotlin.logic.Pack
-import equalide.kotlin.logic.Puzzle
-import equalide.kotlin.data.packsData
+import com.braingets.equalide.R
+import com.braingets.equalide.logic.Pack
+import com.braingets.equalide.logic.Puzzle
+import com.braingets.equalide.data.packsData
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 

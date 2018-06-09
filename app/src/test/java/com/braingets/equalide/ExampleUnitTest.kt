@@ -1,4 +1,4 @@
-package equalide.kotlin
+package com.braingets.equalide
 
 import org.junit.Test
 

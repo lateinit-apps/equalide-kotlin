@@ -1,4 +1,4 @@
-package equalide.kotlin.logic
+package com.braingets.equalide.logic
 
 class Pack(val puzzles: Array<Puzzle>) {
 

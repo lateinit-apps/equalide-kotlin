@@ -1,4 +1,4 @@
-package equalide.kotlin.activities
+package com.braingets.equalide.activities
 
 import android.os.Bundle
 import android.content.Intent
@@ -17,7 +17,7 @@ import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 
-import equalide.kotlin.R
+import com.braingets.equalide.R
 
 class SelectLevel : AppCompatActivity() {
 
