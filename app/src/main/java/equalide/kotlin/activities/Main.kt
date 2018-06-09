@@ -467,7 +467,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 drawable.setColor(
                     when (puzzle[i, j]) {
                         'b' -> Color.BLACK
-                        'w' -> Color.WHITE
+                        'e' -> Color.WHITE
                         else -> colors!![puzzle[i, j].toInt() - 48]
                     }
                 )
@@ -670,7 +670,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val primitive: Button = grid.findViewWithTag(coords)
         val background = primitive.background as GradientDrawable
 
-        loadedPuzzle!![coords[0], coords[1]] = if (writeModeOn) drawColor.toString() else "w"
+        loadedPuzzle!![coords[0], coords[1]] = if (writeModeOn) drawColor.toChar() else 'e'
         background.setColor(if (writeModeOn) colors!![drawColor] else Color.WHITE)
         primitive.background = background
 

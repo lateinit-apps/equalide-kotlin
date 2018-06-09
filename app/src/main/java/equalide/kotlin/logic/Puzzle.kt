@@ -1,5 +1,9 @@
 package equalide.kotlin.logic
 
+// Contains puzzle with next representation:
+// '0-9' - colored cell
+// 'e' - empty cell, can be colored
+// 'b' - blank cell, can't be colored
 class Puzzle(text: String, val parts: Int) {
     private val source: String
     private var body: String
@@ -9,13 +13,14 @@ class Puzzle(text: String, val parts: Int) {
     val height: Int
 
     init {
-        val array = text.split("\n", "\r\n")
-        height = array.size
-        width = array[0].length
+        val lines = text.lines()
 
-        source = array.joinToString("")
+        height = lines.size
+        width = lines[0].length
+
+        source = lines.joinToString("")
             .replace('0', 'b')
-            .replace('1', 'w')
+            .replace('1', 'e')
         body = source
 
         opened = false
@@ -26,8 +31,8 @@ class Puzzle(text: String, val parts: Int) {
         return body[i * width + j]
     }
 
-    operator fun set(i: Int, j: Int, c: String) {
-        body = body.replaceRange(i * width + j, i * width + j + 1, c)
+    operator fun set(i: Int, j: Int, c: Char) {
+        body = body.replaceRange(i * width + j, i * width + j + 1, c.toString())
     }
 
     fun getPartition(): String {
@@ -43,42 +48,41 @@ class Puzzle(text: String, val parts: Int) {
     }
 
     fun checkForSolution(): Boolean {
-        if (body.indexOf('w') != -1)
+        // Checks if puzzle contains any unpainted primitive
+        if (body.indexOf('e') != -1)
             return false
 
-        val partition = getPartition(body, width)
-        if (partition.size != parts)
+        val elements = separateInElements()
+        if (elements.size != parts)
             return false
 
-        val element = partition[0]
-        var result = true
+        // Checks if elements are equal
+        for (i in 1 until elements.size)
+            if (elements[0] != elements[i])
+                return false
 
-        for (i in 1 until partition.size)
-            result = result and (element == partition[i])
+        if (!elements[0].checkConnectivity())
+            return false
 
-        if (result && !element.checkConnectivity())
-            result = false
-
-        return result
+        return true
     }
 
-    private fun getPartition(figure: String, width: Int): ArrayList<Element> {
-        val unical = figure.toSet().filter { c: Char -> c != 'b' && c != 'w' }
+    private fun separateInElements(): ArrayList<Element> {
+        val unicalCells = body.toSet().filter { c: Char -> c != 'b' && c != 'e' }
         val result = ArrayList<Element>()
 
+        for (cell in unicalCells) {
+            val firstOccurance = body.indexOf(cell)
+            val lastOccurance = body.lastIndexOf(cell)
 
-        for (c in unical) {
-            val first = figure.indexOf(c)
-            val last = figure.lastIndexOf(c)
             result.add(
                 Element(
-                    figure
-                        .substring(
-                            first - first % width,
-                            last + width - last % width
-                        )
-                        .replace("[^$c]".toRegex(), "w")
-                        .replace(c, '1'), width
+                    body.substring(
+                        firstOccurance - firstOccurance % width,
+                        lastOccurance + width - lastOccurance % width
+                    )
+                        .replace(Regex("[^$cell]"), "e")
+                        .replace(cell, 'c'), width
                 )
             )
         }
