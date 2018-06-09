@@ -15,7 +15,7 @@ import android.widget.LinearLayout
 import equalide.kotlin.R
 
 
-class SelectPuzzle : AppCompatActivity() {
+class SelectLevel : AppCompatActivity() {
 
     private var primitiveSize: Int = 0
     private var horizontalMargin: Int = 0
@@ -25,7 +25,7 @@ class SelectPuzzle : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_select_puzzle)
+        setContentView(R.layout.activity_select_level)
 
         val packNumber = intent.getStringExtra("pack")
         supportActionBar?.title = "Pack $packNumber"
@@ -66,7 +66,7 @@ class SelectPuzzle : AppCompatActivity() {
     }
 
     private fun calculateResolution() {
-        val contentArea = findViewById<LinearLayout>(R.id.select_puzzle_view)
+        val contentArea = findViewById<LinearLayout>(R.id.activity_select_level)
 
         primitiveSize = (0.195 * contentArea.width).toInt()
         primitiveMargin = ((0.2 / 14) * contentArea.width).toInt()
@@ -122,8 +122,8 @@ class SelectPuzzle : AppCompatActivity() {
     private val levelButtonListener = { v: View ->
         if (levelData[v.tag as Int] != 'c') {
             v.setBackgroundColor(if (levelData[v.tag as Int] == 's')
-                ContextCompat.getColor(this, R.color.Grey_800) else
-                ContextCompat.getColor(this, R.color.Grey_400))
+                ContextCompat.getColor(this, R.color.grey_800) else
+                ContextCompat.getColor(this, R.color.grey_400))
             val intent = Intent(this, Main::class.java).apply {
                 putExtra("selected level", v.tag.toString())
             }

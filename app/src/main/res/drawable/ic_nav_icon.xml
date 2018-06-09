@@ -8,7 +8,6 @@
       android:fillColor="#ffffff"
       android:strokeColor="#00000000"/>
   <group>
-    <clip-path android:pathData="M0,0h500v500h-500z M 0,0"/>
     <path
         android:pathData=" M 163.189 435.375 L 163.189 305.158 L 206.594 305.158 L 206.594 261.753 L 250 261.753 L 250 305.158 L 293.406 305.158 L 293.406 348.564 L 336.811 348.564 L 336.811 391.969 L 293.406 391.969 L 293.406 435.375 L 163.189 435.375 Z "
         android:fillColor="#F4B400"/>

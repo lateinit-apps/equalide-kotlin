@@ -11,7 +11,6 @@ import android.support.design.widget.NavigationView
 import android.support.design.widget.FloatingActionButton
 import android.util.Log
 import android.view.*
-import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -21,14 +20,12 @@ import equalide.kotlin.R
 import equalide.kotlin.logic.Pack
 import equalide.kotlin.logic.Puzzle
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.main_view.*
+import kotlinx.android.synthetic.main.main_screen.*
 import java.io.InputStream
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
-
-
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
     // Sizes
     private val gridArea = object {
         var width: Int = 0
@@ -75,15 +72,21 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         setSupportActionBar(toolbar)
 
         val toggle = object : ActionBarDrawerToggle(
-            this, drawer_layout, toolbar,
+            this, activity_main, toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         ) {
             override fun onDrawerClosed(drawerView: View) {
+                super.onDrawerClosed(drawerView)
                 menu?.getItem(selectedPack)?.isChecked = false
             }
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                super.onDrawerSlide(drawerView, slideOffset)
+                toast?.cancel()
+            }
         }
-        drawer_layout.addDrawerListener(toggle)
+        activity_main.addDrawerListener(toggle)
 
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
@@ -95,7 +98,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener(fabListener)
 
-        val grid = findViewById<GridLayout>(R.id.grid)
+        val grid = findViewById<GridLayout>(R.id.puzzle_grid)
         grid.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 grid.viewTreeObserver.removeOnGlobalLayoutListener(this)
@@ -106,9 +109,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     override fun onResume() {
         super.onResume()
-        if (onSelectScreen && drawer_layout.isDrawerOpen(GravityCompat.START)) {
+        if (onSelectScreen && activity_main.isDrawerOpen(GravityCompat.START)) {
             onSelectScreen = false
-            drawer_layout.closeDrawer(GravityCompat.START, false)
+            activity_main.closeDrawer(GravityCompat.START, false)
         }
     }
 
@@ -141,15 +144,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
+        if (activity_main.isDrawerOpen(GravityCompat.START)) {
+            activity_main.closeDrawer(GravityCompat.START)
         } else
             super.onBackPressed()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.actionbar, menu)
+        menuInflater.inflate(R.menu.actionbar_menu, menu)
         return true
     }
 
@@ -158,7 +161,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
-            R.id.clear_button -> refreshGrid()
+            R.id.refresh_button -> refreshGrid()
             else -> return super.onOptionsItemSelected(item)
         }
         return true
@@ -167,7 +170,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
 
-        if (item.itemId == R.id.send_feedback) {
+        if (item.itemId == R.id.send_mail) {
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = Uri.parse("mailto:feedback@example.com")
             intent.putExtra(Intent.EXTRA_SUBJECT, "Equalide feedback")
@@ -194,7 +197,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 for (level in packs!![selectedPack].puzzles)
                     levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
 
-                val intent = Intent(this, SelectPuzzle::class.java).apply {
+                val intent = Intent(this, SelectLevel::class.java).apply {
                     putExtra("pack", (selectedPack + 1).toString())
                     putExtra("level data", levelData)
                 }
@@ -213,7 +216,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         loadedPuzzle = packs!![current.pack].puzzles[current.level]
 
         colors = resources.getIntArray(resources.getIdentifier(
-                "primitive_colors_for_" + loadedPuzzle!!.parts.toString(),
+                "colors_for_${loadedPuzzle!!.parts}_parts",
                 "array", this.packageName))
         createColorPalette(loadedPuzzle!!.parts)
         if (fabIsShowed) {
@@ -397,17 +400,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun calculateResolution() {
-        val contentArea = findViewById<LinearLayout>(R.id.content_area)
+        val contentArea = findViewById<LinearLayout>(R.id.content_view)
 
         gridArea.width = contentArea.width
         colorPaletteSize = gridArea.width / 5
-        gridArea.height = contentArea.height - (5 * colorPaletteSize) / 4
+        gridArea.height = (contentArea.height - resources.getDimension(R.dimen.puzzle_grid_margin_top)
+            - resources.getDimension(R.dimen.puzzle_grid_margin_bottom) - colorPaletteSize).toInt()
 
         contentArea.setOnTouchListener(gridListener)
     }
 
     private fun createColorPalette(numOfColors: Int) {
-        val palette = findViewById<LinearLayout>(R.id.color_picker)
+        val palette = findViewById<LinearLayout>(R.id.color_palette)
 
         for (i in 0 until numOfColors) {
             val colorButton = ImageButton(this)
@@ -436,17 +440,13 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun loadPuzzle(puzzle: Puzzle) {
-        val grid = findViewById<GridLayout>(R.id.grid)
+        val grid = findViewById<GridLayout>(R.id.puzzle_grid)
 
         grid.columnCount = puzzle.width
         grid.rowCount = puzzle.height
         primitiveSize = minOf(gridArea.width / puzzle.width, gridArea.height / puzzle.height)
 
-        val gridParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams(
-                puzzle.width * primitiveSize, puzzle.height * primitiveSize
-            )
-        )
+        val gridParams = LinearLayout.LayoutParams(puzzle.width * primitiveSize, puzzle.height * primitiveSize)
         gridParams.bottomMargin = (gridArea.height - puzzle.height * primitiveSize) / 2
         grid.layoutParams = gridParams
 
@@ -485,7 +485,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         savePartition()
 
         if (!current.levelSolved) {
-            val grid = findViewById<GridLayout>(R.id.grid)
+            val grid = findViewById<GridLayout>(R.id.puzzle_grid)
 
             for (i in 0 until grid.childCount) {
                 val primitive = grid.getChildAt(i) as Button
@@ -510,8 +510,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun refreshContentArea() {
-        val grid = findViewById<GridLayout>(R.id.grid)
-        val picker = findViewById<LinearLayout>(R.id.color_picker)
+        val grid = findViewById<GridLayout>(R.id.puzzle_grid)
+        val picker = findViewById<LinearLayout>(R.id.color_palette)
 
         grid.removeAllViews()
         picker.removeAllViews()
@@ -544,13 +544,13 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             openNextLevels()
             saveUserProgress()
         } else {
-            drawer_layout.openDrawer(GravityCompat.START)
+            activity_main.openDrawer(GravityCompat.START)
             saveFabStatus(true)
         }
     }
 
     private fun hideColorPalette() {
-        val palette = findViewById<LinearLayout>(R.id.color_picker)
+        val palette = findViewById<LinearLayout>(R.id.color_palette)
 
         for (i in 0 until palette.childCount)
             palette.getChildAt(i).setBackgroundColor(Color.BLACK)
@@ -653,7 +653,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private fun detectPrimitive(ev: MotionEvent): IntArray {
         val x = ev.rawX
         val y = ev.rawY
-        val grid = findViewById<GridLayout>(R.id.grid)
+        val grid = findViewById<GridLayout>(R.id.puzzle_grid)
 
         for (i in 0 until grid.childCount) {
             val primitive = grid.getChildAt(i) as Button
@@ -666,7 +666,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun paintPrimitive(coords: IntArray) {
-        val grid = findViewById<GridLayout>(R.id.grid)
+        val grid = findViewById<GridLayout>(R.id.puzzle_grid)
         val primitive: Button = grid.findViewWithTag(coords)
         val background = primitive.background as GradientDrawable
 
@@ -680,7 +680,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private val colorPaletteListener = { v: View ->
-        val picker = findViewById<LinearLayout>(R.id.color_picker)
+        val picker = findViewById<LinearLayout>(R.id.color_palette)
 
         if (v.tag != "colorButton_" + drawColor.toString()) {
             picker.findViewWithTag<ImageButton>(v.tag).setImageDrawable(ContextCompat.getDrawable(this,
