@@ -5,10 +5,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    signingConfigs {
-    }
     compileSdkVersion 27
     defaultConfig {
+        applicationId "com.braingets.equalide"
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 1
+        versionName "0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -16,24 +19,6 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    flavorDimensions "build"
-    productFlavors {
-        river {
-            applicationId "equalide.kotlin"
-            minSdkVersion 16
-            targetSdkVersion 27
-            versionCode 3
-            versionName "0.1"
-            dimension "build"
-        }
-        showdown {
-            applicationId "com.braingets.equalide"
-            minSdkVersion 16
-            targetSdkVersion 27
-            versionCode 1
-            versionName "0.1"
         }
     }
 }
