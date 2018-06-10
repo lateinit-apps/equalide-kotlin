@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="nav_text_selected">@android:color/black</color>
+
+    <color name="colorPrimary">#FFF5F5F5</color>
+    <color name="colorPrimaryDark">#FF757575</color>
+    <color name="colorAccent">#FF009688</color>
+
+    <color name="blue">#4285F4</color>
+    <color name="red">#EA4335</color>
+    <color name="yellow">#FBBC05</color>
+    <color name="green">#34A853</color>
+    <color name="grey_800">#424242</color>
+    <color name="grey_400">#e0e0e0</color>
+
+    <integer-array name="colors_for_2_parts">
+        <item>@color/blue</item>
+        <item>@color/yellow</item>
+    </integer-array>
+
+    <integer-array name="colors_for_3_parts">
+        <item>@color/blue</item>
+        <item>@color/yellow</item>
+        <item>@color/green</item>
+    </integer-array>
+
 </resources>

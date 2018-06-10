@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/puzzle_grid_margin_top"
+    android:layout_marginTop="?android:attr/actionBarSize"
+    android:layout_marginLeft="1dp"
+    android:layout_marginRight="1dp"
+    android:layout_marginBottom="1dp"
+    android:gravity="bottom|center_horizontal"
+    android:orientation="vertical"
+    android:id="@+id/content_view"
+    tools:showIn="@layout/main_screen">
+
+    <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/puzzle_grid">
+    </GridLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/puzzle_grid_margin_bottom">
+    </View>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/color_palette">
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/menu_top"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/pack_01"
+            android:icon="@drawable/ic_lock_open"
+            android:title="@string/pack_01" />
+        <item
+            android:id="@+id/pack_02"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/pack_02" />
+        <item
+            android:id="@+id/pack_03"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/pack_03" />
+        <item
+            android:id="@+id/pack_04"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/pack_04" />
+        <item
+            android:id="@+id/pack_05"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/pack_05" />
+        <item
+            android:id="@+id/pack_06"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/pack_06" />
+        <item
+            android:id="@+id/pack_07"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/pack_07" />
+    </group>
+
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="none">
+
+        <item
+            android:id="@+id/send_mail"
+            android:icon="@drawable/ic_mail"
+            android:title="@string/send_mail_icon_description" />
+    </group>
+
+</menu>
