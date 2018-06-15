@@ -516,6 +516,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         grid?.columnCount = puzzle.width
         grid?.rowCount = puzzle.height
 
+        // Center-align puzzle between action bar and palette
+        val gridParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        gridParams.bottomMargin = (contentView.height - puzzle.height * primitiveSize) / 2
+        grid?.layoutParams = gridParams
+
         for (i in 0 until puzzle.height)
             for (j in 0 until puzzle.width) {
                 val primitive = Button(this)
