@@ -12,6 +12,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.design.widget.FloatingActionButton
 
@@ -76,9 +77,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     // Views related
     private var menu: Menu? = null
     private var toast: Toast? = null
+    private var snackbar: Snackbar? = null
+    private var fabIsShowed: Boolean = false
     private var grid: GridLayout? = null
     private var palette: LinearLayout? = null
-    private var fabIsShowed: Boolean = false
     private var navigatedToSelectScreen: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,16 +105,20 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 super.onDrawerSlide(drawerView, slideOffset)
                 toast?.cancel()
+                snackbar?.dismiss()
             }
         }
         activity_main.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Find views
+        // Find or create views
         grid = findViewById(R.id.puzzle_grid)
         palette = findViewById(R.id.color_palette)
         menu = findViewById<NavigationView>(R.id.nav_view).menu
         toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
+        snackbar = Snackbar.make(findViewById(R.id.content_view),
+            R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
+        snackbar?.setAction(R.string.snackbar_action) { launchMailApplication() }
 
         // Add listeners to views
         grid?.setOnTouchListener(gridListener)
@@ -315,6 +321,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 "equalide.kotlin.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE)
 
         // Get user progress
+//        val packProgress = "sssssso"
+//        val levelProgress = ("s".repeat(24) + "\n").repeat(6) + "s".repeat(23) + "o\n"
         val packProgress = preferences.getString("Pack progress", null)
         val levelProgress = preferences.getString("Level progress", null)
         val levelPartition = preferences.getString("Level partition", null)
@@ -561,39 +569,42 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun handleSolvedPuzzle() {
+        val packSolved = packs[current.pack].solved
         skipSolvedLevels = !packs[current.pack].puzzles[current.level].solved
         saveSkipStatus()
 
         hideColorPalette()
 
-        if (!checkIfAllLevelsSolved()) {
+        // Is true for last level in game although no fab is actually shown.
+        // It's because this setting is also used to save current level solved property.
+        saveFabStatus(true)
 
+        if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
+            if (!packSolved) {
+                toast?.setText("Pack ${current.pack + 1} solved!")
+                toast?.duration = Toast.LENGTH_LONG
+            } else {
+                toast?.setText("Puzzle solved!")
+                toast?.duration = Toast.LENGTH_SHORT
+            }
+            toast?.show()
+            findViewById<FloatingActionButton>(R.id.fab).show()
+        } else if (!checkIfAllLevelsSolved())
+            snackbar?.show()
+
+        if (!checkIfAllLevelsSolved()) {
             packs[current.pack].puzzles[current.level].solved = true
             current.levelSolved = true
 
             openNextLevels()
             saveProgress()
 
-            if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
-                // Show correct toast message
-                if (!packs[current.pack].solved && packs[current.pack].checkIfSolved()) {
-                    menu?.findItem(packIds[current.pack])?.icon =
-                            ContextCompat.getDrawable(this, R.drawable.ic_star)
-
-                    toast?.setText("Pack ${current.pack + 1} solved!")
-                    toast?.duration = Toast.LENGTH_LONG
-                } else {
-                    toast?.setText("Puzzle solved!")
-                    toast?.duration = Toast.LENGTH_SHORT
-                }
-                toast?.show()
-
-                findViewById<FloatingActionButton>(R.id.fab).show()
+            if (!packSolved && packs[current.pack].checkIfSolved()) {
+                packs[current.pack].solved = true
+                menu?.findItem(packIds[current.pack])?.icon =
+                        ContextCompat.getDrawable(this, R.drawable.ic_star)
             }
-        } else if (current.level == packSize - 1 && current.pack == packIds.size - 1)
-            activity_main.openDrawer(GravityCompat.START)
-
-        saveFabStatus(true)
+        }
     }
 
     private fun refreshGrid() {

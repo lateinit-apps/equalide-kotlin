@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/black"
     android:id="@+id/main_screen"
     tools:context=".activities.Main">
@@ -27,6 +28,7 @@
         android:layout_gravity="bottom|end"
         android:src="@drawable/ic_navigate_next"
         android:layout_margin="16dp"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        app:backgroundTint="@android:color/white"/>
 
 </android.support.design.widget.CoordinatorLayout>
