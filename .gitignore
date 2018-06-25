@@ -2,6 +2,7 @@
 build/
 */build/
 app/release/
+app/debug/
 
 # Local configuration file
 local.properties

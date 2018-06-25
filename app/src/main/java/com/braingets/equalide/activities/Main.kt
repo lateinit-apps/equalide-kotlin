@@ -79,6 +79,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var toast: Toast? = null
     private var snackbar: Snackbar? = null
     private var fabIsShowed: Boolean = false
+    private var fabIsLocked: Boolean = false
     private var grid: GridLayout? = null
     private var palette: LinearLayout? = null
     private var navigatedToSelectScreen: Boolean = false
@@ -399,7 +400,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
             if (!checkIfAllLevelsSolved()
                 || current.level != packSize - 1 || current.pack != packIds.size - 1)
-                findViewById<FloatingActionButton>(R.id.fab).show()
+                findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
         }
     }
 
@@ -588,7 +589,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 toast?.duration = Toast.LENGTH_SHORT
             }
             toast?.show()
-            findViewById<FloatingActionButton>(R.id.fab).show()
+            findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
         } else if (!checkIfAllLevelsSolved())
             snackbar?.show()
 
@@ -794,26 +795,36 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private val fabListener = {v: View ->
-        toast?.cancel()
+    private val fabListener = { v: View ->
+        if (!fabIsLocked) {
+            fabIsLocked = true
+            (v as FloatingActionButton).hide()
+            saveFabStatus(false)
 
-        (v as FloatingActionButton).hide()
-        saveFabStatus(false)
+            toast?.cancel()
 
-        grid?.removeAllViews()
-        palette?.removeAllViews()
+            grid?.removeAllViews()
+            palette?.removeAllViews()
 
-        current.levelSolved = false
+            current.levelSolved = false
 
-        selectNextLevel()
-        saveCurrentSelectedLevel()
+            selectNextLevel()
+            saveCurrentSelectedLevel()
 
-        packs[current.pack].puzzles[current.level].refresh()
-        savePartition()
+            packs[current.pack].puzzles[current.level].refresh()
+            savePartition()
 
-        paintColor = packs[current.pack].puzzles[current.level].parts / 2
-        savePaletteStatus()
+            paintColor = packs[current.pack].puzzles[current.level].parts / 2
+            savePaletteStatus()
 
-        onLayoutLoad()
+            onLayoutLoad()
+        }
+    }
+
+    private val onShownFabListener = object : FloatingActionButton.OnVisibilityChangedListener() {
+        override fun onShown(fab: FloatingActionButton?) {
+            super.onShown(fab)
+            fabIsLocked = false
+        }
     }
 }
