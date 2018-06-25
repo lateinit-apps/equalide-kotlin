@@ -557,34 +557,36 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         skipSolvedLevels = !packs[current.pack].puzzles[current.level].solved
         saveSkipStatus()
 
-        packs[current.pack].puzzles[current.level].solved = true
-        current.levelSolved = true
-
         hideColorPalette()
 
-        if (!packs[current.pack].solved && packs[current.pack].checkIfSolved()) {
-            menu?.findItem(packIds[current.pack])?.icon =
-                    ContextCompat.getDrawable(this, R.drawable.ic_star)
+        if (!checkIfAllLevelsSolved()) {
 
-            toast?.setText("Pack ${current.pack + 1} solved!")
-            toast?.duration = Toast.LENGTH_LONG
-        } else {
-            toast?.setText("Puzzle solved!")
-            toast?.duration = Toast.LENGTH_SHORT
-        }
-        toast?.show()
-
-        if (!checkIfAllLevelsSolved()
-            || current.level != packSize - 1 || current.pack != packIds.size - 1) {
-            findViewById<FloatingActionButton>(R.id.fab).show()
-            saveFabStatus(true)
+            packs[current.pack].puzzles[current.level].solved = true
+            current.levelSolved = true
 
             openNextLevels()
             saveProgress()
-        } else {
+
+            if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
+                // Show correct toast message
+                if (!packs[current.pack].solved && packs[current.pack].checkIfSolved()) {
+                    menu?.findItem(packIds[current.pack])?.icon =
+                            ContextCompat.getDrawable(this, R.drawable.ic_star)
+
+                    toast?.setText("Pack ${current.pack + 1} solved!")
+                    toast?.duration = Toast.LENGTH_LONG
+                } else {
+                    toast?.setText("Puzzle solved!")
+                    toast?.duration = Toast.LENGTH_SHORT
+                }
+                toast?.show()
+
+                findViewById<FloatingActionButton>(R.id.fab).show()
+            }
+        } else if (current.level == packSize - 1 && current.pack == packIds.size - 1)
             activity_main.openDrawer(GravityCompat.START)
-            saveFabStatus(true)
-        }
+
+        saveFabStatus(true)
     }
 
     private fun refreshGrid() {
