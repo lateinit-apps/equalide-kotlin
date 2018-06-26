@@ -33,6 +33,10 @@
             android:id="@+id/pack_07"
             android:icon="@drawable/ic_lock"
             android:title="@string/pack_07" />
+        <item
+            android:id="@+id/pack_08"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/pack_08" />
     </group>
 
     <group

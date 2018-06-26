@@ -61,7 +61,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private val packIds = arrayOf(
         R.id.pack_01, R.id.pack_02, R.id.pack_03,
         R.id.pack_04, R.id.pack_05, R.id.pack_06,
-        R.id.pack_07
+        R.id.pack_07, R.id.pack_08
     )
     private var selectedPackInNav: Int = 0
 
