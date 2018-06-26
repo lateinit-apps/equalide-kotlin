@@ -10,8 +10,6 @@ class Pack(val puzzles: Array<Puzzle>) {
             if (!puzzles[i].solved)
                 return false
 
-        solved = true
-
         return true
     }
 }
