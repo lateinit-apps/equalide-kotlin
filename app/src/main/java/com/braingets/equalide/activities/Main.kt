@@ -570,7 +570,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun handleSolvedPuzzle() {
-        val packSolved = packs[current.pack].solved
         skipSolvedLevels = !packs[current.pack].puzzles[current.level].solved
         saveSkipStatus()
 
@@ -580,8 +579,26 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // It's because this setting is also used to save current level solved property.
         saveFabStatus(true)
 
+        val allLevelsSolved = checkIfAllLevelsSolved()
+        var packSolved = false
+        current.levelSolved = true
+
+        if (!allLevelsSolved) {
+            packs[current.pack].puzzles[current.level].solved = true
+
+            if (!packs[current.pack].solved && packs[current.pack].checkIfSolved()) {
+                packSolved = true
+                packs[current.pack].solved = true
+                menu?.findItem(packIds[current.pack])?.icon =
+                        ContextCompat.getDrawable(this, R.drawable.ic_star)
+            }
+
+            openNextLevels()
+            saveProgress()
+        }
+
         if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
-            if (!packSolved) {
+            if (packSolved) {
                 toast?.setText("Pack ${current.pack + 1} solved!")
                 toast?.duration = Toast.LENGTH_LONG
             } else {
@@ -590,22 +607,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
             toast?.show()
             findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
-        } else if (!checkIfAllLevelsSolved())
+        } else if (!allLevelsSolved)
             snackbar?.show()
-
-        if (!checkIfAllLevelsSolved()) {
-            packs[current.pack].puzzles[current.level].solved = true
-            current.levelSolved = true
-
-            openNextLevels()
-            saveProgress()
-
-            if (!packSolved && packs[current.pack].checkIfSolved()) {
-                packs[current.pack].solved = true
-                menu?.findItem(packIds[current.pack])?.icon =
-                        ContextCompat.getDrawable(this, R.drawable.ic_star)
-            }
-        }
     }
 
     private fun refreshGrid() {
@@ -646,9 +649,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     private fun checkIfAllLevelsSolved(): Boolean {
         for (pack in packs)
-            for (puzzle in pack.puzzles)
-                if (!puzzle.solved)
-                    return false
+            if (!pack.solved)
+                return false
 
         return true
     }
