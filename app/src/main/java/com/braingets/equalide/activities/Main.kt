@@ -772,7 +772,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 MotionEvent.ACTION_MOVE -> {
                     if (!coords.contentEquals(previousPaintCoords)) {
                         previousPaintCoords = coords.copyOf()
-                        paintPrimitive(coords)
+
+                        if (!eraseMode || puzzle!![coords[0], coords[1]].toInt() - 48 == paintColor)
+                            paintPrimitive(coords)
                     }
                 }
                 else -> Log.d("ERROR", "Incorrect touch move occured!")
