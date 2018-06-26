@@ -4,15 +4,16 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:label="@string/app_name"
             android:name=".activities.Main"
             android:configChanges="orientation"
-            android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTask">
@@ -23,6 +24,8 @@
         </activity>
         <activity android:name=".activities.SelectLevel"
             android:parentActivityName=".activities.Main"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
             android:launchMode="singleTask">
         </activity>
