@@ -260,8 +260,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.refresh_button)
+        if (item.itemId == R.id.refresh_button) {
             refreshGrid()
+            snackbar?.dismiss()
+        }
         else
             return super.onOptionsItemSelected(item)
 
