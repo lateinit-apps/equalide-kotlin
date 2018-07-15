@@ -25,9 +25,8 @@ class Puzzle(text: String) {
         height = lines.size
         width = lines[0].length
 
-        solution = lines.joinToString("")
-            .replace('0', 'b')
-        source = solution.replace(Regex("[^0-9]"), "e")
+        solution = lines.joinToString("").replace('0', 'b')
+        source = solution.replace(Regex("[^1-9]"), "e")
         body = source
 
         opened = false
@@ -38,17 +37,15 @@ class Puzzle(text: String) {
         this.parts = parts
     }
 
-    operator fun get(i: Int, j: Int): Char {
-        return body[i * width + j]
-    }
+    operator fun get(i: Int, j: Int) = body[i * width + j]
 
     operator fun set(i: Int, j: Int, c: String) {
         body = body.replaceRange(i * width + j, i * width + j + 1, c)
     }
 
-    fun getPartition(): String {
-        return this.body
-    }
+    fun getAmountOfParts() = this.parts
+
+    fun getPartition() = this.body
 
     fun setPartition(partition: String) {
         this.body = partition
