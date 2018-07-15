@@ -302,10 +302,16 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     val packRaw =
                         preferences.getString("Directory [$directoryIndex] Pack [$packIndex]", null)
                     val packParsed = packRaw.split("\n\n")
-                    val pack = Pack(Array(packParsed.size) { i -> Puzzle(packParsed[i], 0) })
+                    directory.add(Pack(Array(packParsed.size) { i -> Puzzle(packParsed[i]) }))
                 }
+
+                levelData.addDirectory(directory)
             }
         }
+    }
+
+    private fun loadNewDirectory() {
+
     }
 
     private fun loadUserData() {

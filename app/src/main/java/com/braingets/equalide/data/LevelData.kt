@@ -4,7 +4,8 @@ import com.braingets.equalide.logic.Pack
 
 typealias Directory = MutableList<Pack>
 
-class LevelData() {
+class LevelData {
+
     private var directories = mutableListOf<Directory>()
 
     fun addDirectory(directory: Directory) = directories.add(directory)
