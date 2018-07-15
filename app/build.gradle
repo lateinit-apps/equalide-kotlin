@@ -18,6 +18,10 @@ android {
         debug {
             applicationIdSuffix ".debug"
         }
+        internal {
+            initWith debug
+            applicationIdSuffix ".internal"
+        }
         release {
             minifyEnabled true
             shrinkResources true
