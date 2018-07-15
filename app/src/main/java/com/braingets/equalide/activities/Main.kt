@@ -18,6 +18,7 @@ import android.support.design.widget.FloatingActionButton
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.provider.ContactsContract
 
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -34,9 +35,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_screen.*
 
 import com.braingets.equalide.R
+import com.braingets.equalide.data.Directory
+import com.braingets.equalide.data.LevelData
 import com.braingets.equalide.logic.Pack
 import com.braingets.equalide.logic.Puzzle
-import com.braingets.equalide.data.packsData
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -56,19 +58,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     // Puzzle related
     private var puzzle: Puzzle? = null
-    private var packs: Array<Pack> = packsData.packs
-    private val packSize: Int = 24
-    private val packIds = arrayOf(
-        R.id.pack_01, R.id.pack_02, R.id.pack_03,
-        R.id.pack_04, R.id.pack_05, R.id.pack_06,
-        R.id.pack_07, R.id.pack_08
-    )
+    private var directory: Directory? = null
     private var selectedPackInNav: Int = 0
 
     // Walkthrough related
+    private val levelData = LevelData()
     private val current = object {
         var level: Int = 0
         var pack: Int = 0
+        var directory: Int = 0
         var levelSolved: Boolean = false
     }
     private val levelOpeningDelta: Int = 3
@@ -289,28 +287,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         renderPuzzle(puzzle!!)
     }
 
-//    private fun loadPacks(): Array<Pack> {
-//        val array = Array(packIds.size, { _ -> ArrayList<Puzzle>(0) })
-//        var file: InputStream? = null
-//        var parts = 2
-//
-//        for (i in 1..packIds.size)
-//            for (j in 1..packSize) {
-//                try {
-//                    file = assets.open("$i/${j.toString().padStart(2, '0')}-$parts.txt")
-//                } catch (_: Exception) {
-//                    try {
-//                        parts++
-//                        file = assets.open("$i/${j.toString().padStart(2, '0')}-$parts.txt")
-//                    } catch (e: Exception) {
-//                        Log.d("ERROR", e.toString())
-//                    }
-//                }
-//                array[i - 1].add(Puzzle(file!!.bufferedReader().use { it.readText() }, parts))
-//            }
-//
-//        return Array(packIds.size, { i -> Pack(array[i].toTypedArray()) })
-//    }
+    private fun loadLevelData() {
+
+    }
 
     private fun loadUserData() {
         //val preferences = getSharedPreferences(
