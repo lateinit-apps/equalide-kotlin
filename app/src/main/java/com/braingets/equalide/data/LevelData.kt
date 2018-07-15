@@ -2,7 +2,7 @@ package com.braingets.equalide.data
 
 import com.braingets.equalide.logic.Pack
 
-typealias Directory = Array<Pack>
+typealias Directory = MutableList<Pack>
 
 class LevelData() {
     private var directories = mutableListOf<Directory>()
