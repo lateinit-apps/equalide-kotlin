@@ -23,6 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
+                                                <entry key="scalingPercent" value="80" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -47,7 +48,7 @@
                                       <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="ffffff" />
                                       <entry key="backgroundImage" value="D:\Downloads\void.png" />
-                                      <entry key="foregroundImage" value="D:\Downloads\logo.png" />
+                                      <entry key="foregroundImage" value="D:\Downloads\puzzle cog.jpg" />
                                       <entry key="legacyIconShape" value="CIRCLE" />
                                       <entry key="showGrid" value="true" />
                                       <entry key="webIconShape" value="CIRCLE" />
