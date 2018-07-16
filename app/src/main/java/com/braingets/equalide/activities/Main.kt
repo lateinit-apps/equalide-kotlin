@@ -18,6 +18,7 @@ import android.support.design.widget.FloatingActionButton
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.os.Environment
 
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -130,15 +131,30 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         nav_view.setNavigationItemSelectedListener(this)
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener(fabListener)
 
-        loadUserData()
+        Log.i("TAG", Environment.getExternalStorageDirectory().toString())
 
-        // Listener to detect when layout is loaded to get it's resolution properties
-        grid?.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                grid?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
-                onLayoutLoad()
-            }
-        })
+        // Load game levels and walkthrough data
+        if (intent.action == Intent.ACTION_VIEW) {
+            loadNewDirectory(intent.dataString)
+            Log.i("TAG", intent.data.toString())
+
+            val fileContent = openFileInput(intent.dataString)
+                .bufferedReader().use { it.readText() }
+            Log.i("TAG", fileContent)
+
+        }
+
+        if (directory != null) {
+            loadUserData()
+
+            // Listener to detect when layout is loaded to get it's resolution properties
+            grid?.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    grid?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
+                    onLayoutLoad()
+                }
+            })
+        }
     }
 
     // Close drawer on return from select level activity
@@ -321,8 +337,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun loadNewDirectory() {
-
+    private fun loadNewDirectory(text: String) {
+        Log.d("TAG", text)
     }
 
     private fun loadUserData() {
