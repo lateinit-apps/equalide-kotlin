@@ -1,5 +1,6 @@
 package com.braingets.equalide.activities
 
+import android.Manifest
 import android.net.Uri
 import android.util.Log
 import android.os.Bundle
@@ -19,6 +20,7 @@ import android.support.design.widget.FloatingActionButton
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Environment
+import android.support.v4.app.ActivityCompat
 
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -39,6 +41,10 @@ import com.braingets.equalide.data.Directory
 import com.braingets.equalide.data.LevelData
 import com.braingets.equalide.logic.Pack
 import com.braingets.equalide.logic.Puzzle
+import java.io.File
+import java.io.FileInputStream
+
+const val READ_PERMISSION_REQUEST = 1
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -131,18 +137,32 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         nav_view.setNavigationItemSelectedListener(this)
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener(fabListener)
 
-        Log.i("TAG", Environment.getExternalStorageDirectory().toString())
-
         // Load game levels and walkthrough data
         if (intent.action == Intent.ACTION_VIEW) {
             loadNewDirectory(intent.dataString)
-            Log.i("TAG", intent.data.toString())
+            Log.i("TAG", intent.data.path)
 
-            val fileContent = openFileInput(intent.dataString)
+            val file = File(intent.data.path)
+            val fileContent = FileInputStream(file)
                 .bufferedReader().use { it.readText() }
             Log.i("TAG", fileContent)
 
         }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_PERMISSION_REQUEST)
+
+        }
+
+        val fileName = "Download/test.eqld"
+        val path = Environment.getExternalStorageDirectory().absolutePath + "/" + fileName
+        Log.i("TAG", path)
+        val fileContent = FileInputStream(path)
+            .bufferedReader().use { it.readText() }
+        Log.i("TAG", fileContent)
 
         if (directory != null) {
             loadUserData()
@@ -163,6 +183,29 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (navigatedToSelectScreen && activity_main.isDrawerOpen(GravityCompat.START)) {
             navigatedToSelectScreen = false
             activity_main.closeDrawer(GravityCompat.START, false)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            READ_PERMISSION_REQUEST -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return
+            }
+
+        // Add other 'when' lines to check for other
+        // permissions this app might request.
+            else -> {
+                // Ignore all other requests.
+            }
         }
     }
 
