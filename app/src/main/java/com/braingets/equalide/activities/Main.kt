@@ -7,10 +7,10 @@ import android.Manifest
 import android.net.Uri
 import android.util.Log
 import android.os.Bundle
-import android.os.Environment
 
 import android.content.Intent
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 
 import android.support.v4.app.ActivityCompat
@@ -154,6 +154,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
 
         if (directory != null) {
+            loadDefaultDirectory()
+            loadLevelData()
             loadUserData()
 
             // Listener to detect when layout is loaded to get it's resolution properties
@@ -326,6 +328,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         renderPuzzle(puzzle!!)
     }
 
+    private fun loadDefaultDirectory() {
+        val preferences = getSharedPreferences(
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+
+        val packsAmount = preferences.getInt("Default directory size", 0)
+
+        if (packsAmount > 0)
+            loadDirectoryContent(preferences, packsAmount, -1, "Default")
+        else
+            levelData.addDirectory(mutableListOf(), "Default")
+    }
+
     private fun loadLevelData() {
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -336,22 +350,27 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             val sizes = directoriesSizes.split("\n")
 
             for (directoryIndex in 0 until sizes.size - 1) {
-                val directory = mutableListOf<Pack>()
                 val name = preferences.getString("Directory [$directoryIndex] name", null)
-
-                for (packIndex in 0 until sizes[directoryIndex].toInt()) {
-                    val packRaw =
-                        preferences.getString("Directory [$directoryIndex] Pack [$packIndex]", null)
-
-                    if (packRaw != null) {
-                        val packParsed = packRaw.split("\n\n")
-                        directory.add(Pack(Array(packParsed.size) { i -> Puzzle(packParsed[i]) }))
-                    }
-                }
-
-                levelData.addDirectory(directory, name)
+                loadDirectoryContent(preferences, sizes[directoryIndex].toInt(), directoryIndex, name)
             }
         }
+    }
+
+    private fun loadDirectoryContent(preferences: SharedPreferences, packsAmount: Int,
+                                     directoryIndex: Int, directoryName: String) {
+        val directory = mutableListOf<Pack>()
+
+        for (packIndex in 0 until packsAmount) {
+            val packRaw =
+                preferences.getString("Directory [$directoryIndex] Pack [$packIndex]", null)
+
+            if (packRaw != null) {
+                val packParsed = packRaw.split("\n\n")
+                directory.add(Pack(Array(packParsed.size) { i -> Puzzle(packParsed[i]) }))
+            }
+        }
+
+        levelData.addDirectory(directory, directoryName)
     }
 
     private fun loadNewDirectory(text: String) {
