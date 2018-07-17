@@ -20,4 +20,6 @@ class LevelData {
             names.removeAt(index)
         }
     }
+
+    operator fun get(i: Int) = directories[i]
 }

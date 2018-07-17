@@ -50,7 +50,7 @@ const val READ_PERMISSION_REQUEST = 1
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     // Different element sizes
-    private val contentView = object {
+    object ContentView {
         var width: Int = 0
         var height: Int = 0
     }
@@ -149,7 +149,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             else {
                 val file = File(intent.data.path)
                 val content = FileInputStream(file).bufferedReader().use { it.readText() }
-                loadNewDirectory(content)
+                loadFileContent(content)
             }
         }
 
@@ -373,8 +373,24 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         levelData.addDirectory(directory, directoryName)
     }
 
-    private fun loadNewDirectory(text: String) {
-        Log.i("TAG", text)
+    private fun loadFileContent(text: String) {
+        val directories = text.split("##")
+
+        val toDefaultDirectory = directories.size == 1
+        val startIndex = if (toDefaultDirectory) 0 else 1
+
+        for (directoryIndex in startIndex until directories.size) {
+            val packs = directories[directoryIndex].split("#\n")
+            val directory = if (toDefaultDirectory) levelData[0] else mutableListOf()
+
+            for (packIndex in 1 until packs.size) {
+                val packParsed = packs[packIndex].split("\n\n")
+                directory.add(Pack(Array(packParsed.size) { i -> Puzzle(packParsed[i]) }))
+            }
+
+            if (!toDefaultDirectory)
+                levelData.addDirectory(directory, packs[0])
+        }
     }
 
     private fun loadUserData() {
@@ -565,8 +581,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         colorPaletteSize = contentView.width / 5
 
-        this.contentView.width = contentView.width
-        this.contentView.height = (contentView.height
+        ContentView.width = contentView.width
+        ContentView.height = (contentView.height
                 - resources.getDimension(R.dimen.puzzle_grid_margin_top)
                 - resources.getDimension(R.dimen.puzzle_grid_margin_bottom)
                 - colorPaletteSize).toInt()
@@ -601,7 +617,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun renderPuzzle(puzzle: Puzzle) {
-        primitiveSize = minOf(contentView.width / puzzle.width, contentView.height / puzzle.height)
+        primitiveSize = minOf(ContentView.width / puzzle.width, ContentView.height / puzzle.height)
 
         grid?.columnCount = puzzle.width
         grid?.rowCount = puzzle.height
@@ -609,7 +625,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // Center-align puzzle between action bar and palette
         val gridParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        gridParams.bottomMargin = (contentView.height - puzzle.height * primitiveSize) / 2
+        gridParams.bottomMargin = (ContentView.height - puzzle.height * primitiveSize) / 2
         grid?.layoutParams = gridParams
 
         for (i in 0 until puzzle.height)
