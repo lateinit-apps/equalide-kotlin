@@ -1,14 +1,19 @@
 package com.braingets.equalide.activities
 
+import java.io.File
+import java.io.FileInputStream
+
 import android.Manifest
 import android.net.Uri
 import android.util.Log
 import android.os.Bundle
+import android.os.Environment
 
 import android.content.Intent
 import android.content.Context
 import android.content.pm.PackageManager
 
+import android.support.v4.app.ActivityCompat
 import android.support.v4.view.GravityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -19,8 +24,6 @@ import android.support.design.widget.FloatingActionButton
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.os.Environment
-import android.support.v4.app.ActivityCompat
 
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -33,16 +36,14 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 
 import android.widget.*
 
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_screen.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 import com.braingets.equalide.R
 import com.braingets.equalide.data.Directory
 import com.braingets.equalide.data.LevelData
 import com.braingets.equalide.logic.Pack
 import com.braingets.equalide.logic.Puzzle
-import java.io.File
-import java.io.FileInputStream
 
 const val READ_PERMISSION_REQUEST = 1
 
@@ -73,7 +74,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         R.id.pack_04, R.id.pack_05, R.id.pack_06,
         R.id.pack_07, R.id.pack_08
     )
-    
+
     // Walkthrough related
     object Current {
         var level: Int = 0
@@ -137,32 +138,20 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         nav_view.setNavigationItemSelectedListener(this)
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener(fabListener)
 
-        // Load game levels and walkthrough data
+        // Handle opening file intent
         if (intent.action == Intent.ACTION_VIEW) {
-            loadNewDirectory(intent.dataString)
-            Log.i("TAG", intent.data.path)
 
-            val file = File(intent.data.path)
-            val fileContent = FileInputStream(file)
-                .bufferedReader().use { it.readText() }
-            Log.i("TAG", fileContent)
-
+            // Check for read permission
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_PERMISSION_REQUEST)
+            else {
+                val file = File(intent.data.path)
+                val content = FileInputStream(file).bufferedReader().use { it.readText() }
+                loadNewDirectory(content)
+            }
         }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_PERMISSION_REQUEST)
-
-        }
-
-        val fileName = "Download/test.eqld"
-        val path = Environment.getExternalStorageDirectory().absolutePath + "/" + fileName
-        Log.i("TAG", path)
-        val fileContent = FileInputStream(path)
-            .bufferedReader().use { it.readText() }
-        Log.i("TAG", fileContent)
 
         if (directory != null) {
             loadUserData()
@@ -186,27 +175,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
+    // Close application if read permissions isn't granted
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            READ_PERMISSION_REQUEST -> {
-                // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return
-            }
-
-        // Add other 'when' lines to check for other
-        // permissions this app might request.
-            else -> {
-                // Ignore all other requests.
-            }
-        }
+        if (requestCode == READ_PERMISSION_REQUEST &&
+            grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED)
+            this.finishAffinity()
     }
 
     // Launch new activity if selected proper item from navigation drawer
@@ -364,24 +338,24 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             for (directoryIndex in 0 until sizes.size - 1) {
                 val directory = mutableListOf<Pack>()
                 val name = preferences.getString("Directory [$directoryIndex] name", null)
-                
+
                 for (packIndex in 0 until sizes[directoryIndex].toInt()) {
                     val packRaw =
                         preferences.getString("Directory [$directoryIndex] Pack [$packIndex]", null)
-                    
+
                     if (packRaw != null) {
                         val packParsed = packRaw.split("\n\n")
                         directory.add(Pack(Array(packParsed.size) { i -> Puzzle(packParsed[i]) }))
                     }
                 }
-                
+
                 levelData.addDirectory(directory, name)
             }
         }
     }
 
     private fun loadNewDirectory(text: String) {
-        Log.d("TAG", text)
+        Log.i("TAG", text)
     }
 
     private fun loadUserData() {
