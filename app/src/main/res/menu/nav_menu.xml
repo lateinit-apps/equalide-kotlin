@@ -2,51 +2,29 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group
-        android:id="@+id/menu_top"
-        android:checkableBehavior="single">
+        android:id="@+id/nav_menu_top"
+        android:checkableBehavior="single"
+        android:orderInCategory="0">
 
-        <item
-            android:id="@+id/pack_01"
-            android:icon="@drawable/ic_lock_open"
-            android:title="@string/pack_01" />
-        <item
-            android:id="@+id/pack_02"
-            android:icon="@drawable/ic_lock"
-            android:title="@string/pack_02" />
-        <item
-            android:id="@+id/pack_03"
-            android:icon="@drawable/ic_lock"
-            android:title="@string/pack_03" />
-        <item
-            android:id="@+id/pack_04"
-            android:icon="@drawable/ic_lock"
-            android:title="@string/pack_04" />
-        <item
-            android:id="@+id/pack_05"
-            android:icon="@drawable/ic_lock"
-            android:title="@string/pack_05" />
-        <item
-            android:id="@+id/pack_06"
-            android:icon="@drawable/ic_lock"
-            android:title="@string/pack_06" />
-        <item
-            android:id="@+id/pack_07"
-            android:icon="@drawable/ic_lock"
-            android:title="@string/pack_07" />
-        <item
-            android:id="@+id/pack_08"
-            android:icon="@drawable/ic_lock"
-            android:title="@string/pack_08" />
     </group>
 
     <group
-        android:id="@+id/menu_bottom"
-        android:checkableBehavior="none">
+        android:id="@+id/nav_menu_middle"
+        android:checkableBehavior="single"
+        android:orderInCategory="1">
+    </group>
+
+    <group
+        android:id="@+id/nav_menu_bottom"
+        android:checkableBehavior="none"
+        android:orderInCategory="2">
 
         <item
-            android:id="@+id/send_mail"
-            android:icon="@drawable/ic_mail"
-            android:title="@string/send_mail_icon_description" />
+            android:id="@+id/delete_switch"
+            android:icon="@drawable/ic_delete"
+            android:title="@string/delete_switch_description" />
+
     </group>
+
 
 </menu>

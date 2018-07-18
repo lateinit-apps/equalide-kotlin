@@ -3,21 +3,11 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Equalide</string>
-    <string name="nav_header_subtitle">Early Access</string>
+    <string name="nav_header_subtitle">Internal Tool</string>
     <string name="nav_header_description">Navigation header</string>
     <string name="refresh_button_tooltip">Refresh</string>
     <string name="snackbar_message">All puzzles solved!</string>
     <string name="snackbar_action">send feedback</string>
     <string name="preference_file_key">com.braingets.equalide.PREFERENCE_FILE_KEY</string>
-    <string name="pack_01">Pack 1</string>
-    <string name="pack_02">Pack 2</string>
-    <string name="pack_03">Pack 3</string>
-    <string name="pack_04">Pack 4</string>
-    <string name="pack_05">Pack 5</string>
-    <string name="pack_06">Pack 6</string>
-    <string name="pack_07">Pack 7</string>
-    <string name="pack_08">Pack 8</string>
-    <string name="send_mail_icon_description">Contact developer</string>
-    <string name="contact_mail_address">braingets@gmail.com</string>
-    <string name="mail_chooser_title">Send mail</string>
+    <string name="delete_switch_description">Delete mode</string>
 </resources>

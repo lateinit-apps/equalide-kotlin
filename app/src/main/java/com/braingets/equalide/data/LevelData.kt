@@ -8,18 +8,22 @@ class LevelData {
 
     private var directories = mutableListOf<Directory>()
     private var names = mutableListOf<String>()
+    var size = 0
+        private set
 
     fun addDirectory(directory: Directory, name: String) {
         directories.add(directory)
         names.add(name)
+        size++
     }
 
     fun removeDirectory(index: Int) {
-        if (index >= 0 && index < directories.size) {
-            directories.removeAt(index)
-            names.removeAt(index)
-        }
+        directories.removeAt(index)
+        names.removeAt(index)
+        size--
     }
 
     operator fun get(i: Int) = directories[i]
+
+    fun name(i: Int) = names[i]
 }

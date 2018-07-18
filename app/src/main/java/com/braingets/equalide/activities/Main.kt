@@ -4,7 +4,6 @@ import java.io.File
 import java.io.FileInputStream
 
 import android.Manifest
-import android.net.Uri
 import android.util.Log
 import android.os.Bundle
 
@@ -69,11 +68,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var selectedPackInNav: Int = 0
 
     //!!!
-    private val packIds = arrayOf(
-        R.id.pack_01, R.id.pack_02, R.id.pack_03,
-        R.id.pack_04, R.id.pack_05, R.id.pack_06,
-        R.id.pack_07, R.id.pack_08
-    )
+    private val packIds = arrayOf<Int>()
 
     // Walkthrough related
     object Current {
@@ -131,7 +126,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
         snackbar = Snackbar.make(findViewById(R.id.content_view),
             R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
-        snackbar?.setAction(R.string.snackbar_action) { launchMailApplication() }
+        snackbar?.setAction(R.string.snackbar_action) {  }
 
         // Add listeners to views
         grid?.setOnTouchListener(gridListener)
@@ -153,9 +148,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         }
 
-        if (directory != null) {
-            loadDefaultDirectory()
-            loadLevelData()
+        loadDefaultDirectory()
+        loadLevelData()
+
+        addDirectoriesToNavigationDrawer()
+
+        if (false) {
             loadUserData()
 
             // Listener to detect when layout is loaded to get it's resolution properties
@@ -187,52 +185,32 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     // Launch new activity if selected proper item from navigation drawer
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.send_mail)
-            launchMailApplication()
-        else {
-            for (i in 0 until packIds.size)
-                if (item.itemId == packIds[i]) {
-                    // Fixes issue when selected item becomes unselectable
-                    // on first select after closing of navigation drawer
-                    menu?.getItem(i)?.isChecked = true
 
-                    // Set color for text
-                    val spanString = SpannableString(item.title.toString())
-                    spanString.setSpan(ForegroundColorSpan(ContextCompat.getColor(
-                        this, R.color.nav_text_selected)), 0,
-                        spanString.length, 0)
-                    item.title = spanString
+        for (i in 0 until packIds.size)
+            if (item.itemId == packIds[i]) {
+                // Fixes issue when selected item becomes unselectable
+                // on first select after closing of navigation drawer
+                menu?.getItem(i)?.isChecked = true
 
-                    selectedPackInNav = i
-                    break
-                }
-            if (directory!![selectedPackInNav].opened)
-                launchSelectLevelActivity()
-        }
+                // Set color for text
+                val spanString = SpannableString(item.title.toString())
+                spanString.setSpan(
+                    ForegroundColorSpan(
+                        ContextCompat.getColor(
+                            this, R.color.nav_text_selected
+                        )
+                    ), 0,
+                    spanString.length, 0
+                )
+                item.title = spanString
+
+                selectedPackInNav = i
+                break
+            }
+        if (directory!![selectedPackInNav].opened)
+            launchSelectLevelActivity()
+
         return true
-    }
-
-    private fun launchMailApplication() {
-        val intent = Intent(Intent.ACTION_SENDTO)
-        intent.data = Uri.parse("mailto:${resources
-            .getString(R.string.contact_mail_address)}")
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Equalide")
-
-        // Get list of all installed mail clients on device that are not disabled
-        val appList = this.packageManager.queryIntentActivities(intent,
-            PackageManager.MATCH_DEFAULT_ONLY or PackageManager.GET_RESOLVED_FILTER)
-
-        if (appList.size == 1) {
-            intent.setClassName(
-                appList[0].activityInfo.packageName,
-                appList[0].activityInfo.name
-            )
-            // If there is only one mail client - launch it
-            startActivity(intent)
-        } else
-            // If there is more than one mail client - offer choice
-            startActivity(Intent.createChooser(intent, resources
-                .getString(R.string.mail_chooser_title)))
     }
 
     private fun launchSelectLevelActivity() {
@@ -586,6 +564,13 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 - resources.getDimension(R.dimen.puzzle_grid_margin_top)
                 - resources.getDimension(R.dimen.puzzle_grid_margin_bottom)
                 - colorPaletteSize).toInt()
+    }
+
+    private fun addDirectoriesToNavigationDrawer() {
+        for (i in 0 until levelData.size) {
+            menu?.add(R.id.nav_menu_top, 1345, 0, levelData.name(i))
+            findViewById<NavigationView>(R.id.nav_view).invalidate()
+        }
     }
 
     private fun addColorPalette(paletteColors: IntArray) {
