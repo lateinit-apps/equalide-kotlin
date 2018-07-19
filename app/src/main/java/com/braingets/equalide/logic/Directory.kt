@@ -22,7 +22,7 @@ class Directory(val name: String) {
 
     fun removePack(index: Int, default: Boolean) {
         if (default && index == DEFAULT_PACK_INDEX)
-             packs[DEFAULT_PACK_INDEX] = Pack(arrayOf())
+             packs[DEFAULT_PACK_INDEX] = Pack(mutableListOf())
         else {
             packs.removeAt(index)
             packsId.removeAt(index)
@@ -40,6 +40,6 @@ class Directory(val name: String) {
         packsId.clear()
 
         if (default)
-            add(Pack(arrayOf()))
+            add(Pack(mutableListOf()))
     }
 }

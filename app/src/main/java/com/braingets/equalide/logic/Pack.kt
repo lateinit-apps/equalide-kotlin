@@ -1,6 +1,6 @@
 package com.braingets.equalide.logic
 
-class Pack(val puzzles: Array<Puzzle>) {
+class Pack(val puzzles: MutableList<Puzzle>) {
 
     var opened: Boolean = false
     var solved: Boolean = false

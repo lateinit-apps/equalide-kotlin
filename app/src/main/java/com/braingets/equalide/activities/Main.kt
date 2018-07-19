@@ -370,7 +370,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (packsAmount > 0)
             loadDirectoryContent(preferences, packsAmount, -1, "Default")
         else
-            levelData.add(Directory( "Default", mutableListOf(Pack(arrayOf()))))
+            levelData.add(Directory( "Default", mutableListOf(Pack(mutableListOf()))))
     }
 
     private fun loadLevelData() {
@@ -399,7 +399,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
             if (packRaw != null) {
                 val packParsed = packRaw.split("\n\n")
-                directory.add(Pack(Array(packParsed.size) { i -> Puzzle(packParsed[i]) }))
+                directory.add(Pack(MutableList(packParsed.size) { i -> Puzzle(packParsed[i]) }))
             }
         }
 
@@ -414,15 +414,22 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         for (directoryIndex in startIndex until directories.size) {
             val packs = directories[directoryIndex].split("#\n")
-            val directory = if (toDefaultDirectory) levelData[0] else Directory(packs[0].trim())
 
-            for (packIndex in 1 until packs.size) {
-                val packParsed = packs[packIndex].split("\n\n")
-                directory.add(Pack(Array(packParsed.size) { i -> Puzzle(packParsed[i]) }))
+            // To default pack in default directory
+            if (packs.size == 1) {
+                val puzzles = packs[0].split("\n\n")
+                levelData[0][0].puzzles.addAll(MutableList(puzzles.size) { i -> Puzzle(puzzles[i]) })
+            } else {
+                val directory = if (toDefaultDirectory) levelData[0] else Directory(packs[0].trim())
+
+                for (packIndex in 1 until packs.size) {
+                    val packParsed = packs[packIndex].split("\n\n")
+                    directory.add(Pack(MutableList(packParsed.size) { i -> Puzzle(packParsed[i]) }))
+                }
+
+                if (!toDefaultDirectory)
+                    levelData.add(directory)
             }
-
-            if (!toDefaultDirectory)
-                levelData.add(directory)
         }
     }
 
