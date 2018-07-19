@@ -39,12 +39,8 @@ import kotlinx.android.synthetic.main.main_screen.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 import com.braingets.equalide.R
-import com.braingets.equalide.data.Directory
+import com.braingets.equalide.logic.*
 import com.braingets.equalide.data.LevelData
-import com.braingets.equalide.logic.Pack
-import com.braingets.equalide.logic.Puzzle
-
-const val READ_PERMISSION_REQUEST = 1
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -213,27 +209,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         return true
     }
 
-    private fun launchSelectLevelActivity() {
-        // String that contains user progress in selected pack
-        // 's' - solved level
-        // 'o' - opened level
-        // 'c' - closed level
-        var levelData = ""
-
-        for (level in directory!![selectedPackInNav].puzzles)
-            levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
-
-        val intent = Intent(this, SelectLevel::class.java).apply {
-            putExtra("pack", (selectedPackInNav + 1).toString())
-            putExtra("level data", levelData)
-        }
-
-        navigatedToSelectScreen = true
-        startActivity(intent)
-
-        overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
-    }
-
     // Parse data received from select level activity
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
@@ -306,6 +281,27 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         renderPuzzle(puzzle!!)
     }
 
+    private fun launchSelectLevelActivity() {
+        // String that contains user progress in selected pack
+        // 's' - solved level
+        // 'o' - opened level
+        // 'c' - closed level
+        var levelData = ""
+
+        for (level in directory!![selectedPackInNav].puzzles)
+            levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
+
+        val intent = Intent(this, SelectLevel::class.java).apply {
+            putExtra("pack", (selectedPackInNav + 1).toString())
+            putExtra("level data", levelData)
+        }
+
+        navigatedToSelectScreen = true
+        startActivity(intent)
+
+        overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
+    }
+
     private fun loadDefaultDirectory() {
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -315,7 +311,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (packsAmount > 0)
             loadDirectoryContent(preferences, packsAmount, -1, "Default")
         else
-            levelData.addDirectory(mutableListOf(), "Default")
+            levelData.add(Directory( "Default"))
     }
 
     private fun loadLevelData() {
@@ -348,7 +344,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         }
 
-        levelData.addDirectory(directory, directoryName)
+        levelData.add(Directory(directoryName, directory))
     }
 
     private fun loadFileContent(text: String) {
@@ -359,7 +355,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         for (directoryIndex in startIndex until directories.size) {
             val packs = directories[directoryIndex].split("#\n")
-            val directory = if (toDefaultDirectory) levelData[0] else mutableListOf()
+            val directory = if (toDefaultDirectory) levelData[0] else Directory(packs[0])
 
             for (packIndex in 1 until packs.size) {
                 val packParsed = packs[packIndex].split("\n\n")
@@ -367,7 +363,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
 
             if (!toDefaultDirectory)
-                levelData.addDirectory(directory, packs[0])
+                levelData.add(directory)
         }
     }
 
@@ -566,10 +562,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 - colorPaletteSize).toInt()
     }
 
-    private fun addDirectoriesToNavigationDrawer() {
+    private fun addDirectoriesToNavigationDrawer(update: Boolean = false) {
+        if (update)
+            menu?.removeGroup(R.id.nav_menu_top)
+
+
+        val a = generateViewId()
         for (i in 0 until levelData.size) {
-            menu?.add(R.id.nav_menu_top, 1345, 0, levelData.name(i))
-            findViewById<NavigationView>(R.id.nav_view).invalidate()
+            menu?.add(R.id.nav_menu_top, 1345, 0, levelData[i].name.trim())
         }
     }
 

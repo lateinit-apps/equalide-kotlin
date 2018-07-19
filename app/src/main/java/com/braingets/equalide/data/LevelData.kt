@@ -1,29 +1,17 @@
 package com.braingets.equalide.data
 
-import com.braingets.equalide.logic.Pack
-
-typealias Directory = MutableList<Pack>
+import com.braingets.equalide.logic.Directory
 
 class LevelData {
 
     private var directories = mutableListOf<Directory>()
-    private var names = mutableListOf<String>()
-    var size = 0
+    var size: Int = 0
+        get() = directories.size
         private set
 
-    fun addDirectory(directory: Directory, name: String) {
-        directories.add(directory)
-        names.add(name)
-        size++
-    }
+    fun add(directory: Directory) = directories.add(directory)
 
-    fun removeDirectory(index: Int) {
-        directories.removeAt(index)
-        names.removeAt(index)
-        size--
-    }
+    fun removeDirectory(index: Int) = directories.removeAt(index)
 
     operator fun get(i: Int) = directories[i]
-
-    fun name(i: Int) = names[i]
 }
