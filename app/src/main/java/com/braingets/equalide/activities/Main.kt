@@ -86,6 +86,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var grid: GridLayout? = null
     private var palette: LinearLayout? = null
     private var navigatedToSelectScreen: Boolean = false
+    private var navDeleteMode: Boolean = false
+    private var navSelectedDirectory: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -179,32 +181,77 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             this.finishAffinity()
     }
 
-    // Launch new activity if selected proper item from navigation drawer
+    // Close navigation drawer on back button pressed
+    override fun onBackPressed() {
+        if (activity_main.isDrawerOpen(GravityCompat.START)) {
+            activity_main.closeDrawer(GravityCompat.START)
+        } else
+            super.onBackPressed()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.actionbar_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.refresh_button) {
+            refreshGrid()
+            snackbar?.dismiss()
+        }
+        else
+            return super.onOptionsItemSelected(item)
+
+        return true
+    }
+
+    // Launches new activity if selected proper item from navigation drawer
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
 
-        for (i in 0 until packIds.size)
-            if (item.itemId == packIds[i]) {
-                // Fixes issue when selected item becomes unselectable
-                // on first select after closing of navigation drawer
-                menu?.getItem(i)?.isChecked = true
+        if (item.itemId == R.id.delete_switch) {
+            navDeleteMode = !navDeleteMode
 
-                // Set color for text
-                val spanString = SpannableString(item.title.toString())
-                spanString.setSpan(
-                    ForegroundColorSpan(
-                        ContextCompat.getColor(
-                            this, R.color.nav_text_selected
-                        )
-                    ), 0,
-                    spanString.length, 0
-                )
-                item.title = spanString
+            val spanString = SpannableString(item.title.toString())
+            val color = if (navDeleteMode) R.color.red else R.color.nav_text_selected
 
-                selectedPackInNav = i
-                break
-            }
-        if (directory!![selectedPackInNav].opened)
-            launchSelectLevelActivity()
+            spanString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, color)),
+                0, spanString.length, 0)
+            item.title = spanString
+        }
+
+        if (item.groupId == R.id.nav_menu_top) {
+            for (i in 0 until levelData.size)
+                if (item.itemId == levelData[i].id)
+                    if (i != navSelectedDirectory) {
+                        navSelectedDirectory = i
+                        addPacksToNavigationDrawer(levelData[i], i == 0)
+                    } else {
+                        navSelectedDirectory = null
+                        menu?.removeGroup(R.id.nav_menu_middle)
+                    }
+        } else {
+            for (i in 0 until packIds.size)
+                if (item.itemId == packIds[i]) {
+                    // Fixes issue when selected item becomes unselectable
+                    // on first select after closing of navigation drawer
+                    menu?.getItem(i)?.isChecked = true
+
+                    // Set color for text
+                    val spanString = SpannableString(item.title.toString())
+                    spanString.setSpan(
+                        ForegroundColorSpan(
+                            ContextCompat.getColor(this, R.color.nav_text_selected)
+                        ),
+                        0, spanString.length, 0
+                    )
+                    item.title = spanString
+
+                    selectedPackInNav = i
+                    break
+                }
+//            if (directory!![selectedPackInNav].opened)
+//                launchSelectLevelActivity()
+        }
 
         return true
     }
@@ -238,30 +285,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    // Close navigation drawer on back button pressed
-    override fun onBackPressed() {
-        if (activity_main.isDrawerOpen(GravityCompat.START)) {
-            activity_main.closeDrawer(GravityCompat.START)
-        } else
-            super.onBackPressed()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.actionbar_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.refresh_button) {
-            refreshGrid()
-            snackbar?.dismiss()
-        }
-        else
-            return super.onOptionsItemSelected(item)
-
-        return true
-    }
-
     fun onLayoutLoad() {
         supportActionBar?.title = "Equalide   ${Current.pack + 1}-${(Current.level + 1)
             .toString().padStart(2, '0')}"
@@ -281,14 +304,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         renderPuzzle(puzzle!!)
     }
 
-    private fun launchSelectLevelActivity() {
+    private fun launchSelectLevelActivity(pack: Pack) {
         // String that contains user progress in selected pack
         // 's' - solved level
         // 'o' - opened level
         // 'c' - closed level
         var levelData = ""
 
-        for (level in directory!![selectedPackInNav].puzzles)
+        for (level in pack.puzzles)
             levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
 
         val intent = Intent(this, SelectLevel::class.java).apply {
@@ -311,7 +334,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (packsAmount > 0)
             loadDirectoryContent(preferences, packsAmount, -1, "Default")
         else
-            levelData.add(Directory( "Default"))
+            levelData.add(Directory( "Default", mutableListOf(Pack(arrayOf()))))
     }
 
     private fun loadLevelData() {
@@ -566,11 +589,19 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (update)
             menu?.removeGroup(R.id.nav_menu_top)
 
+        for (i in 0 until levelData.size)
+            menu?.add(R.id.nav_menu_top, levelData[i].id, 0, levelData[i].name.trim())
+    }
 
-        val a = generateViewId()
-        for (i in 0 until levelData.size) {
-            menu?.add(R.id.nav_menu_top, 1345, 0, levelData[i].name.trim())
-        }
+    private fun addPacksToNavigationDrawer(directory: Directory, default: Boolean = false) {
+        menu?.removeGroup(R.id.nav_menu_middle)
+
+        if (default)
+            menu?.add(R.id.nav_menu_middle, directory.getPackId(0), 1, "Default")
+
+        for (i in (if (default) 1 else 0) until directory.size)
+            menu?.add(R.id.nav_menu_middle, directory.getPackId(i), 1,
+                "Pack ${i.toString().padStart(directory.size.toString().length, '0')}")
     }
 
     private fun addColorPalette(paletteColors: IntArray) {
