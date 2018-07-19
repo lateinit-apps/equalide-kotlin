@@ -3,19 +3,19 @@
 
     <group
         android:id="@+id/nav_menu_top"
-        android:checkableBehavior="single"
+        android:checkableBehavior="all"
         android:orderInCategory="0">
     </group>
 
     <group
         android:id="@+id/nav_menu_middle"
-        android:checkableBehavior="single"
+        android:checkableBehavior="all"
         android:orderInCategory="1">
     </group>
 
     <group
         android:id="@+id/nav_menu_bottom"
-        android:checkableBehavior="none"
+        android:checkableBehavior="all"
         android:orderInCategory="2">
 
         <item
