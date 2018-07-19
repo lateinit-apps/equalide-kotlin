@@ -15,7 +15,10 @@ class Directory(val name: String) {
             packsId.add(generateViewId())
     }
 
-    fun add(pack: Pack) = packs.add(pack)
+    fun add(pack: Pack) {
+        packs.add(pack)
+        packsId.add(generateViewId())
+    }
 
     operator fun get(i: Int) = packs[i]
 

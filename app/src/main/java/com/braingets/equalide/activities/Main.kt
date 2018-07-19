@@ -131,25 +131,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         nav_view.setNavigationItemSelectedListener(this)
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener(fabListener)
 
-        // Handle opening file intent
-        if (intent.action == Intent.ACTION_VIEW) {
-
-            // Check for read permission
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_PERMISSION_REQUEST)
-            else {
-                val file = File(intent.data.path)
-                val content = FileInputStream(file).bufferedReader().use { it.readText() }
-                loadFileContent(content)
-            }
-        }
-
         loadDefaultDirectory()
         loadLevelData()
-
         addDirectoriesToNavigationDrawer()
+
+        if (intent.action == Intent.ACTION_VIEW)
+            onFileOpenIntent(intent)
 
         if (false) {
             loadUserData()
@@ -260,28 +247,46 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        val selectedLevel = intent?.getIntExtra("selected level", -1)
+        if (intent?.action == Intent.ACTION_VIEW)
+            onFileOpenIntent(intent)
+        else {
+            val selectedLevel = intent?.getIntExtra("selected level", -1)
 
-        if (selectedLevel != null && selectedLevel != -1) {
-            grid?.removeAllViews()
-            palette?.removeAllViews()
+            if (selectedLevel != null && selectedLevel != -1) {
+                grid?.removeAllViews()
+                palette?.removeAllViews()
 
-            if (fabIsShowed) {
-                findViewById<FloatingActionButton>(R.id.fab).hide()
-                saveFabStatus(false)
+                if (fabIsShowed) {
+                    findViewById<FloatingActionButton>(R.id.fab).hide()
+                    saveFabStatus(false)
+                }
+
+                Current.level = selectedLevel
+                Current.pack = selectedPackInNav
+                Current.levelSolved = false
+                saveCurrentSelectedLevel()
+
+                paintColor = directory!![Current.pack].puzzles[Current.level].getAmountOfParts() / 2
+                savePaletteStatus()
+
+                directory!![Current.pack].puzzles[Current.level].refresh()
+
+                onLayoutLoad()
             }
+        }
+    }
 
-            Current.level = selectedLevel
-            Current.pack = selectedPackInNav
-            Current.levelSolved = false
-            saveCurrentSelectedLevel()
-
-            paintColor = directory!![Current.pack].puzzles[Current.level].getAmountOfParts() / 2
-            savePaletteStatus()
-
-            directory!![Current.pack].puzzles[Current.level].refresh()
-
-            onLayoutLoad()
+    private fun onFileOpenIntent(intent: Intent) {
+        // Check for read permission
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_PERMISSION_REQUEST)
+        else {
+            val file = File(intent.data.path)
+            val content = FileInputStream(file).bufferedReader().use { it.readText() }
+            loadFileContent(content)
+            addDirectoriesToNavigationDrawer(true)
         }
     }
 
@@ -378,7 +383,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         for (directoryIndex in startIndex until directories.size) {
             val packs = directories[directoryIndex].split("#\n")
-            val directory = if (toDefaultDirectory) levelData[0] else Directory(packs[0])
+            val directory = if (toDefaultDirectory) levelData[0] else Directory(packs[0].trim())
 
             for (packIndex in 1 until packs.size) {
                 val packParsed = packs[packIndex].split("\n\n")
@@ -590,7 +595,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             menu?.removeGroup(R.id.nav_menu_top)
 
         for (i in 0 until levelData.size)
-            menu?.add(R.id.nav_menu_top, levelData[i].id, 0, levelData[i].name.trim())
+            menu?.add(R.id.nav_menu_top, levelData[i].id, 0, levelData[i].name)
     }
 
     private fun addPacksToNavigationDrawer(directory: Directory, default: Boolean = false) {
