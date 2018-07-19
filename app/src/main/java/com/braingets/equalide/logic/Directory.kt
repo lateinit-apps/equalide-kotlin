@@ -20,9 +20,26 @@ class Directory(val name: String) {
         packsId.add(generateViewId())
     }
 
+    fun removePack(index: Int, default: Boolean) {
+        if (default && index == DEFAULT_PACK_INDEX)
+             packs[DEFAULT_PACK_INDEX] = Pack(arrayOf())
+        else {
+            packs.removeAt(index)
+            packsId.removeAt(index)
+        }
+    }
+
     operator fun get(i: Int) = packs[i]
 
     fun getPackId(i: Int) = packsId[i]
 
     operator fun iterator() : Iterator<Pack> = packs.iterator()
+
+    fun clear(default: Boolean) {
+        packs.clear()
+        packsId.clear()
+
+        if (default)
+            add(Pack(arrayOf()))
+    }
 }

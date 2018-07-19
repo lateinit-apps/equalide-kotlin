@@ -133,7 +133,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         loadDefaultDirectory()
         loadLevelData()
-        addDirectoriesToNavigationDrawer()
+        updateDirectoriesInNavigationDrawer()
 
         if (intent.action == Intent.ACTION_VIEW)
             onFileOpenIntent(intent)
@@ -208,14 +208,26 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         if (item.groupId == R.id.nav_menu_top) {
             for (i in 0 until levelData.size)
-                if (item.itemId == levelData[i].id)
-                    if (i != navSelectedDirectory) {
-                        navSelectedDirectory = i
-                        addPacksToNavigationDrawer(levelData[i], i == 0)
-                    } else {
+                if (item.itemId == levelData[i].id) {
+                    if (i == navSelectedDirectory) {
                         navSelectedDirectory = null
                         menu?.removeGroup(R.id.nav_menu_middle)
+
+                        if (navDeleteMode)
+                            removeDirectoryFromNavigationDrawer(i)
+                    } else {
+                        if (navDeleteMode)
+                            removeDirectoryFromNavigationDrawer(i)
+                        else {
+                            navSelectedDirectory = i
+                            updatePacksInNavigationDrawer(
+                                levelData[i],
+                                i == DEFAULT_DIRECTORY_INDEX
+                            )
+                        }
                     }
+                    break
+                }
         } else {
             for (i in 0 until packIds.size)
                 if (item.itemId == packIds[i]) {
@@ -286,7 +298,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             val file = File(intent.data.path)
             val content = FileInputStream(file).bufferedReader().use { it.readText() }
             loadFileContent(content)
-            addDirectoriesToNavigationDrawer(true)
+            updateDirectoriesInNavigationDrawer()
         }
     }
 
@@ -590,15 +602,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 - colorPaletteSize).toInt()
     }
 
-    private fun addDirectoriesToNavigationDrawer(update: Boolean = false) {
-        if (update)
-            menu?.removeGroup(R.id.nav_menu_top)
+    private fun updateDirectoriesInNavigationDrawer() {
+        menu?.removeGroup(R.id.nav_menu_top)
 
         for (i in 0 until levelData.size)
             menu?.add(R.id.nav_menu_top, levelData[i].id, 0, levelData[i].name)
     }
 
-    private fun addPacksToNavigationDrawer(directory: Directory, default: Boolean = false) {
+    private fun updatePacksInNavigationDrawer(directory: Directory, default: Boolean = false) {
         menu?.removeGroup(R.id.nav_menu_middle)
 
         if (default)
@@ -606,7 +617,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         for (i in (if (default) 1 else 0) until directory.size)
             menu?.add(R.id.nav_menu_middle, directory.getPackId(i), 1,
-                "Pack ${i.toString().padStart(directory.size.toString().length, '0')}")
+                "Pack ${(i + 1).toString().padStart(directory.size.toString().length, '0')}")
+    }
+
+    private fun removeDirectoryFromNavigationDrawer(index: Int) {
+        if (index != DEFAULT_DIRECTORY_INDEX)
+            levelData.removeDirectory(index)
+        else {
+            levelData[index].clear(true)
+            updatePacksInNavigationDrawer(levelData[index], true)
+        }
+
+        updateDirectoriesInNavigationDrawer()
     }
 
     private fun addColorPalette(paletteColors: IntArray) {

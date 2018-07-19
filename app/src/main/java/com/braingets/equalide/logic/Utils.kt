@@ -3,6 +3,8 @@ package com.braingets.equalide.logic
 import java.util.concurrent.atomic.AtomicInteger
 
 const val READ_PERMISSION_REQUEST = 1
+const val DEFAULT_DIRECTORY_INDEX = 0
+const val DEFAULT_PACK_INDEX = 0
 
 private val sNextGeneratedId = AtomicInteger(1)
 
