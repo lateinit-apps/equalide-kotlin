@@ -394,7 +394,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             val sizes = directoriesSizes.split("\n")
             val hashes = directoriesHashes.split("\n")
             
-            for (directoryIndex in 0 until sizes.size - 1) {
+            for (directoryIndex in 0 until sizes.size) {
                 val name = preferences.getString("Directory [${hashes[directoryIndex]}] name", "Broken name")
                 loadDirectoryContent(preferences, sizes[directoryIndex].toInt(), hashes[directoryIndex], name)
             }
@@ -408,6 +408,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         if (packHashesRaw != null) {
             val packHashes = packHashesRaw.split("\n")
+
+            Log.i("tag", "pack hashes: ${packHashes.joinToString (" | ")}")
 
             for (packIndex in 0 until packsAmount) {
                 val packRaw =
@@ -563,14 +565,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val directoriesSizes = sizes.joinToString("\n")
         val directoriesHashes = hashes.joinToString("\n")
 
-        val packHashes = MutableList(directory.size)
-            { i -> directory.getPackId(i).toString() }.joinToString("\n")
+        val packHashes = MutableList(directory.size) { i -> directory.getPackId(i).toString() }
+        val packHashesRaw = packHashes.joinToString("\n")
         val packs = MutableList(directory.size)
             { i -> MutableList(directory[i].size)
                 { j -> directory[i][j].getRawSource() }.joinToString("\n\n") }
-
-        Log.i("tag", "dir: ${directoriesHashes.replace("\n", " | ")}")
-        Log.i("tag", "pack: ${packHashes.replace("\n", " | ")}")
 
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -580,10 +579,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             putString("Directories sizes", directoriesSizes)
             putString("Directories hashes", directoriesHashes)
             putString("Directory [${directory.id}] name", directory.name)
-            putString("Directory [${directory.id}] Pack hashes", packHashes)
+            putString("Directory [${directory.id}] Pack hashes", packHashesRaw)
 
             for (packIndex in 0 until directory.size)
-                putString("Directory [$directory.id] Pack [${packHashes[packIndex]}", packs[packIndex])
+                putString("Directory [${directory.id}] Pack [${packHashes[packIndex]}", packs[packIndex])
 
             apply()
         }
