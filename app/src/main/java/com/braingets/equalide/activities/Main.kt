@@ -61,6 +61,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     // Puzzle related
     private var puzzle: Puzzle? = null
     private var directory: Directory? = null
+    private var filePath: String? = null
 
     //!!!
     private val packIds = arrayOf<Int>()
@@ -167,7 +168,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                                             permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == READ_PERMISSION_REQUEST &&
             grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED)
-            this.finishAffinity()
+                this.finishAffinity()
+        else
+            parseFileFromIntent()
     }
 
     // Close navigation drawer on back button pressed
@@ -278,8 +281,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        if (intent?.action == Intent.ACTION_VIEW)
+        if (intent?.action == Intent.ACTION_VIEW) {
+            filePath = intent.data.path
             onFileOpenIntent(intent)
+        }
         else {
             val selectedLevel = intent?.getIntExtra("selected level", -1)
 
@@ -312,12 +317,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this,
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_PERMISSION_REQUEST)
-        else {
-            val file = File(intent.data.path)
-            val content = FileInputStream(file).bufferedReader().use { it.readText() }
-            loadFileContent(content)
-            syncDirectoriesInNavigationDrawer()
-        }
+        else
+            parseFileFromIntent()
+    }
+
+    private fun parseFileFromIntent() {
+        val file = File(filePath)
+        val content = FileInputStream(file).bufferedReader().use { it.readText() }
+        loadFileContent(content)
+        syncDirectoriesInNavigationDrawer()
     }
 
     fun onLayoutLoad() {
@@ -378,13 +386,16 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val directoriesSizes = preferences.getString("Directories sizes", null)
         val directoriesHashes = preferences.getString("Directories hashes", null)
-        
-        if (directoriesSizes != null) {
+
+        if (directoriesSizes != null && directoriesHashes != null) {
+            Log.i("tag", "dir sizes: ${directoriesSizes.replace("\n", " | ")}")
+            Log.i("tag", "dir hashes: ${directoriesHashes.replace("\n", " | ")}")
+
             val sizes = directoriesSizes.split("\n")
             val hashes = directoriesHashes.split("\n")
             
             for (directoryIndex in 0 until sizes.size - 1) {
-                val name = preferences.getString("Directory [${hashes[directoryIndex]}] name", null)
+                val name = preferences.getString("Directory [${hashes[directoryIndex]}] name", "Broken name")
                 loadDirectoryContent(preferences, sizes[directoryIndex].toInt(), hashes[directoryIndex], name)
             }
         }
@@ -394,15 +405,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                                      directoryHash: String, directoryName: String) {
         val directory = mutableListOf<Pack>()
         val packHashesRaw = preferences.getString("Directory [$directoryHash] Pack hashes", null)
-        val packHashes = packHashesRaw.split("\n")
-        
-        for (packIndex in 0 until packsAmount) {
-            val packRaw =
-                preferences.getString("Directory [$directoryHash] Pack [${packHashes[packIndex]}", null)
 
-            if (packRaw != null) {
-                val packParsed = packRaw.split("\n\n")
-                directory.add(Pack(MutableList(packParsed.size - 1) { i -> Puzzle(packParsed[i]) }))
+        if (packHashesRaw != null) {
+            val packHashes = packHashesRaw.split("\n")
+
+            for (packIndex in 0 until packsAmount) {
+                val packRaw =
+                    preferences.getString("Directory [$directoryHash] Pack [${packHashes[packIndex]}", null)
+
+                if (packRaw != null) {
+                    val packParsed = packRaw.split("\n\n")
+                    directory.add(Pack(MutableList(packParsed.size) { i -> Puzzle(packParsed[i]) }))
+                }
             }
         }
 
@@ -539,16 +553,40 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun saveLoadedFileContent(directory: Directory) {
-        val directoriesSizes = MutableList(levelData.size)
-            { i -> levelData[i].size.toString() }.joinToString("\n")
-        val directoriesHashes = MutableList(levelData.size)
-            { i -> levelData[i].id.toString() }.joinToString("\n")
-        val packHashesRaw = MutableList(directory.size)
+        val sizes = MutableList(levelData.size) { i -> levelData[i].size.toString() }
+        val hashes = MutableList(levelData.size) { i -> levelData[i].id.toString() }
+
+        // Remove default directory data
+        sizes.removeAt(0)
+        hashes.removeAt(0)
+
+        val directoriesSizes = sizes.joinToString("\n")
+        val directoriesHashes = hashes.joinToString("\n")
+
+        val packHashes = MutableList(directory.size)
             { i -> directory.getPackId(i).toString() }.joinToString("\n")
         val packs = MutableList(directory.size)
             { i -> MutableList(directory[i].size)
                 { j -> directory[i][j].getRawSource() }.joinToString("\n\n") }
-        val a = 1
+
+        Log.i("tag", "dir: ${directoriesHashes.replace("\n", " | ")}")
+        Log.i("tag", "pack: ${packHashes.replace("\n", " | ")}")
+
+        val preferences = getSharedPreferences(
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+
+        // Save new directory level data
+        with(preferences.edit()) {
+            putString("Directories sizes", directoriesSizes)
+            putString("Directories hashes", directoriesHashes)
+            putString("Directory [${directory.id}] name", directory.name)
+            putString("Directory [${directory.id}] Pack hashes", packHashes)
+
+            for (packIndex in 0 until directory.size)
+                putString("Directory [$directory.id] Pack [${packHashes[packIndex]}", packs[packIndex])
+
+            apply()
+        }
     }
     
     private fun saveProgress() {
