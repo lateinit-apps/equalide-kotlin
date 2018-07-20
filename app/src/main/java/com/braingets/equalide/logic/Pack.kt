@@ -1,9 +1,16 @@
 package com.braingets.equalide.logic
 
-class Pack(val puzzles: MutableList<Puzzle>) {
+class Pack(private val puzzles: MutableList<Puzzle>) {
 
     var opened: Boolean = false
     var solved: Boolean = false
+    var size: Int = 0
+        get() = puzzles.size
+        private set
+
+    operator fun get(i: Int) = puzzles[i]
+
+    operator fun iterator() : Iterator<Puzzle> = puzzles.iterator()
 
     fun checkIfSolved(): Boolean {
         for (i in 0 until puzzles.size)
@@ -12,4 +19,6 @@ class Pack(val puzzles: MutableList<Puzzle>) {
 
         return true
     }
+
+    fun addAll(puzzles: MutableList<Puzzle>) = puzzles.addAll(puzzles)
 }

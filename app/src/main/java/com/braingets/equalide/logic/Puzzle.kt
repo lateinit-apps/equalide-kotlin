@@ -4,7 +4,7 @@ package com.braingets.equalide.logic
 // '0-9' - colored cell
 // 'e' - empty cell, can be colored
 // 'b' - blank cell, can't be colored
-class Puzzle(text: String) {
+class Puzzle(private val text: String) {
 
     private val solution: String
     private val source: String
@@ -43,9 +43,11 @@ class Puzzle(text: String) {
         body = body.replaceRange(i * width + j, i * width + j + 1, c)
     }
 
-    fun getAmountOfParts() = this.parts
+    fun getAmountOfParts() = parts
 
-    fun getPartition() = this.body
+    fun getPartition() = body
+
+    fun getRawSource() = text
 
     fun setPartition(partition: String) {
         this.body = partition
