@@ -1,6 +1,7 @@
 package com.braingets.equalide.data
 
 import com.braingets.equalide.logic.Directory
+import com.braingets.equalide.logic.UNSET_DIRECTORY_ID
 
 class LevelData {
 
@@ -11,11 +12,15 @@ class LevelData {
         private set
 
     fun add(directory: Directory) {
-        val id = generateDirectoryId()
+        if (directory.id == UNSET_DIRECTORY_ID) {
+            val id = generateDirectoryId()
 
-        directory.changeId(id)
+            directory.changeId(id)
+            directoriesIds.add(id)
+        } else
+            directoriesIds.add(directory.id)
+
         directories.add(directory)
-        directoriesIds.add(id)
     }
 
     fun removeDirectory(index: Int) = directories.removeAt(index)

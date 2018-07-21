@@ -3,7 +3,7 @@ package com.braingets.equalide.logic
 class Directory(val name: String) {
     private val packs = mutableListOf<Pack>()
     private val packIds = mutableListOf<Int>()
-    var id: Int = 0
+    var id: Int = UNSET_DIRECTORY_ID
         private set
     var size: Int = 0
         get() = packs.size

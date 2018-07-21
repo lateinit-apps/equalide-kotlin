@@ -421,7 +421,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     private fun loadDirectoryData(preferences: SharedPreferences, directoryName: String, directoryHash: String,
                                   default: Boolean = false) {
-        val directory = if (default) Directory(directoryName) else Directory(directoryName, directoryHash.toInt())
+        val directory = Directory(directoryName, if (default) DEFAULT_DIRECTORY_INDEX else directoryHash.toInt())
         val packHashesRaw = preferences.getString("Directory [$directoryHash] Pack hashes", null)
 
         if (packHashesRaw != null) {
