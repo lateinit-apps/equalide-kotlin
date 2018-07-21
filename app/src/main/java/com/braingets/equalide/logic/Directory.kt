@@ -44,7 +44,7 @@ class Directory(val name: String) {
 
     fun getPackId(i: Int) = packIds[i]
 
-    operator fun iterator() : Iterator<Pack> = packs.iterator()
+    operator fun iterator(): Iterator<Pack> = packs.iterator()
 
     fun clear(default: Boolean) {
         packs.clear()

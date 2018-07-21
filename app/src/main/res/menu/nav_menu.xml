@@ -22,6 +22,10 @@
             android:id="@+id/delete_switch"
             android:icon="@drawable/ic_delete"
             android:title="@string/delete_switch_description" />
+        <item
+            android:id="@+id/unlock_anything"
+            android:icon="@drawable/ic_lock_open"
+            android:title="@string/unlock_anything_description" />
 
     </group>
 </menu>

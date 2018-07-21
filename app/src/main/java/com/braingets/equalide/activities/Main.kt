@@ -203,6 +203,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val selectedItemTitle = SpannableString(item.title.toString())
 
+        if (item.itemId == R.id.unlock_anything) {
+            openAllLevels()
+            return true
+        }
+
         if (item.itemId == R.id.delete_switch) {
             navDeleteMode = !navDeleteMode
 
@@ -246,17 +251,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                                 0, selectedItemTitle.length, 0)
                             item.title = selectedItemTitle
 
-                            syncPacksInNavigationDrawer(
-                                levelData[i],
-                                i == DEFAULT_DIRECTORY_INDEX
-                            )
+                            syncPacksInNavigationDrawer(levelData[i], i == DEFAULT_DIRECTORY_INDEX)
                         }
                     }
                     break
                 }
         } else {
-            selectedItemTitle.setSpan(ForegroundColorSpan(
-                ContextCompat.getColor(this, R.color.nav_text_selected)),
+            selectedItemTitle.setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(this, R.color.nav_text_selected)),
                 0, selectedItemTitle.length, 0)
             item.title = selectedItemTitle
 
@@ -265,16 +267,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     // Fixes issue when selected item becomes unselectable
                     // on first select after closing of navigation drawer
                     item.isChecked = true
-                    //Log.i("tag", item.isCheckable.toString())
 
                     navSelectedPack = i
                     navSelectedPackMenuItem = item
                     break
                 }
-//            if (directory!![selectedPackInNav].opened)
-//                launchSelectLevelActivity()
+            if (levelData[navSelectedDirectory!!][navSelectedPack!!].opened)
+                launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!])
         }
-
         return true
     }
 
@@ -355,7 +355,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // 'c' - closed level
         var levelData = ""
 
-        for (level in pack.iterator())
+        for (level in pack)
             levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
 
         val intent = Intent(this, SelectLevel::class.java).apply {
@@ -595,7 +595,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         // Prepare level progress
         for (pack in directory!!) {
-            for (level in pack.iterator())
+            for (level in pack)
                 levelProgress += if (level.solved) "s" else if (level.opened) "o" else "c"
             levelProgress += "\n"
         }
@@ -701,6 +701,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         syncDirectoriesInNavigationDrawer()
     }
 
+    private fun openAllLevels() {
+        for (directory in levelData)
+            for (pack in directory) {
+                for (puzzle in pack)
+                    if (!puzzle.opened) puzzle.opened = true
+                if (!pack.opened) pack.opened = true
+            }
+    }
+
     private fun calculateViewsSizes() {
         val contentView = findViewById<LinearLayout>(R.id.content_view)
 
@@ -738,9 +747,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (default)
             menu?.add(R.id.nav_menu_middle, directory.getPackId(0), 1, "Default")
 
-        for (i in (if (default) 1 else 0) until directory.size)
-            menu?.add(R.id.nav_menu_middle, directory.getPackId(i), 1,
+        for (i in (if (default) 1 else 0) until directory.size) {
+            val item = menu?.add(R.id.nav_menu_middle, directory.getPackId(i), 1,
                 "Pack ${(i + 1).toString().padStart(directory.size.toString().length, '0')}")
+            item?.icon = ContextCompat.getDrawable(this, if (directory[i].opened)
+                if (directory[i].solved) R.drawable.ic_star else R.drawable.ic_lock_open else R.drawable.ic_lock)
+        }
 
         menu?.setGroupCheckable(R.id.nav_menu_middle, true, true)
     }

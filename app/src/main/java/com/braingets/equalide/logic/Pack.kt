@@ -10,7 +10,7 @@ class Pack(private val puzzles: MutableList<Puzzle>) {
 
     operator fun get(i: Int) = puzzles[i]
 
-    operator fun iterator() : Iterator<Puzzle> = puzzles.iterator()
+    operator fun iterator(): Iterator<Puzzle> = puzzles.iterator()
 
     fun checkIfSolved(): Boolean {
         for (i in 0 until puzzles.size)

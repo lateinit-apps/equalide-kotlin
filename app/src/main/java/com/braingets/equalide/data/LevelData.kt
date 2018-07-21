@@ -35,4 +35,6 @@ class LevelData {
     }
 
     operator fun get(i: Int) = directories[i]
+
+    operator fun iterator(): Iterator<Directory> = directories.iterator()
 }
