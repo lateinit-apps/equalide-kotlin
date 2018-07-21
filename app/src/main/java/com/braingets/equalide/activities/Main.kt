@@ -353,14 +353,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // 's' - solved level
         // 'o' - opened level
         // 'c' - closed level
-        var levelData = ""
+        var packLevelData = ""
 
         for (level in pack)
-            levelData += if (level.solved) "s" else if (level.opened) "o" else "c"
+            packLevelData += if (level.solved) "s" else if (level.opened) "o" else "c"
+
+        val packName = if (navSelectedDirectory!! == DEFAULT_DIRECTORY_INDEX &&
+                navSelectedPack!! == DEFAULT_PACK_INDEX) "Default" else "Pack ${navSelectedPack!! + 1}"
 
         val intent = Intent(this, SelectLevel::class.java).apply {
-            putExtra("pack", (navSelectedPack!! + 1).toString())
-            putExtra("level data", levelData)
+            putExtra("pack", packName)
+            putExtra("directory", levelData[navSelectedDirectory!!].name)
+            putExtra("level data", packLevelData)
         }
 
         navigatedToSelectScreen = true

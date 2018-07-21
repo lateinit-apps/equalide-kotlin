@@ -12,17 +12,14 @@ import android.view.View
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-
-import android.widget.Button
-import android.widget.GridLayout
-import android.widget.LinearLayout
+import android.widget.*
 
 import com.braingets.equalide.R
 
 class SelectLevel : AppCompatActivity() {
 
     // Tile related
-    private val rowCount = 6
+    private var rowCount = 0
     private val columnCount = 4
     private var tileSize: Int = 0
     private var levelData: String = ""
@@ -40,10 +37,12 @@ class SelectLevel : AppCompatActivity() {
 
         grid = findViewById(R.id.level_grid)
 
-        val packNumber = intent.getStringExtra("pack")
-        supportActionBar?.title = "Pack $packNumber"
+        val directoryName = intent.getStringExtra("directory")
+        val packName = intent.getStringExtra("pack")
+        supportActionBar?.title = "$directoryName/$packName"
 
         levelData = intent.getStringExtra("level data")
+        rowCount = levelData.length / columnCount + (if (levelData.length % columnCount != 0) 1 else 0)
 
         // Listener to detect when layout is loaded to get it's resolution properties
         grid?.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
@@ -70,13 +69,17 @@ class SelectLevel : AppCompatActivity() {
     }
 
     private fun calculateViewsSizes() {
-        val selectView = findViewById<LinearLayout>(R.id.activity_select_level)
+        val selectView = findViewById<ScrollView>(R.id.activity_select_level)
 
         tileSize = (0.195 * selectView.width).toInt()
         primitiveMargin = ((0.2 / 14) * selectView.width).toInt()
 
         horizontalMargin = (4 * (0.2 / 14) * selectView.width).toInt()
         verticalMargin = (selectView.height - 6 * tileSize - 12 * primitiveMargin) / 2
+
+//        val params = selectView.layoutParams
+//        params.height = (tileSize + 2 * primitiveMargin) * rowCount + 2 * verticalMargin
+//        selectView.layoutParams = params
     }
 
     private fun createGrid(levelData: String) {
@@ -91,8 +94,11 @@ class SelectLevel : AppCompatActivity() {
         val colorPrimary = ContextCompat.getColor(this, R.color.colorPrimary)
         val colorPrimaryDark = ContextCompat.getColor(this, R.color.colorPrimaryDark)
 
-        for (i in 0 until rowCount)
-            for (j in 0 until columnCount){
+        loop@ for (i in 0 until rowCount)
+            for (j in 0 until columnCount) {
+                if (i * columnCount + j == levelData.length)
+                    break@loop
+
                 val tile = Button(this)
                 val level = i * columnCount + j
 
