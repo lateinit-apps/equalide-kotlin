@@ -264,8 +264,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 if (item.itemId == levelData[navSelectedDirectory!!].getPackId(i)) {
                     // Fixes issue when selected item becomes unselectable
                     // on first select after closing of navigation drawer
-                    //item.isChecked = true
-                    Log.i("tag", item.isCheckable.toString())
+                    item.isChecked = true
+                    //Log.i("tag", item.isCheckable.toString())
 
                     navSelectedPack = i
                     navSelectedPackMenuItem = item
@@ -378,8 +378,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val directoriesHashes = preferences.getString("Directories hashes", null)
 
         if (directoriesHashes != null) {
-            //Log.i("tag", "dir sizes: ${directoriesSizes.replace("\n", " | ")}")
-            Log.i("tag", "\nLoaded dir hashes: ${directoriesHashes.replace("\n", "|")}")
+            //Log.i("tag", "\nLoaded dir hashes: ${directoriesHashes.replace("\n", "|")}")
 
             val hashes = directoriesHashes.split("\n")
             
@@ -547,15 +546,17 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
-        val hashes = MutableList(levelData.size) { i -> levelData[i].id.toString() }
-
-        // Remove default directory data
-        hashes.removeAt(0)
-
-        Log.i("tag", "\nSync dir hashes: ${hashes.joinToString("|")}")
-
         with(preferences.edit()) {
-            putString("Directories hashes", hashes.joinToString("\n"))
+            if (levelData.size > 1) {
+                val hashes = MutableList(levelData.size) { i -> levelData[i].id.toString() }
+
+                // Remove default directory data
+                hashes.removeAt(0)
+
+                //Log.i("tag", "\nSync dir hashes: ${hashes.joinToString("|")}")
+                putString("Directories hashes", hashes.joinToString("\n"))
+            } else
+                remove("Directories hashes")
             apply()
         }
     }
@@ -570,7 +571,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             { i -> MutableList(directory[i].size)
                 { j -> directory[i][j].getRawSource() }.joinToString("\n\n") }
 
-        Log.i("tag", "\nNew directory hash: ${directory.id}")
+        //Log.i("tag", "\nNew directory hash: ${directory.id}")
 
         // Save new directory level data
         with(preferences.edit()) {
@@ -670,7 +671,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
-        Log.i("tag", "\nRemoved directory hash: ${levelData[index].id}")
+        //Log.i("tag", "\nRemoved directory hash: ${levelData[index].id}")
 
         if (index != DEFAULT_DIRECTORY_INDEX) {
             with(preferences.edit()) {

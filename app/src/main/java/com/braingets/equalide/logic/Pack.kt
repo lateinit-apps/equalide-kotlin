@@ -20,5 +20,5 @@ class Pack(private val puzzles: MutableList<Puzzle>) {
         return true
     }
 
-    fun addAll(puzzles: MutableList<Puzzle>) = puzzles.addAll(puzzles)
+    fun addAll(puzzles: MutableList<Puzzle>) = this.puzzles.addAll(puzzles)
 }
