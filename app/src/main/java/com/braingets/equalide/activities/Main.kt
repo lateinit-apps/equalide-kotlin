@@ -373,19 +373,19 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
-        loadDirectoryData(preferences, "Default", "Default")
+        loadDirectoryData(preferences, "Default", "Default", true)
 
         val directoriesHashes = preferences.getString("Directories hashes", null)
 
         if (directoriesHashes != null) {
             //Log.i("tag", "dir sizes: ${directoriesSizes.replace("\n", " | ")}")
-            Log.i("tag", "dir hashes: ${directoriesHashes.replace("\n", "|")}")
+            Log.i("tag", "\nLoaded dir hashes: ${directoriesHashes.replace("\n", "|")}")
 
             val hashes = directoriesHashes.split("\n")
             
             for (directoryIndex in 0 until hashes.size) {
                 val name = preferences.getString("Directory [${hashes[directoryIndex]}] name", "Broken directory")
-                loadDirectoryData(preferences, hashes[directoryIndex], name)
+                loadDirectoryData(preferences, name, hashes[directoryIndex])
             }
         }
     }
@@ -416,18 +416,16 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 saveDirectoryData(directory)
             }
         }
-        saveDirectoriesInfo()
+        saveDirectoriesHashes()
     }
 
-    private fun loadDirectoryData(preferences: SharedPreferences, directoryHash: String, directoryName: String,
+    private fun loadDirectoryData(preferences: SharedPreferences, directoryName: String, directoryHash: String,
                                   default: Boolean = false) {
-        val directory = mutableListOf<Pack>()
+        val directory = if (default) Directory(directoryName) else Directory(directoryName, directoryHash.toInt())
         val packHashesRaw = preferences.getString("Directory [$directoryHash] Pack hashes", null)
 
         if (packHashesRaw != null) {
             val packHashes = packHashesRaw.split("\n")
-
-            //Log.i("tag", "pack hashes: ${packHashes.joinToString (" | ")}")
 
             for (packIndex in 0 until packHashes.size) {
                 val packRaw =
@@ -435,13 +433,13 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
                 if (packRaw != null) {
                     val packParsed = packRaw.split("\n\n")
-                    directory.add(Pack(MutableList(packParsed.size) { i -> Puzzle(packParsed[i]) }))
+                    directory.add(Pack(MutableList(packParsed.size) { i -> Puzzle(packParsed[i]) }), packHashes[packIndex].toInt())
                 }
             }
         } else if (default)
             directory.add(Pack(mutableListOf()))
 
-        levelData.add(Directory(directoryName, directory))
+        levelData.add(directory)
     }
 
     private fun loadUserData() {
@@ -545,7 +543,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun saveDirectoriesInfo() {
+    private fun saveDirectoriesHashes() {
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
@@ -553,6 +551,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         // Remove default directory data
         hashes.removeAt(0)
+
+        Log.i("tag", "\nSync dir hashes: ${hashes.joinToString("|")}")
 
         with(preferences.edit()) {
             putString("Directories hashes", hashes.joinToString("\n"))
@@ -570,7 +570,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             { i -> MutableList(directory[i].size)
                 { j -> directory[i][j].getRawSource() }.joinToString("\n\n") }
 
-        Log.i("tag", "Loaded directory hash: ${directory.id}")
+        Log.i("tag", "\nNew directory hash: ${directory.id}")
 
         // Save new directory level data
         with(preferences.edit()) {
@@ -670,6 +670,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
+        Log.i("tag", "\nRemoved directory hash: ${levelData[index].id}")
+
         if (index != DEFAULT_DIRECTORY_INDEX) {
             with(preferences.edit()) {
                 for (packIndex in 0 until levelData[index].size)
@@ -679,7 +681,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
 
             levelData.removeDirectory(index)
-            saveDirectoriesInfo()
+            saveDirectoriesHashes()
 
             if (navSelectedDirectory != null && index < navSelectedDirectory!!)
                 navSelectedDirectory = navSelectedDirectory!! - 1
