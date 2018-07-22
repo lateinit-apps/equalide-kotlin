@@ -408,7 +408,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             if (packs.size == 1) {
                 val puzzles = packs[0].split("\n\n")
                 levelData[DEFAULT_DIRECTORY_INDEX][DEFAULT_PACK_INDEX].addAll(MutableList(puzzles.size) { i -> Puzzle(puzzles[i].trimEnd()) })
-                saveDirectoryData(levelData[DEFAULT_DIRECTORY_INDEX])
+                saveDirectoryData(levelData[DEFAULT_DIRECTORY_INDEX], true)
             } else {
                 val directory = if (toDefaultDirectory) levelData[0] else Directory(packs[0].trim())
 
@@ -419,7 +419,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
                 if (!toDefaultDirectory)
                     levelData.add(directory)
-                saveDirectoryData(directory)
+
+                saveDirectoryData(directory, toDefaultDirectory)
             }
         }
         saveDirectoriesHashes()
@@ -440,8 +441,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
                 if (packRaw != null) {
                     val packParsed = packRaw.split("\n\n")
-                    directory.add(Pack(MutableList(packParsed.size) { i -> Puzzle(packParsed[i]) }), packHashes[packIndex].toInt())
-                }
+                    directory.add(
+                        Pack(MutableList(packParsed.size) { i -> Puzzle(packParsed[i]) }),
+                        packHashes[packIndex].toInt()
+                    )
+                } else
+                    directory.add(Pack(mutableListOf()))
 
                 when (packProgress[packIndex]) {
                     's' -> {
@@ -464,8 +469,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                             'o' -> directory[packIndex][levelIndex].opened = true
                         }
             }
-        } else if (default)
+        } else if (default) {
             directory.add(Pack(mutableListOf()))
+            directory[0].opened = true
+            saveDirectoryData(directory, true)
+        }
 
         levelData.add(directory)
     }
@@ -536,7 +544,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun saveDirectoryData(directory: Directory) {
+    private fun saveDirectoryData(directory: Directory, default: Boolean = false) {
         val directoryProgress = Array(directory.size) { i -> if (directory[i].solved) 's' else
             if (directory[i].opened) 'o' else 'c' }.joinToString("")
 
@@ -557,20 +565,23 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         
         // Save new directory level data
         with(preferences.edit()) {
-            putString("Directory [${directory.id}] name", directory.name)
-            putString("Directory [${directory.id}] progress", directoryProgress)
-            putString("Directory [${directory.id}] hashes", packHashesRaw)
+            if (!default)
+                putString("Directory [${directory.id}] name", directory.name)
+
+            val directoryHash = if (default) "Default" else directory.id.toString()
+            putString("Directory [$directoryHash] progress", directoryProgress)
+            putString("Directory [$directoryHash] hashes", packHashesRaw)
 
             for (packIndex in 0 until directory.size) {
-                putString("Directory [${directory.id}] Pack [${packHashes[packIndex]}]", packs[packIndex])
-                putString("Directory [${directory.id}] Pack [${packHashes[packIndex]}] progress", packsProgress[packIndex])
+                putString("Directory [$directoryHash] Pack [${packHashes[packIndex]}]", packs[packIndex])
+                putString("Directory [$directoryHash] Pack [${packHashes[packIndex]}] progress", packsProgress[packIndex])
             }
 
             apply()
         }
     }
 
-    private fun savePackProgress(pack: Pack, packId: Int, directoryId: Int) {
+    private fun savePackProgress(pack: Pack, packHash: Int, directoryHash: String) {
         val packProgress = Array(pack.size)
             { i -> if (pack[i].solved) 's' else
                 if (pack[i].opened) 'o' else 'c' }.joinToString("")
@@ -579,12 +590,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         
         with(preferences.edit()) {
-            putString("Directory [$directoryId] Pack [$packId] progress", packProgress)
+            putString("Directory [$directoryHash] Pack [$packHash] progress", packProgress)
             apply()
         }
     }
 
-    private fun saveDirectoryProgress(directory: Directory) {
+    private fun saveDirectoryProgress(directory: Directory, default: Boolean = true) {
         val directoryProgress = Array(directory.size) { i -> if (directory[i].solved) 's' else
             if (directory[i].opened) 'o' else 'c' }.joinToString("")
 
@@ -592,7 +603,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         
         with(preferences.edit()) {
-            putString("Directory [${directory.id}] progress", directoryProgress)
+            putString("Directory [${if (default) "Default" else directory.id.toString()}] progress", directoryProgress)
             apply()
         }
     }
@@ -688,12 +699,35 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun openAllLevels() {
-        for (directory in levelData)
+        var directoryIndex = 0
+
+        for (directory in levelData) {
+            var directoryChanged = false
+            var packIndex = 0
+
             for (pack in directory) {
+                var packChanged = false
+
                 for (puzzle in pack)
-                    if (!puzzle.opened) puzzle.opened = true
-                if (!pack.opened) pack.opened = true
+                    if (!puzzle.opened) {
+                        puzzle.opened = true
+                        packChanged = true
+                    }
+                if (packChanged)
+                    savePackProgress(pack, directory.getPackId(packIndex),
+                        if (directoryIndex == DEFAULT_DIRECTORY_INDEX) "Default" else directory.id.toString())
+
+                if (!pack.opened) {
+                    pack.opened = true
+                    directoryChanged = true
+                }
+                packIndex++
             }
+
+            if (directoryChanged)
+                saveDirectoryProgress(directory, directoryIndex == DEFAULT_DIRECTORY_INDEX)
+            directoryIndex++
+        }
     }
 
     private fun calculateViewsSizes() {
@@ -907,7 +941,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             for (i in 1..levelOpeningDelta)
                 levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][CurrentPuzzle.number + i].opened = true
             savePackProgress(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
-                levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack), levelData[CurrentPuzzle.directory].id)
+                levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack), levelData[CurrentPuzzle.directory].id.toString())
         } else {
             // Open next pack if it exists and is locked
             if (CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1 && !levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].opened) {
@@ -924,14 +958,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][i].opened = true
 
                 savePackProgress(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
-                    levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack), levelData[CurrentPuzzle.directory].id)
+                    levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack), levelData[CurrentPuzzle.directory].id.toString())
 
                 // Open rest levels in next pack if possible
                 if (CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1) {
                     for (i in 0 until levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1 - CurrentPuzzle.number)
                         levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1][i].opened = true
                     savePackProgress(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1],
-                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1), levelData[CurrentPuzzle.directory].id)
+                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1), levelData[CurrentPuzzle.directory].id.toString())
                 }
             } else {
                 // Open levels only in next pack if possible
@@ -939,7 +973,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     for (i in 0 until levelOpeningDelta)
                         levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1][i].opened = true
                     savePackProgress(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1],
-                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1), levelData[CurrentPuzzle.directory].id)
+                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1), levelData[CurrentPuzzle.directory].id.toString())
                 }
             }
         }
