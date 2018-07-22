@@ -50,7 +50,9 @@ class Directory(val name: String) {
         packs.clear()
         packIds.clear()
 
-        if (default)
+        if (default) {
             add(Pack(mutableListOf()))
+            packs[0].opened = true
+        }
     }
 }

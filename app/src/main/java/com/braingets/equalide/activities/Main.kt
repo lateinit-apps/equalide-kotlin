@@ -76,6 +76,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var menu: Menu? = null
     private var toast: Toast? = null
     private var snackbar: Snackbar? = null
+    private var fab: FloatingActionButton? = null
     private var fabIsShowed: Boolean = false
     private var fabIsLocked: Boolean = false
     private var grid: GridLayout? = null
@@ -122,12 +123,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
         snackbar = Snackbar.make(findViewById(R.id.content_view),
             R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
-        snackbar?.setAction(R.string.snackbar_action) {  }
-
+        fab = findViewById(R.id.fab)
+        
         // Add listeners to views
         grid?.setOnTouchListener(gridListener)
         nav_view.setNavigationItemSelectedListener(this)
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener(fabListener)
+        fab?.setOnClickListener(fabListener)
 
         loadLevelData()
         syncDirectoriesInNavigationDrawer()
@@ -185,8 +186,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.refresh_button) {
-            refreshGrid()
             snackbar?.dismiss()
+
+            if (CurrentPuzzle.directory != NO_LEVEL_OPENED && CurrentPuzzle.pack != NO_LEVEL_OPENED
+                && CurrentPuzzle.number != NO_LEVEL_OPENED)
+                refreshGrid()
         }
         else
             return super.onOptionsItemSelected(item)
@@ -200,6 +204,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val selectedItemTitle = SpannableString(item.title.toString())
 
         if (item.itemId == R.id.unlock_anything) {
+            selectedItemTitle.setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(this, R.color.nav_text_selected)),
+                0, selectedItemTitle.length, 0)
+            item.title = selectedItemTitle
+
             openAllLevels()
             return true
         }
@@ -258,18 +267,20 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 0, selectedItemTitle.length, 0)
             item.title = selectedItemTitle
 
-            for (i in 0 until levelData[navSelectedDirectory!!].size)
-                if (item.itemId == levelData[navSelectedDirectory!!].getPackId(i)) {
-                    // Fixes issue when selected item becomes unselectable
-                    // on first select after closing of navigation drawer
-                    item.isChecked = true
+            if (!navDeleteMode) {
+                for (i in 0 until levelData[navSelectedDirectory!!].size)
+                    if (item.itemId == levelData[navSelectedDirectory!!].getPackId(i)) {
+                        // Fixes issue when selected item becomes unselectable
+                        // on first select after closing of navigation drawer
+                        item.isChecked = true
 
-                    navSelectedPack = i
-                    navSelectedPackMenuItem = item
-                    break
-                }
-            if (levelData[navSelectedDirectory!!][navSelectedPack!!].opened)
-                launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!])
+                        navSelectedPack = i
+                        navSelectedPackMenuItem = item
+                        break
+                    }
+                if (levelData[navSelectedDirectory!!][navSelectedPack!!].opened)
+                    launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!])
+            }
         }
         return true
     }
@@ -290,7 +301,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 palette?.removeAllViews()
 
                 if (fabIsShowed) {
-                    findViewById<FloatingActionButton>(R.id.fab).hide()
+                    fab?.hide()
                     saveFabStatus(false)
                 }
 
@@ -521,7 +532,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             if (!checkIfAllLevelsSolved()
                 || CurrentPuzzle.number != levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1
                 || CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1)
-                findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
+                fab?.show(onShownFabListener)
         }
     }
 
@@ -673,7 +684,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (index != DEFAULT_DIRECTORY_INDEX) {
             with(preferences.edit()) {
                 for (packIndex in 0 until levelData[index].size)
-                    remove("Directory [${levelData[index].id}] Pack [${levelData[index].getPackId(packIndex)}")
+                    remove("Directory [${levelData[index].id}] Pack [${levelData[index].getPackId(packIndex)}]")
 
                 apply()
             }
@@ -689,12 +700,43 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 remove("Directory [Default] Pack hashes")
 
                 for (packIndex in 0 until levelData[DEFAULT_DIRECTORY_INDEX].size)
-                    remove("Directory [Default] Pack [${levelData[DEFAULT_DIRECTORY_INDEX].getPackId(packIndex)}")
+                    remove("Directory [Default] Pack [${levelData[DEFAULT_DIRECTORY_INDEX].getPackId(packIndex)}]")
 
                 apply()
             }
             levelData[DEFAULT_DIRECTORY_INDEX].clear(true)
         }
+
+        if (index == CurrentPuzzle.directory) {
+            supportActionBar?.title = getString(R.string.app_name)
+
+            toast?.cancel()
+
+            grid?.removeAllViews()
+            palette?.removeAllViews()
+
+            fab?.hide()
+            
+            CurrentPuzzle.directory = NO_LEVEL_OPENED
+            CurrentPuzzle.pack = NO_LEVEL_OPENED
+            CurrentPuzzle.number = NO_LEVEL_OPENED
+            CurrentPuzzle.solved = false
+            saveWalkthroughPosition()
+
+            fabIsShowed = false
+            paintColor = 0
+            skipSolvedLevels = true
+
+            with(preferences.edit()) {
+                remove("level partition")
+                remove("walkthrough position")
+                remove("fab status")
+                remove("palette status")
+                remove("skip status")
+                apply()
+            }
+        }
+
         syncDirectoriesInNavigationDrawer()
     }
 
@@ -713,6 +755,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                         puzzle.opened = true
                         packChanged = true
                     }
+
                 if (packChanged)
                     savePackProgress(pack, directory.getPackId(packIndex),
                         if (directoryIndex == DEFAULT_DIRECTORY_INDEX) "Default" else directory.id.toString())
@@ -721,13 +764,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     pack.opened = true
                     directoryChanged = true
                 }
+
                 packIndex++
             }
 
             if (directoryChanged)
                 saveDirectoryProgress(directory, directoryIndex == DEFAULT_DIRECTORY_INDEX)
+
             directoryIndex++
         }
+
+        if (navSelectedDirectory != null)
+            syncPacksInNavigationDrawer(levelData[navSelectedDirectory!!], navSelectedDirectory!! == DEFAULT_DIRECTORY_INDEX)
     }
 
     private fun calculateViewsSizes() {
@@ -869,15 +917,21 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 && levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].checkIfSolved()) {
                 packSolved = true
                 levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].solved = true
+                saveDirectoryProgress(levelData[CurrentPuzzle.directory], CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX)
 
                 if (navSelectedDirectory != null && navSelectedDirectory!! == CurrentPuzzle.directory)
                     syncPacksInNavigationDrawer(levelData[CurrentPuzzle.directory], CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX)
             }
 
             openNextLevels()
+            savePackProgress(
+                levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
+                levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack),
+                levelData[CurrentPuzzle.directory].id.toString())
         }
 
-        if (CurrentPuzzle.number != levelData[CurrentPuzzle.directory].size - 1 || CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1) {
+        if (CurrentPuzzle.number != levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1
+            || CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1) {
             if (packSolved) {
                 toast?.setText("Pack ${CurrentPuzzle.pack + 1} solved!")
                 toast?.duration = Toast.LENGTH_LONG
@@ -886,7 +940,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 toast?.duration = Toast.LENGTH_SHORT
             }
             toast?.show()
-            findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
+            fab?.show(onShownFabListener)
         } else if (!allLevelsSolved)
             snackbar?.show()
     }
@@ -910,7 +964,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             grid?.removeAllViews()
             palette?.removeAllViews()
 
-            findViewById<FloatingActionButton>(R.id.fab).hide()
+            fab?.hide()
             saveFabStatus(false)
 
             CurrentPuzzle.solved = false
@@ -938,13 +992,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private fun openNextLevels() {
         // Open levels in current pack
         if (CurrentPuzzle.number <= levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1 - levelOpeningDelta) {
+
             for (i in 1..levelOpeningDelta)
                 levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][CurrentPuzzle.number + i].opened = true
-            savePackProgress(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
-                levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack), levelData[CurrentPuzzle.directory].id.toString())
         } else {
             // Open next pack if it exists and is locked
-            if (CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1 && !levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].opened) {
+            if (CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1
+                && !levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].opened) {
+
                 levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].opened = true
                 saveDirectoryProgress(levelData[CurrentPuzzle.directory])
 
@@ -957,23 +1012,33 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 for (i in (CurrentPuzzle.number + 1)..(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1))
                     levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][i].opened = true
 
-                savePackProgress(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
-                    levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack), levelData[CurrentPuzzle.directory].id.toString())
-
                 // Open rest levels in next pack if possible
                 if (CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1) {
-                    for (i in 0 until levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1 - CurrentPuzzle.number)
+
+                    var restLevels = levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1 - CurrentPuzzle.number
+                    if (restLevels > levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].size)
+                        restLevels = levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].size
+
+                    for (i in 0 until restLevels)
                         levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1][i].opened = true
-                    savePackProgress(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1],
-                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1), levelData[CurrentPuzzle.directory].id.toString())
+
+                    savePackProgress(
+                        levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1],
+                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1),
+                        levelData[CurrentPuzzle.directory].id.toString())
                 }
             } else {
                 // Open levels only in next pack if possible
                 if (CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1) {
-                    for (i in 0 until levelOpeningDelta)
+                    for (i in 0 until
+                            if (levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].size >= levelOpeningDelta) levelOpeningDelta
+                            else levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].size)
                         levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1][i].opened = true
-                    savePackProgress(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1],
-                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1), levelData[CurrentPuzzle.directory].id.toString())
+
+                    savePackProgress(
+                        levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1],
+                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1),
+                        levelData[CurrentPuzzle.directory].id.toString())
                 }
             }
         }
