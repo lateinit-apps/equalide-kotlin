@@ -60,18 +60,17 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     // Puzzle related
     private var puzzle: Puzzle? = null
-    private var directory: Directory? = null
     private var filePath: String? = null
 
     //!!!
     private val packIds = arrayOf<Int>()
 
     // Walkthrough related
-    object Current {
-        var level: Int = 0
-        var pack: Int = 0
+    object CurrentPuzzle {
         var directory: Int = 0
-        var levelSolved: Boolean = false
+        var pack: Int = 0
+        var number: Int = 0
+        var solved: Boolean = false
     }
     private val levelData = LevelData()
     private val levelOpeningDelta: Int = 3
@@ -298,14 +297,16 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     saveFabStatus(false)
                 }
 
-                Current.level = selectedLevel
-                Current.levelSolved = false
+                CurrentPuzzle.directory = navSelectedDirectory!!
+                CurrentPuzzle.pack = navSelectedPack!!
+                CurrentPuzzle.number = selectedLevel
+                CurrentPuzzle.solved = false
                 saveCurrentSelectedLevel()
 
-                paintColor = directory!![Current.pack][Current.level].getAmountOfParts() / 2
+                paintColor = levelData[CurrentPuzzle].getAmountOfParts() / 2
                 savePaletteStatus()
 
-                directory!![Current.pack][Current.level].refresh()
+                levelData[CurrentPuzzle].refresh()
 
                 onLayoutLoad()
             }
@@ -330,11 +331,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     fun onLayoutLoad() {
-        supportActionBar?.title = "Equalide   ${Current.pack + 1}-${(Current.level + 1)
+        supportActionBar?.title = "Equalide   ${CurrentPuzzle.pack + 1}-${(CurrentPuzzle.number + 1)
             .toString().padStart(2, '0')}"
         calculateViewsSizes()
 
-        puzzle = directory!![Current.pack][Current.level]
+        puzzle = levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][CurrentPuzzle.number]
         colors = resources.getIntArray(resources.getIdentifier(
                 "colors_for_${puzzle!!.getAmountOfParts()}_parts",
                 "array", this.packageName))
@@ -464,22 +465,22 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         if (packProgress == null || levelProgress == null) {
             // Open first pack and three levels if it's new game
-            directory!![0].opened = true
+            levelData[CurrentPuzzle.directory][0].opened = true
 
             for (i in 0 until levelOpeningDelta)
-                directory!![0][i].opened = true
+                levelData[CurrentPuzzle.directory][0][i].opened = true
         } else {
             // Load pack progress and change icons in navigation drawer
             for (i in 0 until packProgress.length) {
                 when (packProgress[i]) {
                     's' -> {
-                        directory!![i].opened = true
-                        directory!![i].solved = true
+                        levelData[CurrentPuzzle.directory][i].opened = true
+                        levelData[CurrentPuzzle.directory][i].solved = true
                         menu?.findItem(packIds[i])?.icon =
                                 ContextCompat.getDrawable(this, R.drawable.ic_star)
                     }
                     'o' -> {
-                        directory!![i].opened = true
+                        levelData[CurrentPuzzle.directory][i].opened = true
                         menu?.findItem(packIds[i])?.icon =
                                 ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
                     }
@@ -487,43 +488,43 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
 
             // Load level progress
-            val levelData = levelProgress.split("\n")
+            val loadedLevelData = levelProgress.split("\n")
 
-            for (i in 0 until levelData.size - 1)
-                for (j in 0 until levelData[i].length) {
-                    when (levelData[i][j]) {
+            for (i in 0 until loadedLevelData.size - 1)
+                for (j in 0 until loadedLevelData[i].length) {
+                    when (loadedLevelData[i][j]) {
                         's' -> {
-                            directory!![i][j].opened = true
-                            directory!![i][j].solved = true
+                            levelData[CurrentPuzzle.directory][i][j].opened = true
+                            levelData[CurrentPuzzle.directory][i][j].solved = true
                         }
-                        'o' -> directory!![i][j].opened = true
+                        'o' -> levelData[CurrentPuzzle.directory][i][j].opened = true
                     }
                 }
 
             // Open 8 pack
-            if (packProgress.length == 7 && packProgress[6] != 'c' && directory!![6][21].solved) {
-                directory!![7].opened = true
+            if (packProgress.length == 7 && packProgress[6] != 'c' && levelData[CurrentPuzzle.directory][6][21].solved) {
+                levelData[CurrentPuzzle.directory][7].opened = true
                 menu?.findItem(packIds[7])?.icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
                 var forOpen = 0
                 for (i in 21 until 24)
-                    if (directory!![6][i].solved)
+                    if (levelData[CurrentPuzzle.directory][6][i].solved)
                         forOpen++
 
                 for (i in 0 until  forOpen)
-                    directory!![7][i].opened = true
+                    levelData[CurrentPuzzle.directory][7][i].opened = true
             }
         }
 
         // Load current level
         if (currentPosition != null) {
-            Current.pack = currentPosition.substring(0..0).toInt()
-            Current.level = currentPosition.substring(1).toInt()
+            CurrentPuzzle.pack = currentPosition.substring(0..0).toInt()
+            CurrentPuzzle.number = currentPosition.substring(1).toInt()
         }
 
         // Load current level partition
         if (levelPartition != null) {
-            val puzzle = directory!![Current.pack][Current.level]
+            val puzzle = levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][CurrentPuzzle.number]
 
             if (puzzle.width * puzzle.height == levelPartition.length &&
                     !levelPartition.any { c: Char -> !c.isDigit() && c != 'e' && c != 'b' })
@@ -538,10 +539,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         // Show fab if exited on opened fab
         if (fabIsShowed) {
-            Current.levelSolved = true
+            CurrentPuzzle.solved = true
 
             if (!checkIfAllLevelsSolved()
-                || Current.level != directory!!.size - 1 || Current.pack != packIds.size - 1)
+                || CurrentPuzzle.number != levelData[CurrentPuzzle.directory].size - 1 || CurrentPuzzle.pack != packIds.size - 1)
                 findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
         }
     }
@@ -588,17 +589,17 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             apply()
         }
     }
-    
+
     private fun saveProgress() {
         var packProgress = ""
         var levelProgress = ""
 
         // Prepare pack progress
-        for (pack in directory!!)
+        for (pack in levelData[CurrentPuzzle.pack])
             packProgress += if (pack.solved) "s" else if (pack.opened) "o" else "c"
 
         // Prepare level progress
-        for (pack in directory!!) {
+        for (pack in levelData[CurrentPuzzle.pack]) {
             for (level in pack)
                 levelProgress += if (level.solved) "s" else if (level.opened) "o" else "c"
             levelProgress += "\n"
@@ -616,7 +617,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun savePartition() {
-        val levelPartition = directory!![Current.pack][Current.level].getPartition()
+        val levelPartition = levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][CurrentPuzzle.number].getPartition()
 
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -628,7 +629,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun saveCurrentSelectedLevel() {
-        val currentPosition = Current.pack.toString() + Current.level.toString()
+        val currentPosition = CurrentPuzzle.pack.toString() + CurrentPuzzle.number.toString()
 
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -833,7 +834,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun handleSolvedPuzzle() {
-        skipSolvedLevels = !directory!![Current.pack][Current.level].solved
+        skipSolvedLevels = !levelData[CurrentPuzzle].solved
         saveSkipStatus()
 
         hideColorPalette()
@@ -844,15 +845,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val allLevelsSolved = checkIfAllLevelsSolved()
         var packSolved = false
-        Current.levelSolved = true
+        CurrentPuzzle.solved = true
 
         if (!allLevelsSolved) {
-            directory!![Current.pack][Current.level].solved = true
+            levelData[CurrentPuzzle].solved = true
 
-            if (!directory!![Current.pack].solved && directory!![Current.pack].checkIfSolved()) {
+            if (!levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].solved && levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].checkIfSolved()) {
                 packSolved = true
-                directory!![Current.pack].solved = true
-                menu?.findItem(packIds[Current.pack])?.icon =
+                levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].solved = true
+                menu?.findItem(packIds[CurrentPuzzle.pack])?.icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_star)
             }
 
@@ -860,9 +861,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             saveProgress()
         }
 
-        if (Current.level != directory!!.size - 1 || Current.pack != packIds.size - 1) {
+        if (CurrentPuzzle.number != levelData[CurrentPuzzle.directory].size - 1 || CurrentPuzzle.pack != packIds.size - 1) {
             if (packSolved) {
-                toast?.setText("Pack ${Current.pack + 1} solved!")
+                toast?.setText("Pack ${CurrentPuzzle.pack + 1} solved!")
                 toast?.duration = Toast.LENGTH_LONG
             } else {
                 toast?.setText("Puzzle solved!")
@@ -878,7 +879,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         puzzle?.refresh()
         savePartition()
 
-        if (!Current.levelSolved) {
+        if (!CurrentPuzzle.solved) {
             for (i in 0 until grid!!.childCount) {
                 val primitive = grid?.getChildAt(i) as Button
                 val coords = primitive.tag as IntArray
@@ -896,9 +897,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             findViewById<FloatingActionButton>(R.id.fab).hide()
             saveFabStatus(false)
 
-            Current.levelSolved = false
+            CurrentPuzzle.solved = false
 
-            paintColor = directory!![Current.pack][Current.level].getAmountOfParts() / 2
+            paintColor = levelData[CurrentPuzzle].getAmountOfParts() / 2
             savePaletteStatus()
 
             onLayoutLoad()
@@ -911,7 +912,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun checkIfAllLevelsSolved(): Boolean {
-        for (pack in directory!!)
+        for (pack in levelData[CurrentPuzzle.directory])
             if (!pack.solved)
                 return false
 
@@ -920,69 +921,69 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     private fun openNextLevels() {
         // Open levels in current pack
-        if (Current.level <= directory!!.size - 1 - levelOpeningDelta) {
+        if (CurrentPuzzle.number <= levelData[CurrentPuzzle.directory].size - 1 - levelOpeningDelta) {
             for (i in 1..levelOpeningDelta)
-                directory!![Current.pack][Current.level + i].opened = true
+                levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][CurrentPuzzle.number + i].opened = true
         } else {
             // Open next pack if it exists and is locked
-            if (Current.pack != packIds.size - 1 && !directory!![Current.pack + 1].opened) {
-                directory!![Current.pack + 1].opened = true
-                menu?.findItem(packIds[Current.pack + 1])?.icon =
+            if (CurrentPuzzle.pack != packIds.size - 1 && !levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].opened) {
+                levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1].opened = true
+                menu?.findItem(packIds[CurrentPuzzle.pack + 1])?.icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
             }
 
-            if (Current.level != directory!!.size - 1) {
+            if (CurrentPuzzle.number != levelData[CurrentPuzzle.directory].size - 1) {
                 // Open lead-off levels until end of pack
-                for (i in (Current.level + 1)..(directory!!.size - 1))
-                    directory!![Current.pack][i].opened = true
+                for (i in (CurrentPuzzle.number + 1)..(levelData[CurrentPuzzle.directory].size - 1))
+                    levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][i].opened = true
 
                 // Open rest levels in next pack if possible
-                if (Current.pack != packIds.size - 1)
-                    for (i in 0 until directory!!.size - 1 - Current.level)
-                        directory!![Current.pack + 1][i].opened = true
+                if (CurrentPuzzle.pack != packIds.size - 1)
+                    for (i in 0 until levelData[CurrentPuzzle.directory].size - 1 - CurrentPuzzle.number)
+                        levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1][i].opened = true
             } else {
                 // Open levels only in next pack if possible
-                if (Current.pack != packIds.size - 1)
+                if (CurrentPuzzle.pack != packIds.size - 1)
                     for (i in 0 until levelOpeningDelta)
-                        directory!![Current.pack + 1][i].opened = true
+                        levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1][i].opened = true
             }
         }
     }
 
     private fun selectNextLevel() {
         if (!skipSolvedLevels &&
-            (Current.level != directory!!.size - 1 || Current.pack != packIds.size - 1)
+            (CurrentPuzzle.number != levelData[CurrentPuzzle.directory].size - 1 || CurrentPuzzle.pack != packIds.size - 1)
         ) {
             // Open next direct level
-            if (Current.level < directory!!.size - 1)
-                Current.level++
+            if (CurrentPuzzle.number < levelData[CurrentPuzzle.directory].size - 1)
+                CurrentPuzzle.number++
             else {
-                Current.level = 0
-                Current.pack++
+                CurrentPuzzle.number = 0
+                CurrentPuzzle.pack++
             }
         } else {
             // Try to find next level in end of current pack
-            for (i in Current.level + 1 until directory!!.size)
-                if (directory!![Current.pack][i].opened && !directory!![Current.pack][i].solved) {
-                    Current.level = i
+            for (i in CurrentPuzzle.number + 1 until levelData[CurrentPuzzle.directory].size)
+                if (levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][i].opened && !levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][i].solved) {
+                    CurrentPuzzle.number = i
                     return
                 }
 
             // Try to find next level in all levels until last in game
-            for (i in Current.pack + 1 until packIds.size)
-                for (j in 0 until directory!!.size)
-                    if (directory!![i][j].opened && !directory!![i][j].solved) {
-                        Current.level = j
-                        Current.pack = i
+            for (i in CurrentPuzzle.pack + 1 until packIds.size)
+                for (j in 0 until levelData[CurrentPuzzle.directory].size)
+                    if (levelData[CurrentPuzzle.directory][i][j].opened && !levelData[CurrentPuzzle.directory][i][j].solved) {
+                        CurrentPuzzle.number = j
+                        CurrentPuzzle.pack = i
                         return
                     }
 
             // Try to find next level in all levels before current
-            for (i in 0 until Current.pack)
-                for (j in 0 until directory!!.size)
-                    if (directory!![i][j].opened && !directory!![i][j].solved) {
-                        Current.level = j
-                        Current.pack = i
+            for (i in 0 until CurrentPuzzle.pack)
+                for (j in 0 until levelData[CurrentPuzzle.directory].size)
+                    if (levelData[CurrentPuzzle.directory][i][j].opened && !levelData[CurrentPuzzle.directory][i][j].solved) {
+                        CurrentPuzzle.number = j
+                        CurrentPuzzle.pack = i
                         return
                     }
         }
@@ -1022,7 +1023,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val coords = getGridCoordsFromTouch(e)
 
         if (!coords.contentEquals(intArrayOf(-1, -1)) &&
-            puzzle!![coords[0], coords[1]] != 'b' && !Current.levelSolved) {
+            puzzle!![coords[0], coords[1]] != 'b' && !CurrentPuzzle.solved) {
 
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -1073,15 +1074,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             grid?.removeAllViews()
             palette?.removeAllViews()
 
-            Current.levelSolved = false
+            CurrentPuzzle.solved = false
 
             selectNextLevel()
             saveCurrentSelectedLevel()
 
-            directory!![Current.pack][Current.level].refresh()
+            levelData[CurrentPuzzle].refresh()
             savePartition()
 
-            paintColor = directory!![Current.pack][Current.level].getAmountOfParts() / 2
+            paintColor = levelData[CurrentPuzzle].getAmountOfParts() / 2
             savePaletteStatus()
 
             onLayoutLoad()
