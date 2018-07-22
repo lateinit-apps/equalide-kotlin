@@ -54,6 +54,10 @@ class Puzzle(private val source: String) {
         this.body = partition
     }
 
+    fun loadSolution() {
+        this.body = solution
+    }
+
     fun refresh() {
         body = cleaned
     }

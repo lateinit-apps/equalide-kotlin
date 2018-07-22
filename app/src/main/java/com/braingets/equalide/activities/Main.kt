@@ -185,15 +185,35 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.refresh_button) {
-            snackbar?.dismiss()
+        when (item.itemId) {
+            R.id.refresh_button -> {
+                snackbar?.dismiss()
 
-            if (CurrentPuzzle.directory != NO_LEVEL_OPENED && CurrentPuzzle.pack != NO_LEVEL_OPENED
-                && CurrentPuzzle.number != NO_LEVEL_OPENED)
-                refreshGrid()
+                if (CurrentPuzzle.directory != NO_LEVEL_OPENED && CurrentPuzzle.pack != NO_LEVEL_OPENED
+                    && CurrentPuzzle.number != NO_LEVEL_OPENED)
+                    refreshGrid()
+            }
+            R.id.solve_level_button -> {
+                snackbar?.dismiss()
+
+                if (CurrentPuzzle.directory != NO_LEVEL_OPENED && CurrentPuzzle.pack != NO_LEVEL_OPENED
+                    && CurrentPuzzle.number != NO_LEVEL_OPENED) {
+
+                    fab?.hide()
+                    saveFabStatus(false)
+
+                    levelData[CurrentPuzzle].loadSolution()
+                    saveCurrentPartition()
+
+                    grid?.removeAllViews()
+                    renderPuzzle(levelData[CurrentPuzzle])
+
+                    handleSolvedPuzzle()
+                }
+            }
+            else ->
+                return super.onOptionsItemSelected(item)
         }
-        else
-            return super.onOptionsItemSelected(item)
 
         return true
     }
