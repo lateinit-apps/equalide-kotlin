@@ -1,11 +1,9 @@
 package com.braingets.equalide.activities
 
-import java.io.File
-import java.io.FileInputStream
-
 import android.Manifest
-import android.util.Log
 import android.os.Bundle
+import android.net.Uri
+import android.util.Log
 
 import android.content.Intent
 import android.content.Context
@@ -59,7 +57,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var previousPaintCoords: IntArray = IntArray(2)
 
     // Puzzle related
-    private var filePath: String? = null
+    private var fileUri: Uri? = null
 
     // Walkthrough related
     object CurrentPuzzle {
@@ -134,7 +132,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         syncDirectoriesInNavigationDrawer()
 
         if (intent.action == Intent.ACTION_VIEW) {
-            filePath = intent.data.path
+            fileUri = intent.data
             onFileOpenIntent()
         }
 
@@ -305,7 +303,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         super.onNewIntent(intent)
 
         if (intent?.action == Intent.ACTION_VIEW) {
-            filePath = intent.data.path
+            fileUri = intent.data
             onFileOpenIntent()
         }
         else {
@@ -347,8 +345,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun parseFileFromIntent() {
-        val file = File(filePath)
-        val content = FileInputStream(file).bufferedReader().use { it.readText() }
+        val content = contentResolver.openInputStream(fileUri).bufferedReader().use { it.readText() }
         loadLevelDataFrom(content)
         syncDirectoriesInNavigationDrawer()
     }

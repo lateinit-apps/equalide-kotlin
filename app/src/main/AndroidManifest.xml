@@ -26,12 +26,33 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Total Commander for launch on default -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="file" />
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.eqld" />
+            </intent-filter>
+
+            <!-- Android 8.1 emulator standard file explorer -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.eqld" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+
+            <!-- For other file explorers to "Open as text" or "Open with" dialogues -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.eqld" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
 
         </activity>
