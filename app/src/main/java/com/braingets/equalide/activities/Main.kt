@@ -118,10 +118,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         grid = findViewById(R.id.puzzle_grid)
         palette = findViewById(R.id.color_palette)
         menu = findViewById<NavigationView>(R.id.nav_view).menu
+        fab = findViewById(R.id.fab)
         toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
         snackbar = Snackbar.make(findViewById(R.id.content_view),
             R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
-        fab = findViewById(R.id.fab)
         
         // Add listeners to views
         grid?.setOnTouchListener(gridListener)
@@ -221,7 +221,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val selectedItemTitle = SpannableString(item.title.toString())
 
-        if (item.itemId == R.id.unlock_anything) {
+/*        if (item.itemId == R.id.unlock_anything) {
             selectedItemTitle.setSpan(
                 ForegroundColorSpan(ContextCompat.getColor(this, R.color.nav_text_selected)),
                 0, selectedItemTitle.length, 0)
@@ -229,7 +229,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
             openAllLevels()
             return true
-        }
+        }*/
 
         if (item.itemId == R.id.delete_switch) {
             navDeleteMode = !navDeleteMode
@@ -447,6 +447,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         }
         saveDirectoriesHashes()
+        openAllLevels()
     }
 
     private fun loadDirectoryData(preferences: SharedPreferences, directoryName: String, directoryHash: String,
