@@ -59,7 +59,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var previousPaintCoords: IntArray = IntArray(2)
 
     // Puzzle related
-    private var puzzle: Puzzle? = null
     private var filePath: String? = null
 
     //!!!
@@ -331,13 +330,16 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     fun onLayoutLoad() {
-        supportActionBar?.title = "Equalide   ${CurrentPuzzle.pack + 1}-${(CurrentPuzzle.number + 1)
-            .toString().padStart(2, '0')}"
+        val packName = if (CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX &&
+            CurrentPuzzle.pack == DEFAULT_PACK_INDEX) "Default" else "Pack ${CurrentPuzzle.pack + 1}"
+
+        supportActionBar?.title = "${levelData[CurrentPuzzle.directory].name}/" +
+                "$packName/${(CurrentPuzzle.number + 1).toString()
+                    .padStart(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size.toString().length, '0')}"
         calculateViewsSizes()
 
-        puzzle = levelData[CurrentPuzzle.directory][CurrentPuzzle.pack][CurrentPuzzle.number]
         colors = resources.getIntArray(resources.getIdentifier(
-                "colors_for_${puzzle!!.getAmountOfParts()}_parts",
+                "colors_for_${levelData[CurrentPuzzle].getAmountOfParts()}_parts",
                 "array", this.packageName))
 
         addColorPalette(colors!!)
@@ -346,7 +348,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (fabIsShowed)
             hideColorPalette()
 
-        renderPuzzle(puzzle!!)
+        renderPuzzle(levelData[CurrentPuzzle])
     }
 
     private fun launchSelectLevelActivity(pack: Pack) {
@@ -574,7 +576,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val packHashesRaw = packHashes.joinToString("\n")
         val packs = MutableList(directory.size)
             { i -> MutableList(directory[i].size)
-                { j -> directory[i][j].getRawSource() }.joinToString("\n\n") }
+                { j -> directory[i][j].getSource() }.joinToString("\n\n") }
 
         //Log.i("tag", "\nNew directory hash: ${directory.id}")
 
@@ -876,7 +878,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun refreshGrid() {
-        puzzle?.refresh()
+        levelData[CurrentPuzzle].refresh()
         savePartition()
 
         if (!CurrentPuzzle.solved) {
@@ -885,7 +887,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 val coords = primitive.tag as IntArray
                 val background = primitive.background as GradientDrawable
 
-                background.setColor(if (puzzle!![coords[0], coords[1]] == 'b') Color.BLACK else Color.WHITE)
+                background.setColor(if (levelData[CurrentPuzzle][coords[0], coords[1]] == 'b') Color.BLACK else Color.WHITE)
                 primitive.background = background
             }
         } else {
@@ -1012,10 +1014,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         background.setColor(if (eraseMode) Color.WHITE else colors!![paintColor])
         primitive.background = background
 
-        puzzle!![coords[0], coords[1]] = if (eraseMode) "e" else paintColor.toString()
+        levelData[CurrentPuzzle][coords[0], coords[1]] = if (eraseMode) "e" else paintColor.toString()
         savePartition()
 
-        if (puzzle!!.checkIfSolved())
+        if (levelData[CurrentPuzzle].checkIfSolved())
             handleSolvedPuzzle()
     }
 
@@ -1023,13 +1025,13 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val coords = getGridCoordsFromTouch(e)
 
         if (!coords.contentEquals(intArrayOf(-1, -1)) &&
-            puzzle!![coords[0], coords[1]] != 'b' && !CurrentPuzzle.solved) {
+            levelData[CurrentPuzzle][coords[0], coords[1]] != 'b' && !CurrentPuzzle.solved) {
 
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     previousPaintCoords = coords.copyOf()
 
-                    eraseMode = (puzzle!![coords[0], coords[1]].toInt() - 48) == paintColor
+                    eraseMode = (levelData[CurrentPuzzle][coords[0], coords[1]].toInt() - 48) == paintColor
 
                     paintPrimitive(coords)
                 }
@@ -1037,7 +1039,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     if (!coords.contentEquals(previousPaintCoords)) {
                         previousPaintCoords = coords.copyOf()
 
-                        if (!eraseMode || puzzle!![coords[0], coords[1]].toInt() - 48 == paintColor)
+                        if (!eraseMode || levelData[CurrentPuzzle][coords[0], coords[1]].toInt() - 48 == paintColor)
                             paintPrimitive(coords)
                     }
                 }

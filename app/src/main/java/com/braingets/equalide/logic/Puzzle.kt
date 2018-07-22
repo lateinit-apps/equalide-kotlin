@@ -4,10 +4,10 @@ package com.braingets.equalide.logic
 // '0-9' - colored cell
 // 'e' - empty cell, can be colored
 // 'b' - blank cell, can't be colored
-class Puzzle(private val text: String) {
+class Puzzle(private val source: String) {
 
     private val solution: String
-    private val source: String
+    private val cleaned: String
     private var body: String
     private var parts: Int
 
@@ -18,16 +18,17 @@ class Puzzle(private val text: String) {
     var solved: Boolean
 
     init {
-        parts = text.toSet().filter { c -> c != '0' && c != '\n' } .size
+        parts = source.toSet().filter { c -> c != '0' && c != '\n' } .size
 
-        val lines = text.lines()
+        val lines = source.lines()
 
         height = lines.size
         width = lines[0].length
 
         solution = lines.joinToString("").replace('0', 'b')
-        source = solution.replace(Regex("[^1-9]"), "e")
-        body = source
+            .replace(Regex("[1-9]")) { c -> (c.value.toInt() - 1).toString() }
+        cleaned = solution.replace(Regex("[0-9]"), "e")
+        body = cleaned
 
         opened = false
         solved = false
@@ -47,14 +48,14 @@ class Puzzle(private val text: String) {
 
     fun getPartition() = body
 
-    fun getRawSource() = text
+    fun getSource() = source
 
     fun setPartition(partition: String) {
         this.body = partition
     }
 
     fun refresh() {
-        body = source
+        body = cleaned
     }
 
     fun checkIfSolved(): Boolean {
