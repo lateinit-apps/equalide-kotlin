@@ -945,8 +945,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 else levelData[CurrentPuzzle.directory].id.toString())
         }
 
-        if (CurrentPuzzle.number != levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1
-            || CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1) {
+        if (!checkIfAllLevelsSolved() ||
+            (!skipSolvedLevels && (CurrentPuzzle.pack != levelData[CurrentPuzzle.directory].size - 1
+                    || CurrentPuzzle.number != levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size - 1))) {
             if (packSolved) {
                 toast?.setText("Pack ${CurrentPuzzle.pack + 1} solved!")
                 toast?.duration = Toast.LENGTH_LONG
@@ -1092,7 +1093,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     }
 
             // Try to find next level in all levels before current
-            for (i in 0 until CurrentPuzzle.pack)
+            for (i in 0..CurrentPuzzle.pack)
                 for (j in 0 until levelData[CurrentPuzzle.directory][i].size)
                     if (levelData[CurrentPuzzle.directory][i][j].opened && !levelData[CurrentPuzzle.directory][i][j].solved) {
                         CurrentPuzzle.number = j
