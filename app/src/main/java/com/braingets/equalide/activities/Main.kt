@@ -419,7 +419,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun loadLevelDataFrom(text: String) {
-        val directories = text.split("##")
+        val directories = text.split("\n##", "##")
 
         val toDefaultDirectory = directories.size == 1
         val startIndex = if (toDefaultDirectory) 0 else 1
