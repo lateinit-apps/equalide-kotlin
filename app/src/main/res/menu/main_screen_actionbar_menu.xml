@@ -3,6 +3,18 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/export_puzzle_button"
+        android:icon="@drawable/ic_get_app"
+        android:title="@string/export_puzzle_button_tooltip"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/edit_puzzle_button"
+        android:icon="@drawable/ic_mode_edit"
+        android:title="@string/edit_puzzle_button_tooltip"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/refresh_button"
         android:icon="@drawable/ic_refresh"
         android:title="@string/refresh_button_tooltip"
