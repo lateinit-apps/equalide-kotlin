@@ -25,4 +25,8 @@
     <string name="create_puzzle_button_tooltip">Create puzzle</string>
     <string name="export_pack_button_tooltip">Export pack</string>
 
+    <string name="export_puzzle_button_tooltip">Export puzzle</string>
+    <string name="save_puzzle_button_tooltip">Save puzzle</string>
+    <string name="edit_edges_button_tooltip">Edit edges</string>
+
 </resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/export_puzzle_button"
+        android:icon="@drawable/ic_get_app"
+        android:title="@string/export_puzzle_button_tooltip"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/save_puzzle_button"
+        android:icon="@drawable/ic_save"
+        android:title="@string/save_puzzle_button_tooltip"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/edit_edges_button"
+        android:icon="@drawable/ic_all_out"
+        android:title="@string/edit_edges_button_tooltip"
+        app:showAsAction="always" />
+
+</menu>
