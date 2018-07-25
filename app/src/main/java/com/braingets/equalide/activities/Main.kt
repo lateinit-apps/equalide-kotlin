@@ -90,11 +90,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-        setSupportActionBar(main_screen_toolbar)
+        setSupportActionBar(toolbar)
 
         // Add navigation drawer
         val toggle = object : ActionBarDrawerToggle(
-            this, activity_main, main_screen_toolbar,
+            this, activity_main, toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         ) {
@@ -178,7 +178,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.actionbar_menu, menu)
+        menuInflater.inflate(R.menu.main_screen_actionbar_menu, menu)
         return true
     }
 

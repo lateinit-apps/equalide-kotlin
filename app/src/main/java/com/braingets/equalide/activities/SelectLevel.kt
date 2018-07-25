@@ -37,7 +37,7 @@ class SelectLevel : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_select_level)
-        setSupportActionBar(main_screen_toolbar)
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         grid = findViewById(R.id.level_grid)
@@ -65,7 +65,7 @@ class SelectLevel : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.actionbar_menu, menu)
+        menuInflater.inflate(R.menu.select_level_screen_actionbar_menu, menu)
         return true
     }
 
@@ -86,10 +86,6 @@ class SelectLevel : AppCompatActivity() {
 
         horizontalMargin = (4 * (0.2 / 14) * selectView.width).toInt()
         verticalMargin = (selectView.height - 6 * tileSize - 12 * primitiveMargin) / 2
-
-//        val params = selectView.layoutParams
-//        params.height = (tileSize + 2 * primitiveMargin) * rowCount + 2 * verticalMargin
-//        selectView.layoutParams = params
     }
 
     private fun createGrid(levelData: String) {
