@@ -90,11 +90,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(main_screen_toolbar)
 
         // Add navigation drawer
         val toggle = object : ActionBarDrawerToggle(
-            this, activity_main, toolbar,
+            this, activity_main, main_screen_toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         ) {

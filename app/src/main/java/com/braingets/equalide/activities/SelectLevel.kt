@@ -10,9 +10,12 @@ import android.graphics.Color
 
 import android.view.View
 import android.view.Gravity
+import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.*
+
+import kotlinx.android.synthetic.main.main_screen.*
 
 import com.braingets.equalide.R
 
@@ -34,6 +37,8 @@ class SelectLevel : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_select_level)
+        setSupportActionBar(main_screen_toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         grid = findViewById(R.id.level_grid)
 
@@ -57,6 +62,11 @@ class SelectLevel : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.actionbar_menu, menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

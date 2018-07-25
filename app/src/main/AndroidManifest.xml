@@ -61,7 +61,7 @@
             android:parentActivityName=".activities.Main"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"
+            android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTask">
         </activity>
 
