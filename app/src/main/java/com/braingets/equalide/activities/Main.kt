@@ -184,6 +184,21 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.export_puzzle_button -> {
+
+            }
+
+            R.id.edit_puzzle_button -> {
+                val intent = Intent(this, EditPuzzle::class.java).apply {
+                    putExtra("create puzzle", false)
+                    putExtra("puzzle", levelData[CurrentPuzzle].solution)
+                }
+
+                startActivity(intent)
+
+                overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
+            }
+
             R.id.refresh_button -> {
                 snackbar?.dismiss()
 
@@ -200,7 +215,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     fab?.hide()
                     saveFabStatus(false)
 
-                    levelData[CurrentPuzzle].loadSolution()
+                    levelData[CurrentPuzzle].loadPartition(levelData[CurrentPuzzle].solution)
                     saveCurrentPartition()
 
                     grid?.removeAllViews()
@@ -324,7 +339,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 CurrentPuzzle.solved = false
                 saveWalkthroughPosition()
 
-                paintColor = levelData[CurrentPuzzle].getAmountOfParts() / 2
+                paintColor = levelData[CurrentPuzzle].parts / 2
                 savePaletteStatus()
 
                 levelData[CurrentPuzzle].refresh()
@@ -361,7 +376,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         calculateViewsSizes()
 
         colors = resources.getIntArray(resources.getIdentifier(
-                "colors_for_${levelData[CurrentPuzzle].getAmountOfParts()}_parts",
+                "colors_for_${levelData[CurrentPuzzle].parts}_parts",
                 "array", this.packageName))
 
         addColorPalette(colors!!)
@@ -535,7 +550,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             if (puzzle.width * puzzle.height == levelPartition.length &&
                     !levelPartition.any { c: Char -> !c.isDigit() && c != 'e' && c != 'b' })
                 // Successful case
-                puzzle.setPartition(levelPartition)
+                puzzle.loadPartition(levelPartition)
             else {
                 // Data is corrupted, loads clean partition instead
                 puzzle.refresh()
@@ -582,7 +597,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val packHashesRaw = packHashes.joinToString("\n")
         val packs = Array(directory.size)
             { i -> Array(directory[i].size)
-                { j -> directory[i][j].getSource() }.joinToString("\n\n") }
+                { j -> directory[i][j].source }.joinToString("\n\n") }
         val packsProgress = Array(directory.size)
             { i -> Array(directory[i].size)
                 { j -> if (directory[i][j].solved) 's' else
@@ -637,7 +652,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun saveCurrentPartition() {
-        val levelPartition = levelData[CurrentPuzzle].getPartition()
+        val levelPartition = levelData[CurrentPuzzle].partition
 
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -985,7 +1000,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
             CurrentPuzzle.solved = false
 
-            paintColor = levelData[CurrentPuzzle].getAmountOfParts() / 2
+            paintColor = levelData[CurrentPuzzle].parts / 2
             savePaletteStatus()
 
             onLayoutLoad()
@@ -1196,7 +1211,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             levelData[CurrentPuzzle].refresh()
             saveCurrentPartition()
 
-            paintColor = levelData[CurrentPuzzle].getAmountOfParts() / 2
+            paintColor = levelData[CurrentPuzzle].parts / 2
             savePaletteStatus()
 
             onLayoutLoad()
