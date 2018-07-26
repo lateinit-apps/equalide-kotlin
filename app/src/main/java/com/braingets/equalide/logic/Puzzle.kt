@@ -4,16 +4,18 @@ package com.braingets.equalide.logic
 // '0-9' - colored cell
 // 'e' - empty cell, can be colored
 // 'b' - blank cell, can't be colored
-class Puzzle(private val source: String) {
+class Puzzle(val source: String) {
 
-    private val solution: String
     private val cleaned: String
-    private var body: String
-    private var parts: Int
+
+    val solution: String
+    val parts: Int
 
     val width: Int
     val height: Int
 
+    var partition: String
+        private set
     var opened: Boolean
     var solved: Boolean
 
@@ -28,43 +30,29 @@ class Puzzle(private val source: String) {
         solution = lines.joinToString("").replace('0', 'b')
             .replace(Regex("[1-9]")) { c -> (c.value.toInt() - 1).toString() }
         cleaned = solution.replace(Regex("[0-9]"), "e")
-        body = cleaned
+        partition = cleaned
 
         opened = false
         solved = false
     }
 
-    constructor(text: String, parts: Int) : this(text) {
-        this.parts = parts
-    }
-
-    operator fun get(i: Int, j: Int) = body[i * width + j]
+    operator fun get(i: Int, j: Int) = partition[i * width + j]
 
     operator fun set(i: Int, j: Int, c: String) {
-        body = body.replaceRange(i * width + j, i * width + j + 1, c)
+        partition = partition.replaceRange(i * width + j, i * width + j + 1, c)
     }
 
-    fun getAmountOfParts() = parts
-
-    fun getPartition() = body
-
-    fun getSource() = source
-
-    fun setPartition(partition: String) {
-        this.body = partition
-    }
-
-    fun loadSolution() {
-        this.body = solution
+    fun loadPartition(partition: String) {
+        this.partition = partition
     }
 
     fun refresh() {
-        body = cleaned
+        partition = cleaned
     }
 
     fun checkIfSolved(): Boolean {
         // Checks if puzzle contains any unpainted primitive
-        if (body.indexOf('e') != -1)
+        if (partition.indexOf('e') != -1)
             return false
 
         val elements = separateInElements()
@@ -83,16 +71,16 @@ class Puzzle(private val source: String) {
     }
 
     private fun separateInElements(): ArrayList<Element> {
-        val unicalCells = body.toSet().filter { c -> c != 'b' && c != 'e' }
+        val unicalCells = partition.toSet().filter { c -> c != 'b' && c != 'e' }
         val result = ArrayList<Element>()
 
         for (cell in unicalCells) {
-            val firstOccurance = body.indexOf(cell)
-            val lastOccurance = body.lastIndexOf(cell)
+            val firstOccurance = partition.indexOf(cell)
+            val lastOccurance = partition.lastIndexOf(cell)
 
             result.add(
                 Element(
-                    body.substring(
+                    partition.substring(
                         firstOccurance - firstOccurance % width,
                         lastOccurance + width - lastOccurance % width
                     )
