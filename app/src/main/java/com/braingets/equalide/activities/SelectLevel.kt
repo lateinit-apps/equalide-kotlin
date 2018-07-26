@@ -70,10 +70,23 @@ class SelectLevel : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
-            return true
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
+            }
+
+            R.id.create_puzzle_button -> {
+                val intent = Intent(this, EditPuzzle::class.java).apply {
+                    putExtra("create puzzle", true)
+                }
+                startActivity(intent)
+                overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
+        }
+
+            R.id.export_pack_button -> {
+
+            }
         }
         return super.onOptionsItemSelected(item)
     }

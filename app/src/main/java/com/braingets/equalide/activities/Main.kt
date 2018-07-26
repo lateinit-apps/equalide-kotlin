@@ -213,7 +213,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 return super.onOptionsItemSelected(item)
         }
 
-        return true
+        return super.onOptionsItemSelected(item)
     }
 
     // Launches new activity if selected proper item from navigation drawer
