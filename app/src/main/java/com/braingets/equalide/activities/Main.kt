@@ -1,10 +1,10 @@
 package com.braingets.equalide.activities
 
 import android.Manifest
-import android.app.Activity
 import android.os.Bundle
 import android.net.Uri
 import android.util.Log
+import android.app.Activity
 
 import android.content.Intent
 import android.content.Context
@@ -87,6 +87,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var navSelectedDirectory: Int? = null
     private var navSelectedDirectoryMenuItem: MenuItem? = null
 
+    // Activity related
+    private var exportIntent: Intent? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -163,11 +166,17 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     // Close application if read permissions isn't granted
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == READ_PERMISSION_REQUEST &&
-            grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED)
-                this.finishAffinity()
-        else
-            parseFileFromIntent()
+        when (requestCode) {
+            WRITE_PERMISSION_REQUEST ->
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    startService(exportIntent)
+
+            READ_PERMISSION_REQUEST ->
+                if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED)
+                    this.finishAffinity()
+                else
+                    parseFileFromIntent()
+        }
     }
 
     // Close navigation drawer on back button pressed
@@ -190,10 +199,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
 
             R.id.edit_puzzle_button -> {
-                val intent = Intent(this, EditPuzzle::class.java).apply {
-                    putExtra("create puzzle", false)
-                    putExtra("puzzle", levelData[CurrentPuzzle].solution)
-                }
+                val intent = Intent(this, EditPuzzle::class.java)
+                    .putExtra("create puzzle", false)
+                    .putExtra("puzzle", levelData[CurrentPuzzle].solution)
 
                 startActivity(intent)
 
@@ -321,6 +329,23 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (intent?.action == Intent.ACTION_VIEW) {
             fileUri = intent.data
             onFileOpenIntent()
+            return
+        }
+
+        val exportedFileName = intent?.getStringExtra("exported file name")
+
+        if (exportedFileName != null) {
+            Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val askForWritePermission = intent?.getBooleanExtra("no write permission", false)
+
+        if (askForWritePermission == true) {
+            exportIntent = intent.setClass(this, Exporter::class.java)
+
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WRITE_PERMISSION_REQUEST)
         }
     }
 
@@ -410,11 +435,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val packName = if (navSelectedDirectory!! == DEFAULT_DIRECTORY_INDEX &&
                 navSelectedPack!! == DEFAULT_PACK_INDEX) "Default" else "Pack ${navSelectedPack!! + 1}"
 
-        val intent = Intent(this, SelectLevel::class.java).apply {
-            putExtra("pack", packName)
-            putExtra("directory", levelData[navSelectedDirectory!!].name)
-            putExtra("level data", packLevelData)
-        }
+        val intent = Intent(this, SelectLevel::class.java)
+            .putExtra("pack", packName)
+            .putExtra("directory", levelData[navSelectedDirectory!!].name)
+            .putExtra("level data", packLevelData)
 
         navigatedToSelectScreen = true
         startActivityForResult(intent, SELECT_LEVEL_REQUEST)

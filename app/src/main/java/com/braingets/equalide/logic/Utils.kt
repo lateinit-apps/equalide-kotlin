@@ -8,4 +8,5 @@ const val NO_LEVEL_OPENED = -1
 
 // Activity related
 const val READ_PERMISSION_REQUEST = 1
-const val SELECT_LEVEL_REQUEST = 2
+const val WRITE_PERMISSION_REQUEST = 2
+const val SELECT_LEVEL_REQUEST = 3

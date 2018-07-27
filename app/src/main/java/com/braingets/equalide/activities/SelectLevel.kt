@@ -1,10 +1,13 @@
 package com.braingets.equalide.activities
 
-import android.app.Activity
+import android.Manifest
 import android.os.Bundle
+import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 
 import android.support.v4.content.ContextCompat
+import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 
 import android.graphics.Color
@@ -19,6 +22,7 @@ import android.widget.*
 import kotlinx.android.synthetic.main.main_screen.*
 
 import com.braingets.equalide.R
+import com.braingets.equalide.logic.WRITE_PERMISSION_REQUEST
 
 class SelectLevel : AppCompatActivity() {
 
@@ -33,6 +37,9 @@ class SelectLevel : AppCompatActivity() {
     private var horizontalMargin: Int = 0
     private var verticalMargin: Int = 0
     private var primitiveMargin: Int = 0
+
+    // Activity related
+    private var exportIntent: Intent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +67,33 @@ class SelectLevel : AppCompatActivity() {
         })
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        val exportedFileName = intent?.getStringExtra("exported file name")
+
+        if (exportedFileName != null) {
+            Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val askForWritePermission = intent?.getBooleanExtra("no write permission", false)
+
+        if (askForWritePermission == true) {
+            exportIntent = intent.setClass(this, Exporter::class.java)
+
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WRITE_PERMISSION_REQUEST)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        if (requestCode == WRITE_PERMISSION_REQUEST &&
+            grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            startService(exportIntent)
+    }
+
     override fun onBackPressed() {
         super.onBackPressed()
         overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
@@ -78,8 +112,8 @@ class SelectLevel : AppCompatActivity() {
             }
 
             R.id.create_puzzle_button -> {
-                val intent = Intent(this, EditPuzzle::class.java).
-                    putExtra("create puzzle", true)
+                val intent = Intent(this, EditPuzzle::class.java)
+                    .putExtra("create puzzle", true)
 
                 startActivity(intent)
 
@@ -157,9 +191,9 @@ class SelectLevel : AppCompatActivity() {
                 ContextCompat.getColor(this, R.color.grey_800) else
                 ContextCompat.getColor(this, R.color.grey_400))
 
-            val intent = Intent(this, Main::class.java).apply {
-                putExtra("selected level", v.tag as Int)
-            }
+            val intent = Intent(this, Main::class.java)
+                .putExtra("selected level", v.tag as Int)
+
             setResult(Activity.RESULT_OK, intent)
             finish()
 
