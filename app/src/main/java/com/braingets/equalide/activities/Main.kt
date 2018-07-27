@@ -1,6 +1,7 @@
 package com.braingets.equalide.activities
 
 import android.Manifest
+import android.app.Activity
 import android.os.Bundle
 import android.net.Uri
 import android.util.Log
@@ -321,31 +322,39 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             fileUri = intent.data
             onFileOpenIntent()
         }
-        else {
-            val selectedLevel = intent?.getIntExtra("selected level", -1)
+    }
 
-            if (selectedLevel != null && selectedLevel != -1) {
-                grid?.removeAllViews()
-                palette?.removeAllViews()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-                if (fabIsShowed) {
-                    fab?.hide()
-                    saveFabStatus(false)
+        when (requestCode) {
+            SELECT_LEVEL_REQUEST ->
+                if (resultCode == Activity.RESULT_OK) {
+                    val selectedLevel = intent?.getIntExtra("selected level", -1)
+
+                    if (selectedLevel != null && selectedLevel != -1) {
+                        grid?.removeAllViews()
+                        palette?.removeAllViews()
+
+                        if (fabIsShowed) {
+                            fab?.hide()
+                            saveFabStatus(false)
+                        }
+
+                        CurrentPuzzle.directory = navSelectedDirectory!!
+                        CurrentPuzzle.pack = navSelectedPack!!
+                        CurrentPuzzle.number = selectedLevel
+                        CurrentPuzzle.solved = false
+                        saveWalkthroughPosition()
+
+                        paintColor = levelData[CurrentPuzzle].parts / 2
+                        savePaletteStatus()
+
+                        levelData[CurrentPuzzle].refresh()
+
+                        onLayoutLoad()
+                    }
                 }
-
-                CurrentPuzzle.directory = navSelectedDirectory!!
-                CurrentPuzzle.pack = navSelectedPack!!
-                CurrentPuzzle.number = selectedLevel
-                CurrentPuzzle.solved = false
-                saveWalkthroughPosition()
-
-                paintColor = levelData[CurrentPuzzle].parts / 2
-                savePaletteStatus()
-
-                levelData[CurrentPuzzle].refresh()
-
-                onLayoutLoad()
-            }
         }
     }
 
@@ -408,7 +417,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
 
         navigatedToSelectScreen = true
-        startActivity(intent)
+        startActivityForResult(intent, SELECT_LEVEL_REQUEST)
 
         overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
     }

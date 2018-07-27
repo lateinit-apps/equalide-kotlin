@@ -1,5 +1,6 @@
 package com.braingets.equalide.activities
 
+import android.app.Activity
 import android.os.Bundle
 import android.content.Intent
 
@@ -77,10 +78,11 @@ class SelectLevel : AppCompatActivity() {
             }
 
             R.id.create_puzzle_button -> {
-                val intent = Intent(this, EditPuzzle::class.java).apply {
+                val intent = Intent(this, EditPuzzle::class.java).
                     putExtra("create puzzle", true)
-                }
+
                 startActivity(intent)
+
                 overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
         }
 
@@ -158,7 +160,9 @@ class SelectLevel : AppCompatActivity() {
             val intent = Intent(this, Main::class.java).apply {
                 putExtra("selected level", v.tag as Int)
             }
-            startActivity(intent)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
     }
