@@ -22,6 +22,7 @@ import android.widget.*
 import kotlinx.android.synthetic.main.main_screen.*
 
 import com.braingets.equalide.R
+import com.braingets.equalide.logic.EXPORT_PACK_REQUEST
 import com.braingets.equalide.logic.WRITE_PERMISSION_REQUEST
 
 class SelectLevel : AppCompatActivity() {
@@ -56,6 +57,19 @@ class SelectLevel : AppCompatActivity() {
 
         levelData = intent.getStringExtra("level data")
         rowCount = levelData.length / columnCount + (if (levelData.length % columnCount != 0) 1 else 0)
+
+        val packData = intent?.getStringExtra("pack data")
+
+        if (packData != null) {
+            val localClassName = localClassName.split(".")
+            val className = localClassName[localClassName.lastIndex]
+
+            val intent = Intent(this, Exporter::class.java)
+                .putExtra("text", packData)
+                .putExtra("file name", "$directoryName - $packName.eqld")
+                .putExtra("class name", className)
+            startService(intent)
+        }
 
         // Listener to detect when layout is loaded to get it's resolution properties
         grid?.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
@@ -118,10 +132,16 @@ class SelectLevel : AppCompatActivity() {
                 startActivity(intent)
 
                 overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
-        }
+            }
 
             R.id.export_pack_button -> {
+                val intent = Intent(this, Main::class.java)
+                    .putExtra("export pack", true)
 
+                setResult(EXPORT_PACK_REQUEST, intent)
+                finish()
+
+                overridePendingTransition(0, 0)
             }
         }
         return super.onOptionsItemSelected(item)

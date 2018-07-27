@@ -73,9 +73,13 @@ class EditPuzzle : AppCompatActivity() {
             }
 
             R.id.export_puzzle_button -> {
+                val localClassName = localClassName.split(".")
+                val className = localClassName[localClassName.lastIndex]
+
                 val intent = Intent(this, Exporter::class.java)
-                    .putExtra("text", "LOL\nFIKE\nYOU\nMAD\n!\n\nNIGGA")
-                    .putExtra("file name", "test.txt")
+                    .putExtra("text", puzzle?.source)
+                    .putExtra("file name", "puzzle.eqld")
+                    .putExtra("class name", className)
                 startService(intent)
             }
 

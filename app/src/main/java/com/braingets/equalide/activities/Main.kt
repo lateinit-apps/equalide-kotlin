@@ -193,33 +193,37 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.export_puzzle_button -> {
+        if (CurrentPuzzle.directory != NO_LEVEL_OPENED && CurrentPuzzle.pack != NO_LEVEL_OPENED
+            && CurrentPuzzle.number != NO_LEVEL_OPENED
+        )
+            when (item.itemId) {
+                R.id.export_puzzle_button -> {
+                    val localClassName = localClassName.split(".")
+                    val className = localClassName[localClassName.lastIndex]
 
-            }
+                    val intent = Intent(this, Exporter::class.java)
+                        .putExtra("text", levelData[CurrentPuzzle].source)
+                        .putExtra("file name", "puzzle.eqld")
+                        .putExtra("class name", className)
+                    startService(intent)
+                }
 
-            R.id.edit_puzzle_button -> {
-                val intent = Intent(this, EditPuzzle::class.java)
-                    .putExtra("create puzzle", false)
-                    .putExtra("puzzle", levelData[CurrentPuzzle].solution)
+                R.id.edit_puzzle_button -> {
+                    val intent = Intent(this, EditPuzzle::class.java)
+                        .putExtra("create puzzle", false)
+                        .putExtra("puzzle", levelData[CurrentPuzzle].solution)
 
-                startActivity(intent)
+                    startActivity(intent)
 
-                overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
-            }
+                    overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
+                }
 
-            R.id.refresh_button -> {
-                snackbar?.dismiss()
-
-                if (CurrentPuzzle.directory != NO_LEVEL_OPENED && CurrentPuzzle.pack != NO_LEVEL_OPENED
-                    && CurrentPuzzle.number != NO_LEVEL_OPENED)
+                R.id.refresh_button -> {
+                    snackbar?.dismiss()
                     refreshGrid()
-            }
-            R.id.solve_level_button -> {
-                snackbar?.dismiss()
-
-                if (CurrentPuzzle.directory != NO_LEVEL_OPENED && CurrentPuzzle.pack != NO_LEVEL_OPENED
-                    && CurrentPuzzle.number != NO_LEVEL_OPENED) {
+                }
+                R.id.solve_level_button -> {
+                    snackbar?.dismiss()
 
                     fab?.hide()
                     saveFabStatus(false)
@@ -232,10 +236,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
                     handleSolvedPuzzle()
                 }
+                else ->
+                    return super.onOptionsItemSelected(item)
             }
-            else ->
-                return super.onOptionsItemSelected(item)
-        }
 
         return super.onOptionsItemSelected(item)
     }
@@ -354,31 +357,36 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         when (requestCode) {
             SELECT_LEVEL_REQUEST ->
-                if (resultCode == Activity.RESULT_OK) {
-                    val selectedLevel = intent?.getIntExtra("selected level", -1)
+                when (resultCode) {
+                    Activity.RESULT_OK -> {
+                        val selectedLevel = intent?.getIntExtra("selected level", -1)
 
-                    if (selectedLevel != null && selectedLevel != -1) {
-                        grid?.removeAllViews()
-                        palette?.removeAllViews()
+                        if (selectedLevel != null && selectedLevel != -1) {
+                            grid?.removeAllViews()
+                            palette?.removeAllViews()
 
-                        if (fabIsShowed) {
-                            fab?.hide()
-                            saveFabStatus(false)
+                            if (fabIsShowed) {
+                                fab?.hide()
+                                saveFabStatus(false)
+                            }
+
+                            CurrentPuzzle.directory = navSelectedDirectory!!
+                            CurrentPuzzle.pack = navSelectedPack!!
+                            CurrentPuzzle.number = selectedLevel
+                            CurrentPuzzle.solved = false
+                            saveWalkthroughPosition()
+
+                            paintColor = levelData[CurrentPuzzle].parts / 2
+                            savePaletteStatus()
+
+                            levelData[CurrentPuzzle].refresh()
+
+                            onLayoutLoad()
                         }
-
-                        CurrentPuzzle.directory = navSelectedDirectory!!
-                        CurrentPuzzle.pack = navSelectedPack!!
-                        CurrentPuzzle.number = selectedLevel
-                        CurrentPuzzle.solved = false
-                        saveWalkthroughPosition()
-
-                        paintColor = levelData[CurrentPuzzle].parts / 2
-                        savePaletteStatus()
-
-                        levelData[CurrentPuzzle].refresh()
-
-                        onLayoutLoad()
                     }
+
+                    EXPORT_PACK_REQUEST ->
+                        launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!], true)
                 }
         }
     }
@@ -422,7 +430,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         renderPuzzle(levelData[CurrentPuzzle])
     }
 
-    private fun launchSelectLevelActivity(pack: Pack) {
+    private fun launchSelectLevelActivity(pack: Pack, export: Boolean = false) {
         // String that contains user progress in selected pack
         // 's' - solved level
         // 'o' - opened level
@@ -440,10 +448,20 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             .putExtra("directory", levelData[navSelectedDirectory!!].name)
             .putExtra("level data", packLevelData)
 
+        if (export) {
+            val packData = "#\n" + Array(pack.size)
+                { i -> pack[i].source }.joinToString("\n\n")
+
+            intent.putExtra("pack data", packData)
+        }
+
         navigatedToSelectScreen = true
         startActivityForResult(intent, SELECT_LEVEL_REQUEST)
 
-        overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
+        if (!export)
+            overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
+        else
+            overridePendingTransition(0, 0)
     }
 
     private fun loadLevelData() {
