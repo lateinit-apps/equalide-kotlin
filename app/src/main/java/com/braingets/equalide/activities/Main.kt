@@ -407,7 +407,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         syncDirectoriesInNavigationDrawer()
     }
 
-    fun onLayoutLoad() {
+    private fun onLayoutLoad() {
         val packName = if (CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX &&
             CurrentPuzzle.pack == DEFAULT_PACK_INDEX) "Default" else "Pack ${CurrentPuzzle.pack + 1}"
 
