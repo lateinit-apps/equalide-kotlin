@@ -59,6 +59,8 @@ class EditPuzzle : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        supportActionBar?.title = "Puzzle editor"
+
         val createPuzzle = intent.getBooleanExtra("create puzzle", false)
 
         if (!createPuzzle) {
@@ -67,6 +69,8 @@ class EditPuzzle : AppCompatActivity() {
             if (puzzleData != null)
                 puzzle = Puzzle(puzzleData)
         }
+
+        puzzle = Puzzle("12\n12")
 
         // Find or create views
         grid = findViewById(R.id.puzzle_grid)
