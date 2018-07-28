@@ -12,10 +12,11 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 
+import android.view.View
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
-import android.view.View
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 
 import android.widget.*
 
@@ -23,8 +24,6 @@ import kotlinx.android.synthetic.main.main_screen.*
 
 import com.braingets.equalide.R
 import com.braingets.equalide.logic.Puzzle
-import com.braingets.equalide.logic.DEFAULT_DIRECTORY_INDEX
-import com.braingets.equalide.logic.DEFAULT_PACK_INDEX
 import com.braingets.equalide.logic.WRITE_PERMISSION_REQUEST
 
 class EditPuzzle : AppCompatActivity() {
@@ -62,9 +61,24 @@ class EditPuzzle : AppCompatActivity() {
 
         val createPuzzle = intent.getBooleanExtra("create puzzle", false)
 
+        if (!createPuzzle) {
+            val puzzleData = intent.getStringExtra("puzzle data")
+
+            if (puzzleData != null)
+                puzzle = Puzzle(puzzleData)
+        }
+
         // Find or create views
         grid = findViewById(R.id.puzzle_grid)
         palette = findViewById(R.id.color_palette)
+
+        // Listener to detect when layout is loaded to get it's resolution properties
+        grid?.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                grid?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
+                onLayoutLoad()
+            }
+        })
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -129,19 +143,16 @@ class EditPuzzle : AppCompatActivity() {
     }
 
     private fun onLayoutLoad() {
-        val packName = if (Main.CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX &&
-            Main.CurrentPuzzle.pack == DEFAULT_PACK_INDEX
-        ) "Default" else "Pack ${Main.CurrentPuzzle.pack + 1}"
-
         calculateViewsSizes()
 
         colors = resources.getIntArray(resources.getIdentifier(
-            "colors_for_${puzzle!!.parts}_parts",
+            "colors_for_puzzle_editor",
             "array", this.packageName))
 
         addColorPalette(colors!!)
 
-        renderPuzzle(puzzle!!)
+        if (puzzle != null)
+            renderPuzzle(puzzle!!)
     }
 
     private fun calculateViewsSizes() {
@@ -149,15 +160,15 @@ class EditPuzzle : AppCompatActivity() {
 
         colorPaletteSize = contentView.width / 5
 
-        Main.ContentView.width = contentView.width
-        Main.ContentView.height = (contentView.height
+        ContentView.width = contentView.width
+        ContentView.height = (contentView.height
                 - resources.getDimension(R.dimen.puzzle_grid_margin_top)
                 - resources.getDimension(R.dimen.puzzle_grid_margin_bottom)
                 - colorPaletteSize).toInt()
     }
 
     private fun renderPuzzle(puzzle: Puzzle) {
-        primitiveSize = minOf(Main.ContentView.width / puzzle.width, Main.ContentView.height / puzzle.height)
+        primitiveSize = minOf(ContentView.width / puzzle.width, ContentView.height / puzzle.height)
 
         grid?.columnCount = puzzle.width
         grid?.rowCount = puzzle.height
@@ -165,7 +176,7 @@ class EditPuzzle : AppCompatActivity() {
         // Center-align puzzle between action bar and palette
         val gridParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        gridParams.bottomMargin = (Main.ContentView.height - puzzle.height * primitiveSize) / 2
+        gridParams.bottomMargin = (ContentView.height - puzzle.height * primitiveSize) / 2
         grid?.layoutParams = gridParams
 
         for (i in 0 until puzzle.height)

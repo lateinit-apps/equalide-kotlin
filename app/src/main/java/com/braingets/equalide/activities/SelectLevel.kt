@@ -17,6 +17,7 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+
 import android.widget.*
 
 import kotlinx.android.synthetic.main.main_screen.*

@@ -49,4 +49,12 @@
         <item>@android:color/holo_blue_light</item>
     </integer-array>
 
+    <integer-array name="colors_for_puzzle_editor">
+        <item>@android:color/black</item>
+        <item>@color/blue</item>
+        <item>@color/yellow</item>
+        <item>@color/green</item>
+        <item>@color/red</item>
+    </integer-array>
+
 </resources>
