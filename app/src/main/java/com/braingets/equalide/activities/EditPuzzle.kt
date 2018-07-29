@@ -39,7 +39,7 @@ class EditPuzzle : AppCompatActivity() {
     private var puzzle: Puzzle? = null
 
     // Paint related
-    private var paintColor: Int = 0
+    private var paintColor: Int = 2
     private var colors: IntArray? = null
     private var eraseMode: Boolean = false
     private var previousPaintCoords: IntArray = IntArray(2)
@@ -87,6 +87,7 @@ class EditPuzzle : AppCompatActivity() {
         rightButton = findViewById(R.id.right_button)
 
         // Add listeners
+        grid?.setOnTouchListener(gridListener)
         centerButton?.setOnClickListener(editEdgesButtonsListener)
         upButton?.setOnClickListener(editEdgesButtonsListener)
         downButton?.setOnClickListener(editEdgesButtonsListener)
@@ -294,20 +295,20 @@ class EditPuzzle : AppCompatActivity() {
         background.setColor(if (eraseMode) Color.WHITE else colors!![paintColor])
         primitive.background = background
 
-        puzzle!![coords[0], coords[1]] = if (eraseMode) "e" else paintColor.toString()
+        puzzle!![coords[0], coords[1]] = if (eraseMode) "e" else if (paintColor == 0) "b" else paintColor.toString()
     }
 
     private val gridListener = { _: View, e: MotionEvent ->
         val coords = getGridCoordsFromTouch(e)
 
-        if (!coords.contentEquals(intArrayOf(-1, -1)) &&
-            puzzle!![coords[0], coords[1]] != 'b' && !Main.CurrentPuzzle.solved) {
+        if (!coords.contentEquals(intArrayOf(-1, -1))) {
 
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     previousPaintCoords = coords.copyOf()
 
-                    eraseMode = (puzzle!![coords[0], coords[1]].toInt() - 48) == paintColor
+                    eraseMode = if (paintColor == 0) puzzle!![coords[0], coords[1]] == 'b'
+                        else (puzzle!![coords[0], coords[1]].toInt() - 48) == paintColor
 
                     paintPrimitive(coords)
                 }
@@ -315,7 +316,9 @@ class EditPuzzle : AppCompatActivity() {
                     if (!coords.contentEquals(previousPaintCoords)) {
                         previousPaintCoords = coords.copyOf()
 
-                        if (!eraseMode || puzzle!![coords[0], coords[1]].toInt() - 48 == paintColor)
+                        if (!eraseMode
+                            || (paintColor != 0 && puzzle!![coords[0], coords[1]].toInt() - 48 == paintColor)
+                            || (paintColor == 0 && puzzle!![coords[0], coords[1]] == 'b'))
                             paintPrimitive(coords)
                     }
                 }
