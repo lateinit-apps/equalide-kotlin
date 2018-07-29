@@ -91,4 +91,8 @@ class Puzzle(val source: String) {
         }
         return result
     }
+
+    fun getIncreasedBySide(direction: Direction): Puzzle {
+        return Puzzle("")
+    }
 }

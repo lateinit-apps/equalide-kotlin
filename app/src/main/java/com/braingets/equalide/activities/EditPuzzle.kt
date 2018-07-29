@@ -23,8 +23,7 @@ import android.widget.*
 import kotlinx.android.synthetic.main.main_screen.*
 
 import com.braingets.equalide.R
-import com.braingets.equalide.logic.Puzzle
-import com.braingets.equalide.logic.WRITE_PERMISSION_REQUEST
+import com.braingets.equalide.logic.*
 
 class EditPuzzle : AppCompatActivity() {
 
@@ -48,7 +47,12 @@ class EditPuzzle : AppCompatActivity() {
     // Views related
     private var grid: GridLayout? = null
     private var palette: LinearLayout? = null
-   private var centerButton: Button? = null
+    private var editEdgesMode: Int = INCREASE
+    private var centerButton: Button? = null
+    private var upButton: Button? = null
+    private var downButton: Button? = null
+    private var leftButton: Button? = null
+    private var rightButton: Button? = null
 
     // Activity related
     private var exportIntent: Intent? = null
@@ -76,6 +80,18 @@ class EditPuzzle : AppCompatActivity() {
         // Find or create views
         grid = findViewById(R.id.puzzle_grid)
         palette = findViewById(R.id.color_palette)
+        centerButton = findViewById(R.id.center_button)
+        upButton = findViewById(R.id.up_button)
+        downButton = findViewById(R.id.down_button)
+        leftButton = findViewById(R.id.left_button)
+        rightButton = findViewById(R.id.right_button)
+
+        // Add listeners
+        centerButton?.setOnClickListener(editEdgesButtonsListener)
+        upButton?.setOnClickListener(editEdgesButtonsListener)
+        downButton?.setOnClickListener(editEdgesButtonsListener)
+        leftButton?.setOnClickListener(editEdgesButtonsListener)
+        rightButton?.setOnClickListener(editEdgesButtonsListener)
 
         // Listener to detect when layout is loaded to get it's resolution properties
         grid?.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
@@ -140,9 +156,8 @@ class EditPuzzle : AppCompatActivity() {
 
             }
 
-            R.id.edit_edges_button -> {
-
-            }
+            R.id.edit_edges_button ->
+                toggleEditEdgesButtons(centerButton?.visibility == View.INVISIBLE)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -156,8 +171,11 @@ class EditPuzzle : AppCompatActivity() {
 
         addColorPalette(colors!!)
 
-        if (puzzle != null)
+        if (puzzle != null) {
+            toggleEditEdgesButtons(false)
             renderPuzzle(puzzle!!)
+        } else
+            toggleEditEdgesButtons(true)
     }
 
     private fun calculateViewsSizes() {
@@ -170,6 +188,16 @@ class EditPuzzle : AppCompatActivity() {
                 - resources.getDimension(R.dimen.puzzle_grid_margin_top)
                 - resources.getDimension(R.dimen.puzzle_grid_margin_bottom)
                 - colorPaletteSize).toInt()
+    }
+
+    private fun toggleEditEdgesButtons(visible: Boolean) {
+        val visibility = if (visible) View.VISIBLE else View.INVISIBLE
+
+        centerButton?.visibility = visibility
+        upButton?.visibility = visibility
+        downButton?.visibility = visibility
+        leftButton?.visibility = visibility
+        rightButton?.visibility = visibility
     }
 
     private fun renderPuzzle(puzzle: Puzzle) {
@@ -309,6 +337,17 @@ class EditPuzzle : AppCompatActivity() {
 
             // Update paint color
             paintColor = v.tag.toString().takeLast(1).toInt()
+        }
+    }
+
+    private val editEdgesButtonsListener = { v: View ->
+        when (v.id) {
+            R.id.center_button ->
+                editEdgesMode = if (editEdgesMode == INCREASE) DECREASE else INCREASE
+            R.id.up_button -> puzzle = puzzle?.getIncreasedBySide(Direction.UP)
+            R.id.down_button -> puzzle = puzzle?.getIncreasedBySide(Direction.DOWN)
+            R.id.left_button -> puzzle = puzzle?.getIncreasedBySide(Direction.LEFT)
+            R.id.right_button -> puzzle = puzzle?.getIncreasedBySide(Direction.RIGHT)
         }
     }
 }
