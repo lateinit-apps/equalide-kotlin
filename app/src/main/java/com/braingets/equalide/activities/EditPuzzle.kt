@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.VectorDrawable
 import android.util.Log
 
 import android.support.v4.app.ActivityCompat
@@ -158,7 +159,7 @@ class EditPuzzle : AppCompatActivity() {
             }
 
             R.id.edit_edges_button ->
-                toggleEditEdgesButtons(centerButton?.visibility == View.INVISIBLE)
+                toggleEditEdgesButtonsVisibility(centerButton?.visibility == View.INVISIBLE)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -173,10 +174,10 @@ class EditPuzzle : AppCompatActivity() {
         addColorPalette(colors!!)
 
         if (puzzle != null) {
-            toggleEditEdgesButtons(false)
+            toggleEditEdgesButtonsVisibility(false)
             renderPuzzle(puzzle!!)
         } else
-            toggleEditEdgesButtons(true)
+            toggleEditEdgesButtonsVisibility(true)
     }
 
     private fun calculateViewsSizes() {
@@ -191,7 +192,7 @@ class EditPuzzle : AppCompatActivity() {
                 - colorPaletteSize).toInt()
     }
 
-    private fun toggleEditEdgesButtons(visible: Boolean) {
+    private fun toggleEditEdgesButtonsVisibility(visible: Boolean) {
         val visibility = if (visible) View.VISIBLE else View.INVISIBLE
 
         centerButton?.visibility = visibility
@@ -199,6 +200,29 @@ class EditPuzzle : AppCompatActivity() {
         downButton?.visibility = visibility
         leftButton?.visibility = visibility
         rightButton?.visibility = visibility
+    }
+
+    private fun toggleEditEdgesCornerButtonsIcons(mode: Int) {
+        val upArrow = ContextCompat.getDrawable(this, R.drawable.up_arrow)
+        val downArrow = ContextCompat.getDrawable(this, R.drawable.down_arrow)
+        val leftArrow = ContextCompat.getDrawable(this, R.drawable.left_arrow)
+        val rightArrow = ContextCompat.getDrawable(this, R.drawable.right_arrow)
+
+        when (mode) {
+            INCREASE -> {
+                upButton?.background = upArrow
+                downButton?.background = downArrow
+                leftButton?.background = leftArrow
+                rightButton?.background = rightArrow
+            }
+
+            DECREASE -> {
+                upButton?.background = downArrow
+                downButton?.background = upArrow
+                leftButton?.background = rightArrow
+                rightButton?.background = leftArrow
+            }
+        }
     }
 
     private fun renderPuzzle(puzzle: Puzzle) {
@@ -345,12 +369,24 @@ class EditPuzzle : AppCompatActivity() {
 
     private val editEdgesButtonsListener = { v: View ->
         when (v.id) {
-            R.id.center_button ->
+            R.id.center_button -> {
                 editEdgesMode = if (editEdgesMode == INCREASE) DECREASE else INCREASE
-            R.id.up_button -> puzzle = puzzle?.getIncreasedBySide(Direction.UP)
-            R.id.down_button -> puzzle = puzzle?.getIncreasedBySide(Direction.DOWN)
-            R.id.left_button -> puzzle = puzzle?.getIncreasedBySide(Direction.LEFT)
-            R.id.right_button -> puzzle = puzzle?.getIncreasedBySide(Direction.RIGHT)
+                toggleEditEdgesCornerButtonsIcons(editEdgesMode)
+            }
+            R.id.up_button -> puzzle = puzzle?.getChangedBySide(Direction.UP, editEdgesMode)
+            R.id.down_button -> puzzle = puzzle?.getChangedBySide(Direction.DOWN, editEdgesMode)
+            R.id.left_button -> puzzle = puzzle?.getChangedBySide(Direction.LEFT, editEdgesMode)
+            R.id.right_button -> puzzle = puzzle?.getChangedBySide(Direction.RIGHT, editEdgesMode)
+        }
+
+        if (v.id != R.id.center_button) {
+            if (editEdgesMode == INCREASE && puzzle == null)
+                puzzle = Puzzle("1")
+
+            grid?.removeAllViews()
+
+            if (puzzle != null)
+                renderPuzzle(puzzle!!)
         }
     }
 }

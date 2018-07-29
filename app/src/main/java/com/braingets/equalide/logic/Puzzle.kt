@@ -20,7 +20,7 @@ class Puzzle(val source: String) {
     var solved: Boolean
 
     init {
-        parts = source.toSet().filter { c -> c != '0' && c != '\n' } .size
+        parts = source.toSet().filter { c -> c != '0' && c != '\n' }.size
 
         val lines = source.lines()
 
@@ -92,7 +92,25 @@ class Puzzle(val source: String) {
         return result
     }
 
-    fun getIncreasedBySide(direction: Direction): Puzzle {
-        return Puzzle("")
+    fun getChangedBySide(direction: Direction, mode: Int): Puzzle? {
+        var newSource: String? = null
+        var newPartition: String? = null
+
+        when (mode) {
+            INCREASE -> {
+                newSource = increaseBySide(source, false, width, direction)
+                newPartition = increaseBySide(partition, true, width, direction)
+            }
+            DECREASE -> {
+                newSource = decreaseBySide(source, false, width, height, direction)
+                newPartition = decreaseBySide(partition, true, width, height, direction)
+            }
+        }
+
+        val newPuzzle = if (newSource != null) Puzzle(newSource) else null
+        if (newPartition != null)
+            newPuzzle?.loadPartition(newPartition)
+
+        return newPuzzle
     }
 }
