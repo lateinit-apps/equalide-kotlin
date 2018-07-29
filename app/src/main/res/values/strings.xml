@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Application overall -->
-    <string name="app_name">Equalide X</string>
+    <string name="app_name">Equalide IT</string>
     <string name="preference_file_key">com.braingets.equalide.PREFERENCE_FILE_KEY</string>
 
     <!-- Main screen -->
