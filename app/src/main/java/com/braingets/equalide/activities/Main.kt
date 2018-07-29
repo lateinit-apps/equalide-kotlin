@@ -39,7 +39,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 import com.braingets.equalide.R
 import com.braingets.equalide.logic.*
-import com.braingets.equalide.data.LevelData
+import com.braingets.equalide.logic.LevelData
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -211,7 +211,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 R.id.edit_puzzle_button -> {
                     val intent = Intent(this, EditPuzzle::class.java)
                         .putExtra("create puzzle", false)
-                        .putExtra("puzzle", levelData[CurrentPuzzle].solution)
+                        .putExtra("puzzle data", levelData[CurrentPuzzle].source)
 
                     startActivity(intent)
 
@@ -335,15 +335,44 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             return
         }
 
-        val exportedFileName = intent?.getStringExtra("exported file name")
+        val puzzleEditorSource = intent?.getStringExtra("puzzle source")
+        if (puzzleEditorSource != null) {
+            val launchSelectLevelScreen = intent.getBooleanExtra("select level screen", false)
 
+            val puzzle = Puzzle(puzzleEditorSource)
+            puzzle.opened = true
+
+            if (launchSelectLevelScreen) {
+                levelData[navSelectedDirectory!!][navSelectedPack!!]
+                    .addAll(mutableListOf(puzzle))
+                savePackData(levelData[navSelectedDirectory!!][navSelectedPack!!],
+                    levelData[navSelectedDirectory!!].getPackId(navSelectedPack!!),
+                    levelData[navSelectedDirectory!!].id,
+                    levelData[navSelectedDirectory!!].id == DEFAULT_DIRECTORY_INDEX)
+
+                launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!], animatedTransition = false)
+            } else {
+                levelData[CurrentPuzzle] = puzzle
+                savePackData(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
+                    levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack),
+                    levelData[CurrentPuzzle.directory].id,
+                    levelData[CurrentPuzzle.directory].id == DEFAULT_DIRECTORY_INDEX)
+
+                // Exploit
+                CurrentPuzzle.solved = true
+                refreshGrid()
+            }
+
+            return
+        }
+
+        val exportedFileName = intent?.getStringExtra("exported file name")
         if (exportedFileName != null) {
             Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_SHORT).show()
             return
         }
 
         val askForWritePermission = intent?.getBooleanExtra("no write permission", false)
-
         if (askForWritePermission == true) {
             exportIntent = intent.setClass(this, Exporter::class.java)
 
@@ -430,7 +459,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         renderPuzzle(levelData[CurrentPuzzle])
     }
 
-    private fun launchSelectLevelActivity(pack: Pack, export: Boolean = false) {
+    private fun launchSelectLevelActivity(pack: Pack, export: Boolean = false, animatedTransition: Boolean = true) {
         // String that contains user progress in selected pack
         // 's' - solved level
         // 'o' - opened level
@@ -458,7 +487,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         navigatedToSelectScreen = true
         startActivityForResult(intent, SELECT_LEVEL_REQUEST)
 
-        if (!export)
+        if (!export && animatedTransition)
             overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
         else
             overridePendingTransition(0, 0)
@@ -656,7 +685,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        
+
         // Save new directory level data
         with(preferences.edit()) {
             if (!default)
@@ -670,6 +699,23 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 putString("Directory [$directoryHash] Pack [${packHashes[packIndex]}]", packs[packIndex])
                 putString("Directory [$directoryHash] Pack [${packHashes[packIndex]}] progress", packsProgress[packIndex])
             }
+
+            apply()
+        }
+    }
+
+    private fun savePackData(pack: Pack, packId: Int, directoryId: Int, default: Boolean = false) {
+        val packData = Array(pack.size)
+            { i -> pack[i].source }.joinToString("\n\n")
+
+        val preferences = getSharedPreferences(
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+
+        // Save new directory level data
+        with(preferences.edit()) {
+            val directoryHash = if (default) "Default" else directoryId.toString()
+
+            putString("Directory [$directoryHash] Pack [$packId]", packData)
 
             apply()
         }

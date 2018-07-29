@@ -3,9 +3,9 @@ package com.braingets.equalide.logic
 // Contains element with next representation:
 // 'c' - non-empty cell
 // 'e' - empty cell
-class Element(private var body: String, var width: Int) {
+class Element(private var body: String, private var width: Int) {
 
-    var height: Int
+    private var height: Int
 
     init {
         height = body.length / width

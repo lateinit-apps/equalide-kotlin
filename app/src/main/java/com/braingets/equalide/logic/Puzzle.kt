@@ -56,7 +56,11 @@ class Puzzle(val source: String) {
             return false
 
         val elements = separateInElements()
+
         if (elements.size != parts)
+            return false
+
+        if (!elements[0].checkConnectivity())
             return false
 
         // Checks if elements are equal
@@ -64,8 +68,26 @@ class Puzzle(val source: String) {
             if (elements[0] != elements[i])
                 return false
 
+        return true
+    }
+
+    fun checkIfValid(): Boolean {
+        // Checks if puzzle contains any unpainted primitive
+        if (partition.indexOf('e') != -1)
+            return false
+
+        val elements = separateInElements()
+
+        if (elements.size == 1)
+            return false
+
         if (!elements[0].checkConnectivity())
             return false
+
+        // Checks if elements are equal
+        for (i in 1 until elements.size)
+            if (elements[0] != elements[i])
+                return false
 
         return true
     }

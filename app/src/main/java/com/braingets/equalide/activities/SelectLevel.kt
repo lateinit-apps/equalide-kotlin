@@ -88,7 +88,7 @@ class SelectLevel : AppCompatActivity() {
         val exportedFileName = intent?.getStringExtra("exported file name")
 
         if (exportedFileName != null) {
-            Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_SHORT).show()
             return
         }
 

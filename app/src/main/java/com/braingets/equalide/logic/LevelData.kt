@@ -1,9 +1,6 @@
-package com.braingets.equalide.data
+package com.braingets.equalide.logic
 
 import com.braingets.equalide.activities.Main.CurrentPuzzle
-
-import com.braingets.equalide.logic.Directory
-import com.braingets.equalide.logic.UNSET_DIRECTORY_ID
 
 class LevelData {
 
@@ -39,6 +36,10 @@ class LevelData {
     operator fun get(i: Int) = directories[i]
 
     operator fun get(puzzleIndex: CurrentPuzzle) = directories[puzzleIndex.directory][puzzleIndex.pack][puzzleIndex.number]
+
+    operator fun set(puzzleIndex: CurrentPuzzle, puzzle: Puzzle) {
+        directories[puzzleIndex.directory][puzzleIndex.pack][puzzleIndex.number] = puzzle
+    }
 
     operator fun iterator(): Iterator<Directory> = directories.iterator()
 }

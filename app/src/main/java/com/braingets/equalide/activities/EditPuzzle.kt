@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.VectorDrawable
 import android.util.Log
 
 import android.support.v4.app.ActivityCompat
@@ -57,6 +56,7 @@ class EditPuzzle : AppCompatActivity() {
 
     // Activity related
     private var exportIntent: Intent? = null
+    private var createPuzzle: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +67,7 @@ class EditPuzzle : AppCompatActivity() {
 
         supportActionBar?.title = "Puzzle editor"
 
-        val createPuzzle = intent.getBooleanExtra("create puzzle", false)
+        createPuzzle = intent.getBooleanExtra("create puzzle", false)
 
         if (!createPuzzle) {
             val puzzleData = intent.getStringExtra("puzzle data")
@@ -75,8 +75,6 @@ class EditPuzzle : AppCompatActivity() {
             if (puzzleData != null)
                 puzzle = Puzzle(puzzleData)
         }
-
-        puzzle = Puzzle("12\n12")
 
         // Find or create views
         grid = findViewById(R.id.puzzle_grid)
@@ -155,7 +153,21 @@ class EditPuzzle : AppCompatActivity() {
             }
 
             R.id.save_puzzle_button -> if (puzzle != null) {
+                if (puzzle!!.source.any { c -> c != 'b' } && puzzle!!.checkIfValid()) {
 
+                    val puzzleSource = normalizePuzzleSource(
+                        puzzle!!.partition.chunked(puzzle!!.width).joinToString("\n"))
+                        .replace("b", "0")
+
+                    val intent = Intent(this, Main::class.java)
+                        .putExtra("puzzle source", puzzleSource)
+                        .putExtra("select level screen", createPuzzle)
+
+                    startActivity(intent)
+
+                    overridePendingTransition(R.anim.right_left_exit, R.anim.right_left_enter)
+                } else
+                    Toast.makeText(this, "Invalid puzzle!", Toast.LENGTH_SHORT).show()
             }
 
             R.id.refresh_button -> if (puzzle != null) {

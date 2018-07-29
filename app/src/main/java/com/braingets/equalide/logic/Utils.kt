@@ -64,8 +64,18 @@ fun decreaseBySide(text: String, isPartition: Boolean, width: Int, height: Int, 
                     if (isPartition || (!isPartition && it.length != chunkSize)) it.substring(0, it.lastIndex)
                     else it.substring(0, it.lastIndex - 1) + "\n"
                 })
-                .joinToString("").substringBeforeLast("\n")
+                .joinToString("")
 
         Direction.NO_DIRECTION -> text
     }
+}
+
+fun normalizePuzzleSource(source: String): String {
+    val unicalNumbers = source.toSet().filter { c -> c != 'b' && c != '\n'}
+
+    return source.map { c ->
+        if (c != 'b' && c != '\n') (unicalNumbers.indexOf(c) + 1).toString()
+        else c.toString()
+    }
+        .joinToString("")
 }
