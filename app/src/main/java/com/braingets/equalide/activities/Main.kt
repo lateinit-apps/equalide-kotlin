@@ -338,7 +338,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val exportedFileName = intent?.getStringExtra("exported file name")
 
         if (exportedFileName != null) {
-            Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -359,7 +359,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             SELECT_LEVEL_REQUEST ->
                 when (resultCode) {
                     Activity.RESULT_OK -> {
-                        val selectedLevel = intent?.getIntExtra("selected level", -1)
+                        val selectedLevel = data?.getIntExtra("selected level", -1)
 
                         if (selectedLevel != null && selectedLevel != -1) {
                             grid?.removeAllViews()

@@ -48,6 +48,7 @@ class EditPuzzle : AppCompatActivity() {
     // Views related
     private var grid: GridLayout? = null
     private var palette: LinearLayout? = null
+   private var centerButton: Button? = null
 
     // Activity related
     private var exportIntent: Intent? = null
@@ -91,7 +92,7 @@ class EditPuzzle : AppCompatActivity() {
         val exportedFileName = intent?.getStringExtra("exported file name")
 
         if (exportedFileName != null) {
-            Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Exported as $exportedFileName ", Toast.LENGTH_SHORT).show()
             return
         }
 

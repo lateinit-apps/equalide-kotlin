@@ -44,18 +44,22 @@ class Exporter : IntentService("exporter") {
             .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
         var file = File(directory, fileName)
 
+        var exportedFileName = fileName
+
         if (file.exists()) {
-            var i = 1
             val filePath = fileName.split(".")
 
             val name = filePath[0]
             var extension = ""
 
             if (filePath.size > 1)
-                extension = filePath[filePath.lastIndex]
+                extension = "." + filePath[filePath.lastIndex]
 
+            var i = 1
             while (file.exists()) {
-                file = File(directory, "$name ($i).$extension")
+                exportedFileName = "$name ($i)$extension"
+
+                file = File(directory, exportedFileName)
                 i++
             }
         }
@@ -65,7 +69,8 @@ class Exporter : IntentService("exporter") {
         outputStream.close()
 
         val intent = Intent(this, callerClass)
-            .putExtra("exported file name", fileName)
+            .putExtra("exported file name", exportedFileName)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
         startActivity(intent)
     }
