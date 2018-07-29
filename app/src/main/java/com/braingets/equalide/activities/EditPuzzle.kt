@@ -143,7 +143,7 @@ class EditPuzzle : AppCompatActivity() {
                 overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
             }
 
-            R.id.export_puzzle_button -> {
+            R.id.export_puzzle_button -> if (puzzle != null) {
                 val localClassName = localClassName.split(".")
                 val className = localClassName[localClassName.lastIndex]
 
@@ -154,8 +154,14 @@ class EditPuzzle : AppCompatActivity() {
                 startService(intent)
             }
 
-            R.id.save_puzzle_button -> {
+            R.id.save_puzzle_button -> if (puzzle != null) {
 
+            }
+
+            R.id.refresh_button -> if (puzzle != null) {
+                grid?.removeAllViews()
+                puzzle?.refresh()
+                renderPuzzle(puzzle!!)
             }
 
             R.id.edit_edges_button ->

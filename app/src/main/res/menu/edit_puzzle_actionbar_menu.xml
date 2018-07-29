@@ -12,6 +12,12 @@
         android:id="@+id/save_puzzle_button"
         android:icon="@drawable/ic_save"
         android:title="@string/save_puzzle_button_tooltip"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/refresh_button"
+        android:icon="@drawable/ic_refresh"
+        android:title="@string/refresh_button_tooltip"
         app:showAsAction="always" />
 
     <item
