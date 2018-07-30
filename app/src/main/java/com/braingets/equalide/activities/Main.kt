@@ -143,8 +143,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 // Set color for text
                 val spanString = SpannableString(item.title.toString())
                 spanString.setSpan(
-                    ForegroundColorSpan(ContextCompat.getColor(this,
-                        R.color.nav_text_selected)), 0, spanString.length, 0)
+                    ForegroundColorSpan(Color.WHITE), 0, spanString.length, 0)
                 item.title = spanString
 
                 selectedPackInNav = i
