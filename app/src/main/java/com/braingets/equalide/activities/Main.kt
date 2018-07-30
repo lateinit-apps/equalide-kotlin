@@ -71,7 +71,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         var levelSolved: Boolean = false
     }
     private val levelOpeningDelta: Int = 3
-    private var skipSolvedLevels: Boolean = true
 
     // Views related
     private var menu: Menu? = null
@@ -317,7 +316,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // Get state variables
         paintColor = preferences.getInt("Palette status", 0)
         fabIsShowed = preferences.getBoolean("Fab status", false)
-        skipSolvedLevels = preferences.getBoolean("Skip status", true)
 
         if (packProgress == null || levelProgress == null) {
             // Open first pack and three levels if it's new game
@@ -475,16 +473,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun saveSkipStatus() {
-        val preferences = getSharedPreferences(
-            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-
-        with(preferences.edit()) {
-            putBoolean("Skip status", skipSolvedLevels)
-            apply()
-        }
-    }
-
     private fun calculateViewsSizes() {
         val contentView = findViewById<LinearLayout>(R.id.content_view)
 
@@ -569,9 +557,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun handleSolvedPuzzle() {
-        skipSolvedLevels = !packs[current.pack].puzzles[current.level].solved
-        saveSkipStatus()
-
         hideColorPalette()
 
         // Is true for last level in game although no fab is actually shown.
@@ -673,9 +658,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun selectNextLevel() {
-        if (!skipSolvedLevels &&
-            (current.level != packSize - 1 || current.pack != packIds.size - 1)
-        ) {
+        if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
             // Open next direct level
             if (current.level < packSize - 1)
                 current.level++
@@ -683,31 +666,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 current.level = 0
                 current.pack++
             }
-        } else {
-            // Try to find next level in end of current pack
-            for (i in current.level + 1 until packSize)
-                if (packs[current.pack].puzzles[i].opened && !packs[current.pack].puzzles[i].solved) {
-                    current.level = i
-                    return
-                }
-
-            // Try to find next level in all levels until last in game
-            for (i in current.pack + 1 until packIds.size)
-                for (j in 0 until packSize)
-                    if (packs[i].puzzles[j].opened && !packs[i].puzzles[j].solved) {
-                        current.level = j
-                        current.pack = i
-                        return
-                    }
-
-            // Try to find next level in all levels before current
-            for (i in 0 until current.pack)
-                for (j in 0 until packSize)
-                    if (packs[i].puzzles[j].opened && !packs[i].puzzles[j].solved) {
-                        current.level = j
-                        current.pack = i
-                        return
-                    }
         }
     }
 
