@@ -12,7 +12,6 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.ActionBarDrawerToggle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.design.widget.FloatingActionButton
 
@@ -76,8 +75,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     // Views related
     private var menu: Menu? = null
-    private var toast: Toast? = null
-    private var snackbar: Snackbar? = null
     private var fabIsShowed: Boolean = false
     private var fabIsLocked: Boolean = false
     private var grid: GridLayout? = null
@@ -101,13 +98,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 super.onDrawerClosed(drawerView)
                 menu?.getItem(selectedPackInNav)?.isChecked = false
             }
-
-            // Hide toast message if opening navigation drawer
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                super.onDrawerSlide(drawerView, slideOffset)
-                toast?.cancel()
-                snackbar?.dismiss()
-            }
         }
         activity_main.addDrawerListener(toggle)
         toggle.syncState()
@@ -116,10 +106,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         grid = findViewById(R.id.puzzle_grid)
         palette = findViewById(R.id.color_palette)
         menu = findViewById<NavigationView>(R.id.nav_view).menu
-        toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
-        snackbar = Snackbar.make(findViewById(R.id.content_view),
-            R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
-        snackbar?.setAction(R.string.snackbar_action) { launchMailApplication() }
 
         // Add listeners to views
         grid?.setOnTouchListener(gridListener)
@@ -260,10 +246,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.refresh_button) {
+        if (item.itemId == R.id.refresh_button)
             refreshGrid()
-            snackbar?.dismiss()
-        }
         else
             return super.onOptionsItemSelected(item)
 
@@ -596,14 +580,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         saveFabStatus(true)
 
         val allLevelsSolved = checkIfAllLevelsSolved()
-        var packSolved = false
         current.levelSolved = true
 
         if (!allLevelsSolved) {
             packs[current.pack].puzzles[current.level].solved = true
 
             if (!packs[current.pack].solved && packs[current.pack].checkIfSolved()) {
-                packSolved = true
                 packs[current.pack].solved = true
                 menu?.findItem(packIds[current.pack])?.icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_star)
@@ -614,17 +596,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
 
         if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
-            if (packSolved) {
-                toast?.setText("Pack ${current.pack + 1} solved!")
-                toast?.duration = Toast.LENGTH_LONG
-            } else {
-                toast?.setText("Puzzle solved!")
-                toast?.duration = Toast.LENGTH_SHORT
-            }
-            toast?.show()
             findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
-        } else if (!allLevelsSolved)
-            snackbar?.show()
+        }
     }
 
     private fun refreshGrid() {
@@ -641,8 +614,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 primitive.background = background
             }
         } else {
-            toast?.cancel()
-
             grid?.removeAllViews()
             palette?.removeAllViews()
 
@@ -820,8 +791,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             fabIsLocked = true
             (v as FloatingActionButton).hide()
             saveFabStatus(false)
-
-            toast?.cancel()
 
             grid?.removeAllViews()
             palette?.removeAllViews()
