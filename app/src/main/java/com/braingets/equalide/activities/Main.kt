@@ -163,7 +163,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val intent = Intent(Intent.ACTION_SENDTO)
         intent.data = Uri.parse("mailto:${resources
             .getString(R.string.contact_mail_address)}")
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Equalide")
+        intent.putExtra(Intent.EXTRA_SUBJECT, resources
+            .getString(R.string.mail_title))
+        intent.putExtra(Intent.EXTRA_TEXT, resources
+            .getString(R.string.mail_body).replace("#",
+                "${current.pack + 1}-${(current.level + 1).toString().padStart(2, '0')}"))
 
         // Get list of all installed mail clients on device that are not disabled
         val appList = this.packageManager.queryIntentActivities(intent,
