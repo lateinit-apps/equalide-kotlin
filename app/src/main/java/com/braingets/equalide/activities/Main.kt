@@ -134,28 +134,24 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     // Launch new activity if selected proper item from navigation drawer
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.send_mail)
-            launchMailApplication()
-        else {
-            for (i in 0 until packIds.size)
-                if (item.itemId == packIds[i]) {
-                    // Fixes issue when selected item becomes unselectable
-                    // on first select after closing of navigation drawer
-                    menu?.getItem(i)?.isChecked = true
+        for (i in 0 until packIds.size)
+            if (item.itemId == packIds[i]) {
+                // Fixes issue when selected item becomes unselectable
+                // on first select after closing of navigation drawer
+                menu?.getItem(i)?.isChecked = true
 
-                    // Set color for text
-                    val spanString = SpannableString(item.title.toString())
-                    spanString.setSpan(ForegroundColorSpan(ContextCompat.getColor(
-                        this, R.color.nav_text_selected)), 0,
-                        spanString.length, 0)
-                    item.title = spanString
+                // Set color for text
+                val spanString = SpannableString(item.title.toString())
+                spanString.setSpan(
+                    ForegroundColorSpan(ContextCompat.getColor(this,
+                        R.color.nav_text_selected)), 0, spanString.length, 0)
+                item.title = spanString
 
-                    selectedPackInNav = i
-                    break
-                }
-            if (packs[selectedPackInNav].opened)
-                launchSelectLevelActivity()
-        }
+                selectedPackInNav = i
+                break
+            }
+        if (packs[selectedPackInNav].opened)
+            launchSelectLevelActivity()
         return true
     }
 
@@ -250,11 +246,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.refresh_button)
-            refreshGrid()
-        else
-            return super.onOptionsItemSelected(item)
-
+        when (item.itemId) {
+            R.id.send_mail -> launchMailApplication()
+            R.id.refresh_button -> refreshGrid()
+            else -> return super.onOptionsItemSelected(item)
+        }
         return true
     }
 

@@ -39,14 +39,4 @@
             android:title="@string/pack_08" />
     </group>
 
-    <group
-        android:id="@+id/menu_bottom"
-        android:checkableBehavior="none">
-
-        <item
-            android:id="@+id/send_mail"
-            android:icon="@drawable/ic_mail"
-            android:title="@string/send_mail_icon_description" />
-    </group>
-
 </menu>

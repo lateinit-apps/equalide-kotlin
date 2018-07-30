@@ -3,8 +3,15 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/send_mail"
+        android:icon="@drawable/ic_mail"
+        android:title="@string/send_mail_icon_description"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/refresh_button"
         android:icon="@drawable/ic_refresh"
         android:title="@string/refresh_button_tooltip"
         app:showAsAction="always" />
+
 </menu>
