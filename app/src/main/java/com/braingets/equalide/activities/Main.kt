@@ -76,6 +76,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private var menu: Menu? = null
     private var fabIsShowed: Boolean = false
     private var fabIsLocked: Boolean = false
+    private var fabIconChanged: Boolean = false
     private var grid: GridLayout? = null
     private var palette: LinearLayout? = null
     private var navigatedToSelectScreen: Boolean = false
@@ -306,8 +307,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 "equalide.kotlin.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE)
 
         // Get user progress
-//        val packProgress = "sssssso"
-//        val levelProgress = ("s".repeat(24) + "\n").repeat(6) + "s".repeat(23) + "o\n"
+//        val packProgress = "ssssssdo"
+//        val levelProgress = ("s".repeat(24) + "\n").repeat(7) + "s".repeat(23) + "o\n"
         val packProgress = preferences.getString("Pack progress", null)
         val levelProgress = preferences.getString("Level progress", null)
         val levelPartition = preferences.getString("Level partition", null)
@@ -394,10 +395,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // Show fab if exited on opened fab
         if (fabIsShowed) {
             current.levelSolved = true
-
-            if (!checkIfAllLevelsSolved()
-                || current.level != packSize - 1 || current.pack != packIds.size - 1)
-                findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
+            findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
         }
     }
 
@@ -505,7 +503,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 paletteButton.setImageDrawable(
                     ContextCompat.getDrawable(this, R.drawable.ic_edit))
 
-            paletteButton.tag = "paletteButton_" + i.toString()
+            paletteButton.tag = "paletteButton_$i"
 
             paletteButton.setOnClickListener(colorPaletteListener)
 
@@ -579,9 +577,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             saveProgress()
         }
 
-        if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
-            findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
+        val fab = findViewById<FloatingActionButton>(R.id.fab)
+
+        if (fabIconChanged &&
+            (current.level != packSize - 1 || current.pack != packIds.size - 1)) {
+            fab.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_navigate_next))
+            fabIconChanged = false
         }
+
+        fab.show(onShownFabListener)
     }
 
     private fun refreshGrid() {
@@ -616,6 +620,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private fun hideColorPalette() {
         for (i in 0 until palette!!.childCount)
             palette?.getChildAt(i)?.setBackgroundColor(Color.BLACK)
+
+        palette?.findViewWithTag<ImageButton>("paletteButton_$paintColor")
+            ?.setImageResource(android.R.color.transparent)
     }
 
     private fun checkIfAllLevelsSolved(): Boolean {
@@ -728,7 +735,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private val colorPaletteListener = { v: View ->
-        if (v.tag != "paletteButton_" + paintColor.toString()) {
+        if (!current.levelSolved && v.tag != "paletteButton_" + paintColor.toString()) {
             // Set edit icon on pressed palette button
             palette?.findViewWithTag<ImageButton>(v.tag)?.setImageDrawable(
                 ContextCompat.getDrawable(this, R.drawable.ic_edit)
@@ -744,33 +751,41 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private val fabListener = { v: View ->
-        if (!fabIsLocked) {
-            fabIsLocked = true
-            (v as FloatingActionButton).hide()
-            saveFabStatus(false)
+        if (!fabIsLocked)
+            if (current.level == packSize - 1 && current.pack == packIds.size - 1)
+                launchMailApplication()
+            else {
+                fabIsLocked = true
+                (v as FloatingActionButton).hide()
+                saveFabStatus(false)
 
-            grid?.removeAllViews()
-            palette?.removeAllViews()
+                grid?.removeAllViews()
+                palette?.removeAllViews()
 
-            current.levelSolved = false
+                current.levelSolved = false
 
-            selectNextLevel()
-            saveCurrentSelectedLevel()
+                selectNextLevel()
+                saveCurrentSelectedLevel()
 
-            packs[current.pack].puzzles[current.level].refresh()
-            savePartition()
+                packs[current.pack].puzzles[current.level].refresh()
+                savePartition()
 
-            paintColor = packs[current.pack].puzzles[current.level].parts / 2
-            savePaletteStatus()
+                paintColor = packs[current.pack].puzzles[current.level].parts / 2
+                savePaletteStatus()
 
-            onLayoutLoad()
-        }
+                onLayoutLoad()
+            }
     }
 
     private val onShownFabListener = object : FloatingActionButton.OnVisibilityChangedListener() {
         override fun onShown(fab: FloatingActionButton?) {
             super.onShown(fab)
             fabIsLocked = false
+
+            if (current.level == packSize - 1 && current.pack == packIds.size - 1) {
+                fab?.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_mail_fab))
+                fabIconChanged = true
+            }
         }
     }
 }
