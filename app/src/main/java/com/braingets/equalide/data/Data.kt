@@ -22,7 +22,7 @@ val packsData = Data(arrayOf(
         Puzzle("0010\n0011\n1111\n0111", 2),
         Puzzle("0110\n1110\n0111\n0011", 2),
         Puzzle("101\n111\n011\n001\n011", 2),
-        Puzzle("100\n111\n111\n101\n001", 2),
+        Puzzle("100\n101\n111\n111\n001", 2),
         Puzzle("010\n110\n110\n111\n011", 2),
         Puzzle("0010\n0111\n1111\n0110", 2),
         Puzzle("110\n010\n111\n111\n001", 2),
