@@ -36,7 +36,7 @@ class EditPuzzle : AppCompatActivity() {
     private var primitiveSize: Int = 0
 
     // Puzzle related
-    private var puzzle: Puzzle? = null
+    private var puzzle: Puzzle = Puzzle("1")
 
     // Paint related
     private var paintColor: Int = 2
@@ -141,7 +141,7 @@ class EditPuzzle : AppCompatActivity() {
                 overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
             }
 
-            R.id.export_puzzle_button -> if (puzzle != null) {
+            R.id.export_puzzle_button -> {
                 val localClassName = localClassName.split(".")
                 val className = localClassName[localClassName.lastIndex]
 
@@ -152,11 +152,11 @@ class EditPuzzle : AppCompatActivity() {
                 startService(intent)
             }
 
-            R.id.save_puzzle_button -> if (puzzle != null) {
-                if (puzzle!!.source.any { c -> c != 'b' } && puzzle!!.checkIfValid()) {
+            R.id.save_puzzle_button -> {
+                if (puzzle.source.any { c -> c != 'b' } && puzzle.checkIfValid()) {
 
                     val puzzleSource = normalizePuzzleSource(
-                        puzzle!!.partition.chunked(puzzle!!.width).joinToString("\n"))
+                        puzzle.partition.chunked(puzzle.width).joinToString("\n"))
                         .replace("b", "0")
 
                     val intent = Intent(this, Main::class.java)
@@ -170,10 +170,10 @@ class EditPuzzle : AppCompatActivity() {
                     Toast.makeText(this, "Invalid puzzle!", Toast.LENGTH_SHORT).show()
             }
 
-            R.id.refresh_button -> if (puzzle != null) {
+            R.id.refresh_button -> {
                 grid?.removeAllViews()
-                puzzle?.refresh()
-                renderPuzzle(puzzle!!)
+                puzzle.refresh()
+                renderPuzzle(puzzle)
             }
 
             R.id.edit_edges_button ->
@@ -190,12 +190,7 @@ class EditPuzzle : AppCompatActivity() {
             "array", this.packageName))
 
         addColorPalette(colors!!)
-
-        if (puzzle != null) {
-            toggleEditEdgesButtonsVisibility(false)
-            renderPuzzle(puzzle!!)
-        } else
-            toggleEditEdgesButtonsVisibility(true)
+        renderPuzzle(puzzle)
     }
 
     private fun calculateViewsSizes() {
@@ -337,7 +332,7 @@ class EditPuzzle : AppCompatActivity() {
         background.setColor(if (eraseMode) Color.WHITE else colors!![paintColor])
         primitive.background = background
 
-        puzzle!![coords[0], coords[1]] = if (eraseMode) "e" else if (paintColor == 0) "b" else paintColor.toString()
+        puzzle[coords[0], coords[1]] = if (eraseMode) "e" else if (paintColor == 0) "b" else paintColor.toString()
     }
 
     private val gridListener = { _: View, e: MotionEvent ->
@@ -349,8 +344,8 @@ class EditPuzzle : AppCompatActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     previousPaintCoords = coords.copyOf()
 
-                    eraseMode = if (paintColor == 0) puzzle!![coords[0], coords[1]] == 'b'
-                        else (puzzle!![coords[0], coords[1]].toInt() - 48) == paintColor
+                    eraseMode = if (paintColor == 0) puzzle[coords[0], coords[1]] == 'b'
+                        else (puzzle[coords[0], coords[1]].toInt() - 48) == paintColor
 
                     paintPrimitive(coords)
                 }
@@ -359,8 +354,8 @@ class EditPuzzle : AppCompatActivity() {
                         previousPaintCoords = coords.copyOf()
 
                         if (!eraseMode
-                            || (paintColor != 0 && puzzle!![coords[0], coords[1]].toInt() - 48 == paintColor)
-                            || (paintColor == 0 && puzzle!![coords[0], coords[1]] == 'b'))
+                            || (paintColor != 0 && puzzle[coords[0], coords[1]].toInt() - 48 == paintColor)
+                            || (paintColor == 0 && puzzle[coords[0], coords[1]] == 'b'))
                             paintPrimitive(coords)
                     }
                 }
@@ -391,20 +386,15 @@ class EditPuzzle : AppCompatActivity() {
                 editEdgesMode = if (editEdgesMode == INCREASE) DECREASE else INCREASE
                 toggleEditEdgesCornerButtonsIcons(editEdgesMode)
             }
-            R.id.up_button -> puzzle = puzzle?.getChangedBySide(Direction.UP, editEdgesMode)
-            R.id.down_button -> puzzle = puzzle?.getChangedBySide(Direction.DOWN, editEdgesMode)
-            R.id.left_button -> puzzle = puzzle?.getChangedBySide(Direction.LEFT, editEdgesMode)
-            R.id.right_button -> puzzle = puzzle?.getChangedBySide(Direction.RIGHT, editEdgesMode)
+            R.id.up_button -> puzzle = puzzle.getChangedBySide(Direction.UP, editEdgesMode)
+            R.id.down_button -> puzzle = puzzle.getChangedBySide(Direction.DOWN, editEdgesMode)
+            R.id.left_button -> puzzle = puzzle.getChangedBySide(Direction.LEFT, editEdgesMode)
+            R.id.right_button -> puzzle = puzzle.getChangedBySide(Direction.RIGHT, editEdgesMode)
         }
 
         if (v.id != R.id.center_button) {
-            if (editEdgesMode == INCREASE && puzzle == null)
-                puzzle = Puzzle("1")
-
             grid?.removeAllViews()
-
-            if (puzzle != null)
-                renderPuzzle(puzzle!!)
+            renderPuzzle(puzzle)
         }
     }
 }

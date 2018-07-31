@@ -114,7 +114,7 @@ class Puzzle(val source: String) {
         return result
     }
 
-    fun getChangedBySide(direction: Direction, mode: Int): Puzzle? {
+    fun getChangedBySide(direction: Direction, mode: Int): Puzzle {
         var newSource: String? = null
         var newPartition: String? = null
 
@@ -129,9 +129,9 @@ class Puzzle(val source: String) {
             }
         }
 
-        val newPuzzle = if (newSource != null) Puzzle(newSource) else null
+        val newPuzzle = if (newSource != null) Puzzle(newSource) else Puzzle("1")
         if (newPartition != null)
-            newPuzzle?.loadPartition(newPartition)
+            newPuzzle.loadPartition(newPartition)
 
         return newPuzzle
     }
