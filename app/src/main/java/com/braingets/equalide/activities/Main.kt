@@ -715,6 +715,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             val directoryHash = if (default) "Default" else directoryId.toString()
 
             putString("Directory [$directoryHash] Pack [$packId]", packData)
+            savePackProgress(pack, packId, directoryHash)
 
             apply()
         }

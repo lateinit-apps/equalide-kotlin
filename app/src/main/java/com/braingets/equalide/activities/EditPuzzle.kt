@@ -146,7 +146,7 @@ class EditPuzzle : AppCompatActivity() {
                 val className = localClassName[localClassName.lastIndex]
 
                 val intent = Intent(this, Exporter::class.java)
-                    .putExtra("text", puzzle?.source)
+                    .putExtra("text", puzzle.source)
                     .putExtra("file name", "puzzle.eqld")
                     .putExtra("class name", className)
                 startService(intent)
@@ -188,9 +188,11 @@ class EditPuzzle : AppCompatActivity() {
         colors = resources.getIntArray(resources.getIdentifier(
             "colors_for_puzzle_editor",
             "array", this.packageName))
-
         addColorPalette(colors!!)
         renderPuzzle(puzzle)
+
+        if (puzzle.source == "1")
+            toggleEditEdgesButtonsVisibility(true)
     }
 
     private fun calculateViewsSizes() {
