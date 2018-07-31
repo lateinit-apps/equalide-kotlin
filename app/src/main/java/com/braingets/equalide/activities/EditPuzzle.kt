@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
 
@@ -162,6 +163,19 @@ class EditPuzzle : AppCompatActivity() {
                     val intent = Intent(this, Main::class.java)
                         .putExtra("puzzle source", puzzleSource)
                         .putExtra("select level screen", createPuzzle)
+
+                    // Removes white background appeared in transition
+                    window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
+
+                    // Clear puzzle grid
+                    for (i in 0 until grid!!.childCount) {
+                        val primitive = grid?.getChildAt(i) as Button
+                        val coords = primitive.tag as IntArray
+                        val background = primitive.background as GradientDrawable
+
+                        background.setColor(if (puzzle[coords[0], coords[1]] == 'b') Color.BLACK else Color.WHITE)
+                        primitive.background = background
+                    }
 
                     startActivity(intent)
 
