@@ -23,8 +23,7 @@ import android.widget.*
 import kotlinx.android.synthetic.main.main_screen.*
 
 import com.braingets.equalide.R
-import com.braingets.equalide.logic.EXPORT_PACK_REQUEST
-import com.braingets.equalide.logic.WRITE_PERMISSION_REQUEST
+import com.braingets.equalide.logic.Request
 
 class SelectLevel : AppCompatActivity() {
 
@@ -98,13 +97,13 @@ class SelectLevel : AppCompatActivity() {
             exportIntent = intent.setClass(this, Exporter::class.java)
 
             ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WRITE_PERMISSION_REQUEST)
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), Request.WRITE_PERMISSION.code)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == WRITE_PERMISSION_REQUEST &&
+        if (requestCode == Request.WRITE_PERMISSION.code &&
             grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             startService(exportIntent)
     }
@@ -139,7 +138,7 @@ class SelectLevel : AppCompatActivity() {
                 val intent = Intent(this, Main::class.java)
                     .putExtra("export pack", true)
 
-                setResult(EXPORT_PACK_REQUEST, intent)
+                setResult(Request.EXPORT_PACK.code, intent)
                 finish()
 
                 overridePendingTransition(0, 0)

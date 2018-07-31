@@ -118,13 +118,13 @@ class EditPuzzle : AppCompatActivity() {
             exportIntent = intent.setClass(this, Exporter::class.java)
 
             ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WRITE_PERMISSION_REQUEST)
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), Request.WRITE_PERMISSION.code)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == WRITE_PERMISSION_REQUEST &&
+        if (requestCode == Request.WRITE_PERMISSION.code &&
             grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             startService(exportIntent)
     }

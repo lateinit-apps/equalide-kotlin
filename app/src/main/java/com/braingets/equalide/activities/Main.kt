@@ -167,11 +167,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            WRITE_PERMISSION_REQUEST ->
+            Request.WRITE_PERMISSION.code ->
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     startService(exportIntent)
 
-            READ_PERMISSION_REQUEST ->
+            Request.READ_PERMISSION.code ->
                 if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED)
                     this.finishAffinity()
                 else
@@ -337,7 +337,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val puzzleEditorSource = intent?.getStringExtra("puzzle source")
         if (puzzleEditorSource != null) {
-            val launchSelectLevelScreen = intent.getBooleanExtra("select level screen", false)
+            val launchSelectLevelScreen =
+                intent.getBooleanExtra("select level screen", false)
 
             val puzzle = Puzzle(puzzleEditorSource)
             puzzle.opened = true
@@ -350,7 +351,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     levelData[navSelectedDirectory!!].id,
                     levelData[navSelectedDirectory!!].id == DEFAULT_DIRECTORY_INDEX)
 
-                launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!], animatedTransition = false)
+                launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!],
+                    LaunchMode.AFTER_PUZZLE_CREATION)
             } else {
                 levelData[CurrentPuzzle] = puzzle
                 savePackData(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
@@ -358,8 +360,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     levelData[CurrentPuzzle.directory].id,
                     levelData[CurrentPuzzle.directory].id == DEFAULT_DIRECTORY_INDEX)
 
-                // Exploit
-                CurrentPuzzle.solved = true
+                CurrentPuzzle.solved = true // Exploit
                 refreshGrid()
             }
 
@@ -377,7 +378,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             exportIntent = intent.setClass(this, Exporter::class.java)
 
             ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WRITE_PERMISSION_REQUEST)
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), Request.WRITE_PERMISSION.code)
         }
     }
 
@@ -385,7 +386,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            SELECT_LEVEL_REQUEST ->
+            Request.SELECT_LEVEL.code ->
                 when (resultCode) {
                     Activity.RESULT_OK -> {
                         val selectedLevel = data?.getIntExtra("selected level", -1)
@@ -413,9 +414,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                             onLayoutLoad()
                         }
                     }
-
-                    EXPORT_PACK_REQUEST ->
-                        launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!], true)
                 }
         }
     }
@@ -425,7 +423,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_PERMISSION_REQUEST)
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), Request.READ_PERMISSION.code)
         else
             parseFileFromIntent()
     }
@@ -459,7 +457,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         renderPuzzle(levelData[CurrentPuzzle])
     }
 
-    private fun launchSelectLevelActivity(pack: Pack, export: Boolean = false, animatedTransition: Boolean = true) {
+    private fun launchSelectLevelActivity(pack: Pack, launchMode: LaunchMode = LaunchMode.FOR_LEVEL_SELECT) {
         // String that contains user progress in selected pack
         // 's' - solved level
         // 'o' - opened level
@@ -477,7 +475,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             .putExtra("directory", levelData[navSelectedDirectory!!].name)
             .putExtra("level data", packLevelData)
 
-        if (export) {
+        if (launchMode == LaunchMode.AFTER_PACK_EXPORT) {
             val packData = "#\n" + Array(pack.size)
                 { i -> pack[i].source }.joinToString("\n\n")
 
@@ -485,12 +483,13 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
 
         navigatedToSelectScreen = true
-        startActivityForResult(intent, SELECT_LEVEL_REQUEST)
+        startActivityForResult(intent, Request.SELECT_LEVEL.code)
 
-        if (!export && animatedTransition)
-            overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
-        else
-            overridePendingTransition(0, 0)
+        when (launchMode) {
+            LaunchMode.FOR_LEVEL_SELECT -> overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
+            LaunchMode.AFTER_PUZZLE_CREATION -> overridePendingTransition(R.anim.right_left_enter, R.anim.right_left_exit)
+            LaunchMode.AFTER_PACK_EXPORT -> overridePendingTransition(0, 0)
+        }
     }
 
     private fun loadLevelData() {

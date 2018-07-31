@@ -6,11 +6,18 @@ const val DEFAULT_PACK_INDEX = 0
 const val UNSET_DIRECTORY_ID = -1
 const val NO_LEVEL_OPENED = -1
 
-// Activity related
-const val READ_PERMISSION_REQUEST = 1
-const val WRITE_PERMISSION_REQUEST = 2
-const val SELECT_LEVEL_REQUEST = 3
-const val EXPORT_PACK_REQUEST = 4
+// Activity requests
+enum class Request(val code: Int) {
+    READ_PERMISSION(0),
+    WRITE_PERMISSION(1),
+    SELECT_LEVEL(2),
+    EXPORT_PACK(3)
+}
+
+// Launch select level screen launch modes
+enum class LaunchMode {
+    FOR_LEVEL_SELECT, AFTER_PACK_EXPORT, AFTER_PUZZLE_CREATION
+}
 
 // Edit edges buttons direction
 enum class Direction {
