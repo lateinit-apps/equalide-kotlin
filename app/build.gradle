@@ -27,7 +27,7 @@ android {
     }
     flavorDimensions "version"
     productFlavors {
-        market {
+        production {
             dimension 'version'
         }
         internal {
