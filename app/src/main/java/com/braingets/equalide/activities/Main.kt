@@ -414,6 +414,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                             onLayoutLoad()
                         }
                     }
+                    Request.EXPORT_PACK.code ->
+                        launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!],
+                            LaunchMode.AFTER_PACK_EXPORT)
                 }
         }
     }
