@@ -7,6 +7,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 
 import android.view.View
 import android.view.Gravity
@@ -88,8 +89,8 @@ class SelectLevel : AppCompatActivity() {
         gridParams.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
         grid?.layoutParams = gridParams
 
-        val colorPrimary = ContextCompat.getColor(this, R.color.colorPrimary)
-        val colorPrimaryDark = ContextCompat.getColor(this, R.color.colorPrimaryDark)
+        val colorSolvedTile = ContextCompat.getColor(this, R.color.colorSolvedTile)
+        val colorUnsolvedTile = ContextCompat.getColor(this, R.color.colorUnsolvedTile)
 
         for (i in 0 until rowCount)
             for (j in 0 until columnCount){
@@ -110,11 +111,11 @@ class SelectLevel : AppCompatActivity() {
                     tile.textSize = 17.toFloat()
 
                     tile.setTextColor(if (levelData[level] == 's')
-                        colorPrimary else colorPrimaryDark)
+                        Color.WHITE else Color.WHITE)
                     tile.setBackgroundColor(if (levelData[level] == 's')
-                        colorPrimaryDark else Color.WHITE)
+                        colorSolvedTile else colorUnsolvedTile)
                 } else
-                    tile.setBackgroundColor(Color.WHITE)
+                    tile.setBackgroundColor(colorUnsolvedTile)
 
                 tile.tag = level
 
@@ -127,8 +128,8 @@ class SelectLevel : AppCompatActivity() {
     private val levelButtonListener = { v: View ->
         if (levelData[v.tag as Int] != 'c') {
             v.setBackgroundColor(if (levelData[v.tag as Int] == 's')
-                ContextCompat.getColor(this, R.color.grey_800) else
-                ContextCompat.getColor(this, R.color.grey_400))
+                ContextCompat.getColor(this, R.color.colorCheckedSolvedTile) else
+                ContextCompat.getColor(this, R.color.colorCheckedUnSolvedTile))
 
             val intent = Intent(this, Main::class.java).apply {
                 putExtra("selected level", v.tag as Int)

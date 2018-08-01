@@ -2,18 +2,18 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- View is pressed (such as when a button is touched/clicked) -->
-    <item android:state_pressed="true" android:drawable="@color/grey_800" />
+    <item android:state_pressed="true" android:drawable="@color/colorNavSelectedItem" />
 
     <!-- View is checked -->
-    <item android:state_checked="true" android:drawable="@color/grey_800" />
+    <item android:state_checked="true" android:drawable="@color/colorNavSelectedItem" />
 
     <!-- View is focused (such as when a button is highlighted using the trackball/d-pad) -->
-    <item android:state_focused="true" android:drawable="@color/grey_800" />
+    <item android:state_focused="true" android:drawable="@color/colorNavSelectedItem" />
 
     <!-- View.setActivated(true) is called. This is used for "persistent selection" -->
-    <item android:state_activated="true" android:drawable="@color/grey_800" />
+    <item android:state_activated="true" android:drawable="@color/colorNavSelectedItem" />
 
     <!-- Default background color -->
-    <item android:drawable="@android:color/black" />
+    <item android:drawable="@color/colorNavBody" />
 
 </selector>

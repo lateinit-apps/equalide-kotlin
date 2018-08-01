@@ -531,18 +531,19 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 val params = LinearLayout.LayoutParams(primitiveSize, primitiveSize)
                 primitive.layoutParams = params
 
-                // Set color
-                val drawable = ContextCompat.getDrawable(
-                    this, R.drawable.primitive_border
-                ) as GradientDrawable
-                drawable.setColor(
-                    when (puzzle[i, j]) {
-                        'b' -> Color.BLACK
-                        'e' -> Color.WHITE
-                        else -> colors!![puzzle[i, j].toInt() - 48]
-                    }
-                )
-                primitive.background = drawable
+                if (puzzle[i, j] != 'b') {
+                    // Set color
+                    val drawable = ContextCompat.getDrawable(
+                        this, R.drawable.primitive_border
+                    ) as GradientDrawable
+
+                    drawable.setColor(
+                        if (puzzle[i, j] == 'e') Color.WHITE else
+                            colors!![puzzle[i, j].toInt() - 48])
+                    primitive.background = drawable
+                } else
+                    primitive.setBackgroundColor(ContextCompat.getColor(this, R.color.acitivityBackground))
+
 
                 primitive.tag = intArrayOf(i, j)
 
@@ -619,7 +620,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     private fun hideColorPalette() {
         for (i in 0 until palette!!.childCount)
-            palette?.getChildAt(i)?.setBackgroundColor(Color.BLACK)
+            palette?.getChildAt(i)?.setBackgroundColor(resources.getColor(android.R.color.transparent))
 
         palette?.findViewWithTag<ImageButton>("paletteButton_$paintColor")
             ?.setImageResource(android.R.color.transparent)
