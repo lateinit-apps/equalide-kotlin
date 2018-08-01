@@ -16,6 +16,7 @@ import android.support.design.widget.NavigationView
 import android.support.design.widget.FloatingActionButton
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 
 import android.text.SpannableString
@@ -523,6 +524,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         gridParams.bottomMargin = (contentView.height - puzzle.height * primitiveSize) / 2
         grid?.layoutParams = gridParams
 
+        val blackPrimitiveColor = ContextCompat.getColor(this, R.color.acitivityBackground)
+
         for (i in 0 until puzzle.height)
             for (j in 0 until puzzle.width) {
                 val primitive = Button(this)
@@ -531,19 +534,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 val params = LinearLayout.LayoutParams(primitiveSize, primitiveSize)
                 primitive.layoutParams = params
 
-                if (puzzle[i, j] != 'b') {
-                    // Set color
-                    val drawable = ContextCompat.getDrawable(
-                        this, R.drawable.primitive_border
-                    ) as GradientDrawable
-
-                    drawable.setColor(
-                        if (puzzle[i, j] == 'e') Color.WHITE else
-                            colors!![puzzle[i, j].toInt() - 48])
-                    primitive.background = drawable
-                } else
-                    primitive.setBackgroundColor(ContextCompat.getColor(this, R.color.acitivityBackground))
-
+                // Set color
+                val drawable = if (puzzle[i, j] == 'b') GradientDrawable()
+                    else ContextCompat.getDrawable(this, R.drawable.primitive_border)
+                        as GradientDrawable
+                drawable.setColor(
+                    when (puzzle[i, j]) {
+                        'b' -> blackPrimitiveColor
+                        'e' -> Color.WHITE
+                        else -> colors!![puzzle[i, j].toInt() - 48]
+                    }
+                )
+                primitive.background = drawable
 
                 primitive.tag = intArrayOf(i, j)
 
@@ -594,12 +596,14 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         savePartition()
 
         if (!current.levelSolved) {
+            val blackPrimitiveColor = ContextCompat.getColor(this, R.color.acitivityBackground)
+
             for (i in 0 until grid!!.childCount) {
                 val primitive = grid?.getChildAt(i) as Button
                 val coords = primitive.tag as IntArray
                 val background = primitive.background as GradientDrawable
 
-                background.setColor(if (puzzle!![coords[0], coords[1]] == 'b') Color.BLACK else Color.WHITE)
+                background.setColor(if (puzzle!![coords[0], coords[1]] == 'b') blackPrimitiveColor else Color.WHITE)
                 primitive.background = background
             }
         } else {
