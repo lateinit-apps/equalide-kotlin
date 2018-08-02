@@ -61,7 +61,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private val packIds = arrayOf(
         R.id.pack_01, R.id.pack_02, R.id.pack_03,
         R.id.pack_04, R.id.pack_05, R.id.pack_06,
-        R.id.pack_07, R.id.pack_08
+        R.id.pack_07, R.id.pack_08, R.id.pack_09
     )
     private var selectedPackInNav: Int = 0
 
@@ -350,18 +350,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     }
                 }
 
-            // Open 8 pack
-            if (packProgress.length == 7 && packProgress[6] != 'c' && packs[6].puzzles[21].solved) {
-                packs[7].opened = true
+            // Open 9 pack
+            if (packProgress.length == 8 && packProgress[7] != 'c' && packs[7].puzzles[21].solved) {
+                packs[8].opened = true
                 menu?.findItem(packIds[7])?.icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
                 var forOpen = 0
                 for (i in 21 until 24)
-                    if (packs[6].puzzles[i].solved)
+                    if (packs[7].puzzles[i].solved)
                         forOpen++
 
                 for (i in 0 until  forOpen)
-                    packs[7].puzzles[i].opened = true
+                    packs[8].puzzles[i].opened = true
             }
         }
 
