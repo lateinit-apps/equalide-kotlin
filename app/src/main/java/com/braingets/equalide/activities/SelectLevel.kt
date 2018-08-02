@@ -148,21 +148,22 @@ class SelectLevel : AppCompatActivity() {
     }
 
     private fun calculateViewsSizes() {
-        val selectView = findViewById<ScrollView>(R.id.activity_select_level)
+        val selectView = findViewById<LinearLayout>(R.id.activity_select_level)
 
         tileSize = (0.195 * selectView.width).toInt()
         primitiveMargin = ((0.2 / 14) * selectView.width).toInt()
 
         horizontalMargin = (4 * (0.2 / 14) * selectView.width).toInt()
-        verticalMargin = (selectView.height - 6 * tileSize - 12 * primitiveMargin) / 2
+        //verticalMargin = (selectView.height - 6 * tileSize - 12 * primitiveMargin) / 2
+        verticalMargin = horizontalMargin
     }
 
     private fun createGrid(levelData: String) {
         grid?.rowCount = rowCount
         grid?.columnCount = columnCount
 
-        val gridParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT)
+        val gridParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT)
         gridParams.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
         grid?.layoutParams = gridParams
 
