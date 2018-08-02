@@ -13,6 +13,7 @@
     <color name="colorNavHeader">#101616</color>
     <color name="colorNavBody">#1b2023</color>
     <color name="colorNavSelectedItem">#22272a</color>
+    <color name="colorNavRipple">#2d3439</color>
 
     <color name="colorSolvedTile">#34739f</color>
     <color name="colorUnsolvedTile">#223440</color>
