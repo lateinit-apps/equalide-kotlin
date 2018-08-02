@@ -86,3 +86,48 @@ fun normalizePuzzleSource(source: String): String {
     }
         .joinToString("")
 }
+
+private val intPairComparator = Comparator { o1: Pair<Int, Int>, o2: Pair<Int, Int> ->
+    if (o1.first > o2.first ||
+        (o1.first == o2.first && o1.second > o2.second)) 1
+    else if (o1.first == o2.first && o1.second == o2.second) 0
+    else -1
+}
+
+// Cut puzzle string to it's bounding rectangle
+fun cutByBoundingRectangle(source: String): String {
+    val startIndexes = ArrayList<Pair<Int, Int>>()
+    val endIndexes = ArrayList<Pair<Int, Int>>()
+
+    var puzzle = source.lines()
+    val height = puzzle.size
+    val width = puzzle[0].length
+
+    // Gets all starting and ending indexes of non-empty cells on every row
+    for (i in 0 until height) {
+        for (j in 0 until width) {
+            if (puzzle[i][j] != '0') {
+                startIndexes.add(Pair(i, j))
+                break
+            }
+        }
+        for (j in width - 1 downTo 0) {
+            if (puzzle[i][j] != '0') {
+                endIndexes.add(Pair(i, j))
+                break
+            }
+        }
+    }
+
+    // Calculate bounds
+    val start = startIndexes.minWith(intPairComparator)
+    val end = endIndexes.maxWith(intPairComparator)
+
+    // Perform cutting if possible
+    if (start != null && end != null) {
+        puzzle = puzzle.subList(start.first, end.first + 1)
+        puzzle = puzzle.map { it.substring(start.second, end.second + 1) }
+    }
+
+    return puzzle.joinToString("\n")
+}

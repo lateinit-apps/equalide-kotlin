@@ -156,9 +156,9 @@ class EditPuzzle : AppCompatActivity() {
             R.id.save_puzzle_button -> {
                 if (puzzle.source.any { c -> c != 'b' } && puzzle.checkIfValid()) {
 
-                    val puzzleSource = normalizePuzzleSource(
+                    val puzzleSource = cutByBoundingRectangle(normalizePuzzleSource(
                         puzzle.partition.chunked(puzzle.width).joinToString("\n"))
-                        .replace("b", "0")
+                        .replace("b", "0"))
 
                     val intent = Intent(this, Main::class.java)
                         .putExtra("puzzle source", puzzleSource)
