@@ -2,9 +2,9 @@
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
 
-    <color name="colorPrimary">#FFF5F5F5</color>
-    <color name="colorPrimaryDark">#FF757575</color>
-    <color name="colorAccent">#FF009688</color>
+    <color name="colorPrimary">#F5F5F5</color>
+    <color name="colorPrimaryDark">#757575</color>
+    <color name="colorAccent">#009688</color>
 
     <color name="acitivityBackground">#101616</color>
 
@@ -14,6 +14,7 @@
     <color name="colorNavBody">#1b2023</color>
     <color name="colorNavSelectedItem">#22272a</color>
     <color name="colorNavRipple">#2d3439</color>
+    <color name="colorLevelTileRipple">#32ecf3f9</color>
 
     <color name="colorSolvedTile">#34739f</color>
     <color name="colorUnsolvedTile">#223440</color>

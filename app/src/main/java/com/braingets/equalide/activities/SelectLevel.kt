@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 
 import android.view.View
 import android.view.Gravity
@@ -104,18 +105,45 @@ class SelectLevel : AppCompatActivity() {
                 params.setMargins(primitiveMargin, primitiveMargin, primitiveMargin, primitiveMargin)
                 tile.layoutParams = params
 
-                if (levelData[level] != 'c') {
-                    tile.gravity = Gravity.CENTER
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    // With ripple effect
 
-                    tile.text = (level + 1).toString()
-                    tile.textSize = 17.toFloat()
+                    val drawable =
+                        ContextCompat.getDrawable(this, R.drawable.level_tile) as RippleDrawable
+                    val shape = drawable.findDrawableByLayerId(R.id.tile_layer) as GradientDrawable
 
-                    tile.setTextColor(if (levelData[level] == 's')
-                        Color.WHITE else Color.WHITE)
-                    tile.setBackgroundColor(if (levelData[level] == 's')
-                        colorSolvedTile else colorUnsolvedTile)
-                } else
-                    tile.setBackgroundColor(colorUnsolvedTile)
+                    if (levelData[level] != 'c') {
+                        tile.gravity = Gravity.CENTER
+
+                        tile.text = (level + 1).toString()
+                        tile.textSize = 17.toFloat()
+
+                        tile.setTextColor(Color.WHITE)
+                        shape.setColor(
+                            if (levelData[level] == 's')
+                                colorSolvedTile else colorUnsolvedTile
+                        )
+                    } else
+                        shape.setColor(colorUnsolvedTile)
+
+                    tile.background = drawable
+                } else {
+                    // Without ripple effect
+
+                    if (levelData[level] != 'c') {
+                        tile.gravity = Gravity.CENTER
+
+                        tile.text = (level + 1).toString()
+                        tile.textSize = 17.toFloat()
+
+                        tile.setTextColor(Color.WHITE)
+                        tile.setBackgroundColor(
+                            if (levelData[level] == 's')
+                                colorSolvedTile else colorUnsolvedTile
+                        )
+                    } else
+                        tile.setBackgroundColor(colorUnsolvedTile)
+                }
 
                 tile.tag = level
 

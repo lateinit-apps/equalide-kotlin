@@ -297,15 +297,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 //    }
 
     private fun loadUserData() {
-        //val preferences = getSharedPreferences(
-        //    getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-
-        var preferences = getSharedPreferences(
+        val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-
-        if (preferences.all.isEmpty())
-            preferences = getSharedPreferences(
-                "equalide.kotlin.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE)
 
         // Get user progress
 //        val packProgress = "ssssssdo"
