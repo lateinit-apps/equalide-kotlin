@@ -5,32 +5,32 @@ import com.braingets.equalide.activities.Main.CurrentPuzzle
 class LevelData {
 
     private var directories = mutableListOf<Directory>()
-    private var directoriesIds = mutableListOf<Int>()
+    private var directoriesHashes = mutableListOf<Int>()
     var size: Int = 0
         get() = directories.size
         private set
 
     fun add(directory: Directory) {
-        if (directory.id == UNSET_DIRECTORY_ID) {
-            val id = generateDirectoryId()
+        if (directory.hash == UNSET_DIRECTORY_ID) {
+            val hash = generateDirectoryHash()
 
-            directory.changeId(id)
-            directoriesIds.add(id)
+            directory.changeHash(hash)
+            directoriesHashes.add(hash)
         } else
-            directoriesIds.add(directory.id)
+            directoriesHashes.add(directory.hash)
 
         directories.add(directory)
     }
 
     fun removeDirectory(index: Int) = directories.removeAt(index)
 
-    private fun generateDirectoryId(): Int {
-        var id = 0
+    private fun generateDirectoryHash(): Int {
+        var hash = 0
 
-        while (id in directoriesIds)
-            id++
+        while (hash in directoriesHashes)
+            hash++
 
-        return id
+        return hash
     }
 
     operator fun get(i: Int) = directories[i]

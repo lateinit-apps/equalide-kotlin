@@ -271,7 +271,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         if (item.groupId == R.id.nav_menu_top) {
             for (i in 0 until levelData.size)
-                if (item.itemId == levelData[i].id) {
+                if (item.itemId == levelData[i].hash) {
                     if (i == navSelectedDirectory) {
                         selectedItemTitle.setSpan(
                             ForegroundColorSpan(ContextCompat.getColor(this, R.color.nav_text_selected)),
@@ -309,7 +309,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
             if (!navDeleteMode) {
                 for (i in 0 until levelData[navSelectedDirectory!!].size)
-                    if (item.itemId == levelData[navSelectedDirectory!!].getPackId(i)) {
+                    if (item.itemId == levelData[navSelectedDirectory!!].getPackHash(i)) {
                         // Fixes issue when selected item becomes unselectable
                         // on first select after closing of navigation drawer
                         item.isChecked = true
@@ -347,18 +347,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 levelData[navSelectedDirectory!!][navSelectedPack!!]
                     .addAll(mutableListOf(puzzle))
                 savePackData(levelData[navSelectedDirectory!!][navSelectedPack!!],
-                    levelData[navSelectedDirectory!!].getPackId(navSelectedPack!!),
-                    levelData[navSelectedDirectory!!].id,
-                    levelData[navSelectedDirectory!!].id == DEFAULT_DIRECTORY_INDEX)
+                    levelData[navSelectedDirectory!!].getPackHash(navSelectedPack!!),
+                    levelData[navSelectedDirectory!!].hash,
+                    levelData[navSelectedDirectory!!].hash == DEFAULT_DIRECTORY_INDEX)
 
                 launchSelectLevelActivity(levelData[navSelectedDirectory!!][navSelectedPack!!],
                     LaunchMode.AFTER_PUZZLE_CREATION)
             } else {
                 levelData[CurrentPuzzle] = puzzle
                 savePackData(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
-                    levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack),
-                    levelData[CurrentPuzzle.directory].id,
-                    levelData[CurrentPuzzle.directory].id == DEFAULT_DIRECTORY_INDEX)
+                    levelData[CurrentPuzzle.directory].getPackHash(CurrentPuzzle.pack),
+                    levelData[CurrentPuzzle.directory].hash,
+                    levelData[CurrentPuzzle.directory].hash == DEFAULT_DIRECTORY_INDEX)
 
                 CurrentPuzzle.solved = true // Exploit
                 refreshGrid()
@@ -657,7 +657,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         with(preferences.edit()) {
             if (levelData.size > 1) {
-                val hashes = MutableList(levelData.size) { i -> levelData[i].id.toString() }
+                val hashes = MutableList(levelData.size) { i -> levelData[i].hash.toString() }
 
                 // Remove default directory data
                 hashes.removeAt(0)
@@ -675,7 +675,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val directoryProgress = Array(directory.size) { i -> if (directory[i].solved) 's' else
             if (directory[i].opened) 'o' else 'c' }.joinToString("")
 
-        val packHashes = Array(directory.size) { i -> directory.getPackId(i).toString() }
+        val packHashes = Array(directory.size) { i -> directory.getPackHash(i).toString() }
         val packHashesRaw = packHashes.joinToString("\n")
         val packs = Array(directory.size)
             { i -> Array(directory[i].size)
@@ -691,9 +691,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // Save new directory level data
         with(preferences.edit()) {
             if (!default)
-                putString("Directory [${directory.id}] name", directory.name)
+                putString("Directory [${directory.hash}] name", directory.name)
 
-            val directoryHash = if (default) "Default" else directory.id.toString()
+            val directoryHash = if (default) "Default" else directory.hash.toString()
             putString("Directory [$directoryHash] progress", directoryProgress)
             putString("Directory [$directoryHash] hashes", packHashesRaw)
 
@@ -706,7 +706,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun savePackData(pack: Pack, packId: Int, directoryId: Int, default: Boolean = false) {
+    private fun savePackData(pack: Pack, packHash: Int, directoryHashCode: Int, default: Boolean = false) {
         val packData = Array(pack.size)
             { i -> pack[i].source }.joinToString("\n\n")
 
@@ -715,10 +715,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         // Save new directory level data
         with(preferences.edit()) {
-            val directoryHash = if (default) "Default" else directoryId.toString()
+            val directoryHash = if (default) "Default" else directoryHashCode.toString()
 
-            putString("Directory [$directoryHash] Pack [$packId]", packData)
-            savePackProgress(pack, packId, directoryHash)
+            putString("Directory [$directoryHash] Pack [$packHash]", packData)
+            savePackProgress(pack, packHash, directoryHash)
 
             apply()
         }
@@ -746,7 +746,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         
         with(preferences.edit()) {
-            putString("Directory [${if (default) "Default" else directory.id.toString()}] progress", directoryProgress)
+            putString("Directory [${if (default) "Default" else directory.hash.toString()}] progress", directoryProgress)
             apply()
         }
     }
@@ -808,7 +808,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun removeDirectory(index: Int) {
-        val directoryHash = if (index == DEFAULT_DIRECTORY_INDEX) "Default" else levelData[index].id.toString()
+        val directoryHash = if (index == DEFAULT_DIRECTORY_INDEX) "Default" else levelData[index].hash.toString()
 
         val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -818,8 +818,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             remove("Directory [$directoryHash] progress")
 
             for (packIndex in 0 until levelData[index].size) {
-                remove("Directory [$directoryHash] Pack [${levelData[index].getPackId(packIndex)}]")
-                remove("Directory [$directoryHash] Pack [${levelData[index].getPackId(packIndex)}] progress")
+                remove("Directory [$directoryHash] Pack [${levelData[index].getPackHash(packIndex)}]")
+                remove("Directory [$directoryHash] Pack [${levelData[index].getPackHash(packIndex)}] progress")
             }
 
             apply()
@@ -886,8 +886,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     }
 
                 if (packChanged)
-                    savePackProgress(pack, directory.getPackId(packIndex),
-                        if (directoryIndex == DEFAULT_DIRECTORY_INDEX) "Default" else directory.id.toString())
+                    savePackProgress(pack, directory.getPackHash(packIndex),
+                        if (directoryIndex == DEFAULT_DIRECTORY_INDEX) "Default" else directory.hash.toString())
 
                 if (!pack.opened) {
                     pack.opened = true
@@ -923,7 +923,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         menu?.removeGroup(R.id.nav_menu_top)
 
         for (i in 0 until levelData.size)
-            menu?.add(R.id.nav_menu_top, levelData[i].id, 0, levelData[i].name)
+            menu?.add(R.id.nav_menu_top, levelData[i].hash, 0, levelData[i].name)
 
         menu?.setGroupCheckable(R.id.nav_menu_top, true, true)
 
@@ -942,10 +942,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         menu?.removeGroup(R.id.nav_menu_middle)
 
         if (default)
-            menu?.add(R.id.nav_menu_middle, directory.getPackId(0), 1, "Default")
+            menu?.add(R.id.nav_menu_middle, directory.getPackHash(0), 1, "Default")
 
         for (i in (if (default) 1 else 0) until directory.size) {
-            val item = menu?.add(R.id.nav_menu_middle, directory.getPackId(i), 1,
+            val item = menu?.add(R.id.nav_menu_middle, directory.getPackHash(i), 1,
                 "Pack ${(i + 1).toString().padStart(directory.size.toString().length, '0')}")
             item?.icon = ContextCompat.getDrawable(this, if (directory[i].opened)
                 if (directory[i].solved) R.drawable.ic_star else R.drawable.ic_lock_open else R.drawable.ic_lock)
@@ -1055,9 +1055,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             openNextLevels()
             savePackProgress(
                 levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
-                levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack),
+                levelData[CurrentPuzzle.directory].getPackHash(CurrentPuzzle.pack),
                 if (CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX) "Default"
-                else levelData[CurrentPuzzle.directory].id.toString())
+                else levelData[CurrentPuzzle.directory].hash.toString())
         }
 
         if (!checkIfAllLevelsSolved() ||
@@ -1155,9 +1155,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
                     savePackProgress(
                         levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1],
-                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1),
+                        levelData[CurrentPuzzle.directory].getPackHash(CurrentPuzzle.pack + 1),
                         if (CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX) "Default"
-                        else levelData[CurrentPuzzle.directory].id.toString())
+                        else levelData[CurrentPuzzle.directory].hash.toString())
                 }
             } else {
                 // Open levels only in next pack if possible
@@ -1169,9 +1169,9 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
                     savePackProgress(
                         levelData[CurrentPuzzle.directory][CurrentPuzzle.pack + 1],
-                        levelData[CurrentPuzzle.directory].getPackId(CurrentPuzzle.pack + 1),
+                        levelData[CurrentPuzzle.directory].getPackHash(CurrentPuzzle.pack + 1),
                         if (CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX) "Default"
-                        else levelData[CurrentPuzzle.directory].id.toString())
+                        else levelData[CurrentPuzzle.directory].hash.toString())
                 }
             }
         }

@@ -2,20 +2,20 @@ package com.braingets.equalide.logic
 
 class Directory(val name: String) {
     private val packs = mutableListOf<Pack>()
-    private val packIds = mutableListOf<Int>()
-    var id: Int = UNSET_DIRECTORY_ID
+    private val packHashes = mutableListOf<Int>()
+    var hash: Int = UNSET_DIRECTORY_ID
         private set
     var size: Int = 0
         get() = packs.size
         private set
 
-    constructor(name: String, directoryId: Int) : this(name) {
-        id = directoryId
+    constructor(name: String, directoryHash: Int) : this(name) {
+        hash = directoryHash
     }
 
-    fun add(pack: Pack, id: Int = generatePackId()) {
+    fun add(pack: Pack, hash: Int = generatePackHash()) {
         packs.add(pack)
-        packIds.add(id)
+        packHashes.add(hash)
     }
 
     fun removePack(index: Int, default: Boolean) {
@@ -23,32 +23,32 @@ class Directory(val name: String) {
              packs[DEFAULT_PACK_INDEX] = Pack(mutableListOf())
         else {
             packs.removeAt(index)
-            packIds.removeAt(index)
+            packHashes.removeAt(index)
         }
     }
 
-    private fun generatePackId(): Int {
-        var id = 0
+    private fun generatePackHash(): Int {
+        var hash = 0
 
-        while (id in packIds)
-            id++
+        while (hash in packHashes)
+            hash++
 
-        return id
+        return hash
     }
 
-    fun changeId(newId: Int) {
-        id = newId
+    fun changeHash(newHash: Int) {
+        hash = newHash
     }
 
     operator fun get(i: Int) = packs[i]
 
-    fun getPackId(i: Int) = packIds[i]
+    fun getPackHash(i: Int) = packHashes[i]
 
     operator fun iterator(): Iterator<Pack> = packs.iterator()
 
     fun clear(default: Boolean) {
         packs.clear()
-        packIds.clear()
+        packHashes.clear()
 
         if (default) {
             add(Pack(mutableListOf()))
