@@ -3,27 +3,27 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/export_puzzle_button"
-        android:icon="@drawable/ic_get_app"
-        android:title="@string/export_puzzle_button_tooltip"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/edit_edges_button"
+        android:icon="@drawable/ic_all_out"
+        android:title="@string/edit_edges_button_tooltip"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/save_puzzle_button"
         android:icon="@drawable/ic_save"
         android:title="@string/save_puzzle_button_tooltip"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/refresh_button"
         android:icon="@drawable/ic_refresh"
         android:title="@string/refresh_button_tooltip"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/edit_edges_button"
-        android:icon="@drawable/ic_all_out"
-        android:title="@string/edit_edges_button_tooltip"
-        app:showAsAction="always" />
+        android:id="@+id/export_puzzle_button"
+        android:icon="@drawable/ic_get_app"
+        android:title="@string/export_puzzle_button_tooltip"
+        app:showAsAction="never" />
 
 </menu>

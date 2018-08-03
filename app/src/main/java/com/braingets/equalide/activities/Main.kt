@@ -197,6 +197,19 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             && CurrentPuzzle.number != NO_LEVEL_OPENED
         )
             when (item.itemId) {
+                R.id.refresh_button -> {
+                    snackbar?.dismiss()
+                    refreshGrid()
+                }
+
+                R.id.open_pack_button -> {
+                    navSelectedDirectory = CurrentPuzzle.directory
+                    navSelectedPack = CurrentPuzzle.pack
+
+                    launchSelectLevelActivity(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack],
+                        LaunchMode.FOR_LEVEL_SELECT)
+                }
+
                 R.id.export_puzzle_button -> {
                     val localClassName = localClassName.split(".")
                     val className = localClassName[localClassName.lastIndex]
@@ -218,10 +231,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     overridePendingTransition(R.anim.left_right_enter, R.anim.left_right_exit)
                 }
 
-                R.id.refresh_button -> {
-                    snackbar?.dismiss()
-                    refreshGrid()
-                }
                 R.id.solve_level_button -> {
                     snackbar?.dismiss()
 
@@ -441,8 +450,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val packName = if (CurrentPuzzle.directory == DEFAULT_DIRECTORY_INDEX &&
             CurrentPuzzle.pack == DEFAULT_PACK_INDEX) "Default" else "Pack ${CurrentPuzzle.pack + 1}"
 
-        supportActionBar?.title = "${levelData[CurrentPuzzle.directory].name}/" +
-                "$packName/${(CurrentPuzzle.number + 1).toString()
+        supportActionBar?.title = "$packName/${(CurrentPuzzle.number + 1).toString()
                     .padStart(levelData[CurrentPuzzle.directory][CurrentPuzzle.pack].size.toString().length, '0')}"
 
         calculateViewsSizes()

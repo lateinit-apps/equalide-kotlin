@@ -21,6 +21,7 @@
     <!-- Action bar buttons -->
     <string name="refresh_button_tooltip">Refresh</string>
     <string name="solve_level_button_tooltip">Solve level</string>
+    <string name="open_pack_button_tooltip">Open current pack</string>
 
     <string name="create_puzzle_button_tooltip">Create puzzle</string>
     <string name="export_pack_button_tooltip">Export pack</string>
