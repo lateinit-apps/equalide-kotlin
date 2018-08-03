@@ -37,16 +37,10 @@
             android:id="@+id/pack_08"
             android:icon="@drawable/ic_lock"
             android:title="@string/pack_08" />
-    </group>
-
-    <group
-        android:id="@+id/menu_bottom"
-        android:checkableBehavior="none">
-
         <item
-            android:id="@+id/send_mail"
-            android:icon="@drawable/ic_mail"
-            android:title="@string/send_mail_icon_description" />
+            android:id="@+id/pack_09"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/pack_09" />
     </group>
 
 </menu>

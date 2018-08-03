@@ -12,11 +12,11 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.ActionBarDrawerToggle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.design.widget.FloatingActionButton
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 
 import android.text.SpannableString
@@ -61,7 +61,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private val packIds = arrayOf(
         R.id.pack_01, R.id.pack_02, R.id.pack_03,
         R.id.pack_04, R.id.pack_05, R.id.pack_06,
-        R.id.pack_07, R.id.pack_08
+        R.id.pack_07, R.id.pack_08, R.id.pack_09
     )
     private var selectedPackInNav: Int = 0
 
@@ -72,14 +72,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         var levelSolved: Boolean = false
     }
     private val levelOpeningDelta: Int = 3
-    private var skipSolvedLevels: Boolean = true
 
     // Views related
     private var menu: Menu? = null
-    private var toast: Toast? = null
-    private var snackbar: Snackbar? = null
     private var fabIsShowed: Boolean = false
     private var fabIsLocked: Boolean = false
+    private var fabIconChanged: Boolean = false
     private var grid: GridLayout? = null
     private var palette: LinearLayout? = null
     private var navigatedToSelectScreen: Boolean = false
@@ -101,13 +99,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 super.onDrawerClosed(drawerView)
                 menu?.getItem(selectedPackInNav)?.isChecked = false
             }
-
-            // Hide toast message if opening navigation drawer
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                super.onDrawerSlide(drawerView, slideOffset)
-                toast?.cancel()
-                snackbar?.dismiss()
-            }
         }
         activity_main.addDrawerListener(toggle)
         toggle.syncState()
@@ -116,10 +107,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         grid = findViewById(R.id.puzzle_grid)
         palette = findViewById(R.id.color_palette)
         menu = findViewById<NavigationView>(R.id.nav_view).menu
-        toast = Toast.makeText(this, "", Toast.LENGTH_SHORT)
-        snackbar = Snackbar.make(findViewById(R.id.content_view),
-            R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
-        snackbar?.setAction(R.string.snackbar_action) { launchMailApplication() }
 
         // Add listeners to views
         grid?.setOnTouchListener(gridListener)
@@ -148,28 +135,23 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     // Launch new activity if selected proper item from navigation drawer
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.send_mail)
-            launchMailApplication()
-        else {
-            for (i in 0 until packIds.size)
-                if (item.itemId == packIds[i]) {
-                    // Fixes issue when selected item becomes unselectable
-                    // on first select after closing of navigation drawer
-                    menu?.getItem(i)?.isChecked = true
+        for (i in 0 until packIds.size)
+            if (item.itemId == packIds[i]) {
+                // Fixes issue when selected item becomes unselectable
+                // on first select after closing of navigation drawer
+                menu?.getItem(i)?.isChecked = true
 
-                    // Set color for text
-                    val spanString = SpannableString(item.title.toString())
-                    spanString.setSpan(ForegroundColorSpan(ContextCompat.getColor(
-                        this, R.color.nav_text_selected)), 0,
-                        spanString.length, 0)
-                    item.title = spanString
+                // Set color for text
+                val spanString = SpannableString(item.title.toString())
+                spanString.setSpan(
+                    ForegroundColorSpan(Color.WHITE), 0, spanString.length, 0)
+                item.title = spanString
 
-                    selectedPackInNav = i
-                    break
-                }
-            if (packs[selectedPackInNav].opened)
-                launchSelectLevelActivity()
-        }
+                selectedPackInNav = i
+                break
+            }
+        if (packs[selectedPackInNav].opened)
+            launchSelectLevelActivity()
         return true
     }
 
@@ -177,7 +159,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val intent = Intent(Intent.ACTION_SENDTO)
         intent.data = Uri.parse("mailto:${resources
             .getString(R.string.contact_mail_address)}")
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Equalide")
+        intent.putExtra(Intent.EXTRA_SUBJECT, resources
+            .getString(R.string.mail_title))
+        intent.putExtra(Intent.EXTRA_TEXT, resources
+            .getString(R.string.mail_body).replace("#",
+                "${current.pack + 1}-${(current.level + 1).toString().padStart(2, '0')}"))
 
         // Get list of all installed mail clients on device that are not disabled
         val appList = this.packageManager.queryIntentActivities(intent,
@@ -260,11 +246,11 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.refresh_button)
-            refreshGrid()
-        else
-            return super.onOptionsItemSelected(item)
-
+        when (item.itemId) {
+            R.id.send_mail -> launchMailApplication()
+            R.id.refresh_button -> refreshGrid()
+            else -> return super.onOptionsItemSelected(item)
+        }
         return true
     }
 
@@ -311,19 +297,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 //    }
 
     private fun loadUserData() {
-        //val preferences = getSharedPreferences(
-        //    getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-
-        var preferences = getSharedPreferences(
+        val preferences = getSharedPreferences(
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
-        if (preferences.all.isEmpty())
-            preferences = getSharedPreferences(
-                "equalide.kotlin.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE)
-
         // Get user progress
-//        val packProgress = "sssssso"
-//        val levelProgress = ("s".repeat(24) + "\n").repeat(6) + "s".repeat(23) + "o\n"
+//        val packProgress = "ssssssdo"
+//        val levelProgress = ("s".repeat(24) + "\n").repeat(7) + "s".repeat(23) + "o\n"
         val packProgress = preferences.getString("Pack progress", null)
         val levelProgress = preferences.getString("Level progress", null)
         val levelPartition = preferences.getString("Level partition", null)
@@ -332,7 +311,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // Get state variables
         paintColor = preferences.getInt("Palette status", 0)
         fabIsShowed = preferences.getBoolean("Fab status", false)
-        skipSolvedLevels = preferences.getBoolean("Skip status", true)
 
         if (packProgress == null || levelProgress == null) {
             // Open first pack and three levels if it's new game
@@ -372,18 +350,18 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     }
                 }
 
-            // Open 8 pack
-            if (packProgress.length == 7 && packProgress[6] != 'c' && packs[6].puzzles[21].solved) {
-                packs[7].opened = true
+            // Open 9 pack
+            if (packProgress.length == 8 && packProgress[7] != 'c' && packs[7].puzzles[21].solved) {
+                packs[8].opened = true
                 menu?.findItem(packIds[7])?.icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
                 var forOpen = 0
                 for (i in 21 until 24)
-                    if (packs[6].puzzles[i].solved)
+                    if (packs[7].puzzles[i].solved)
                         forOpen++
 
                 for (i in 0 until  forOpen)
-                    packs[7].puzzles[i].opened = true
+                    packs[8].puzzles[i].opened = true
             }
         }
 
@@ -411,10 +389,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         // Show fab if exited on opened fab
         if (fabIsShowed) {
             current.levelSolved = true
-
-            if (!checkIfAllLevelsSolved()
-                || current.level != packSize - 1 || current.pack != packIds.size - 1)
-                findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
+            findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
         }
     }
 
@@ -490,16 +465,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
-    private fun saveSkipStatus() {
-        val preferences = getSharedPreferences(
-            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-
-        with(preferences.edit()) {
-            putBoolean("Skip status", skipSolvedLevels)
-            apply()
-        }
-    }
-
     private fun calculateViewsSizes() {
         val contentView = findViewById<LinearLayout>(R.id.content_view)
 
@@ -532,7 +497,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 paletteButton.setImageDrawable(
                     ContextCompat.getDrawable(this, R.drawable.ic_edit))
 
-            paletteButton.tag = "paletteButton_" + i.toString()
+            paletteButton.tag = "paletteButton_$i"
 
             paletteButton.setOnClickListener(colorPaletteListener)
 
@@ -552,6 +517,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         gridParams.bottomMargin = (contentView.height - puzzle.height * primitiveSize) / 2
         grid?.layoutParams = gridParams
 
+        val blackPrimitiveColor = ContextCompat.getColor(this, R.color.acitivityBackground)
+
         for (i in 0 until puzzle.height)
             for (j in 0 until puzzle.width) {
                 val primitive = Button(this)
@@ -561,12 +528,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 primitive.layoutParams = params
 
                 // Set color
-                val drawable = ContextCompat.getDrawable(
-                    this, R.drawable.primitive_border
-                ) as GradientDrawable
+                val drawable = if (puzzle[i, j] == 'b') GradientDrawable()
+                    else ContextCompat.getDrawable(this, R.drawable.primitive_border)
+                        as GradientDrawable
                 drawable.setColor(
                     when (puzzle[i, j]) {
-                        'b' -> Color.BLACK
+                        'b' -> blackPrimitiveColor
                         'e' -> Color.WHITE
                         else -> colors!![puzzle[i, j].toInt() - 48]
                     }
@@ -584,9 +551,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun handleSolvedPuzzle() {
-        skipSolvedLevels = !packs[current.pack].puzzles[current.level].solved
-        saveSkipStatus()
-
         hideColorPalette()
 
         // Is true for last level in game although no fab is actually shown.
@@ -594,14 +558,12 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         saveFabStatus(true)
 
         val allLevelsSolved = checkIfAllLevelsSolved()
-        var packSolved = false
         current.levelSolved = true
 
         if (!allLevelsSolved) {
             packs[current.pack].puzzles[current.level].solved = true
 
             if (!packs[current.pack].solved && packs[current.pack].checkIfSolved()) {
-                packSolved = true
                 packs[current.pack].solved = true
                 menu?.findItem(packIds[current.pack])?.icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_star)
@@ -611,18 +573,15 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             saveProgress()
         }
 
-        if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
-            if (packSolved) {
-                toast?.setText("Pack ${current.pack + 1} solved!")
-                toast?.duration = Toast.LENGTH_LONG
-            } else {
-                toast?.setText("Puzzle solved!")
-                toast?.duration = Toast.LENGTH_SHORT
-            }
-            toast?.show()
-            findViewById<FloatingActionButton>(R.id.fab).show(onShownFabListener)
-        } else if (!allLevelsSolved)
-            snackbar?.show()
+        val fab = findViewById<FloatingActionButton>(R.id.fab)
+
+        if (fabIconChanged &&
+            (current.level != packSize - 1 || current.pack != packIds.size - 1)) {
+            fab.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_navigate_next))
+            fabIconChanged = false
+        }
+
+        fab.show(onShownFabListener)
     }
 
     private fun refreshGrid() {
@@ -630,17 +589,17 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         savePartition()
 
         if (!current.levelSolved) {
+            val blackPrimitiveColor = ContextCompat.getColor(this, R.color.acitivityBackground)
+
             for (i in 0 until grid!!.childCount) {
                 val primitive = grid?.getChildAt(i) as Button
                 val coords = primitive.tag as IntArray
                 val background = primitive.background as GradientDrawable
 
-                background.setColor(if (puzzle!![coords[0], coords[1]] == 'b') Color.BLACK else Color.WHITE)
+                background.setColor(if (puzzle!![coords[0], coords[1]] == 'b') blackPrimitiveColor else Color.WHITE)
                 primitive.background = background
             }
         } else {
-            toast?.cancel()
-
             grid?.removeAllViews()
             palette?.removeAllViews()
 
@@ -658,7 +617,10 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     private fun hideColorPalette() {
         for (i in 0 until palette!!.childCount)
-            palette?.getChildAt(i)?.setBackgroundColor(Color.BLACK)
+            palette?.getChildAt(i)?.setBackgroundColor(resources.getColor(android.R.color.transparent))
+
+        palette?.findViewWithTag<ImageButton>("paletteButton_$paintColor")
+            ?.setImageResource(android.R.color.transparent)
     }
 
     private fun checkIfAllLevelsSolved(): Boolean {
@@ -701,9 +663,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun selectNextLevel() {
-        if (!skipSolvedLevels &&
-            (current.level != packSize - 1 || current.pack != packIds.size - 1)
-        ) {
+        if (current.level != packSize - 1 || current.pack != packIds.size - 1) {
             // Open next direct level
             if (current.level < packSize - 1)
                 current.level++
@@ -711,31 +671,6 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 current.level = 0
                 current.pack++
             }
-        } else {
-            // Try to find next level in end of current pack
-            for (i in current.level + 1 until packSize)
-                if (packs[current.pack].puzzles[i].opened && !packs[current.pack].puzzles[i].solved) {
-                    current.level = i
-                    return
-                }
-
-            // Try to find next level in all levels until last in game
-            for (i in current.pack + 1 until packIds.size)
-                for (j in 0 until packSize)
-                    if (packs[i].puzzles[j].opened && !packs[i].puzzles[j].solved) {
-                        current.level = j
-                        current.pack = i
-                        return
-                    }
-
-            // Try to find next level in all levels before current
-            for (i in 0 until current.pack)
-                for (j in 0 until packSize)
-                    if (packs[i].puzzles[j].opened && !packs[i].puzzles[j].solved) {
-                        current.level = j
-                        current.pack = i
-                        return
-                    }
         }
     }
 
@@ -798,7 +733,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private val colorPaletteListener = { v: View ->
-        if (v.tag != "paletteButton_" + paintColor.toString()) {
+        if (!current.levelSolved && v.tag != "paletteButton_" + paintColor.toString()) {
             // Set edit icon on pressed palette button
             palette?.findViewWithTag<ImageButton>(v.tag)?.setImageDrawable(
                 ContextCompat.getDrawable(this, R.drawable.ic_edit)
@@ -814,35 +749,41 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private val fabListener = { v: View ->
-        if (!fabIsLocked) {
-            fabIsLocked = true
-            (v as FloatingActionButton).hide()
-            saveFabStatus(false)
+        if (!fabIsLocked)
+            if (current.level == packSize - 1 && current.pack == packIds.size - 1)
+                launchMailApplication()
+            else {
+                fabIsLocked = true
+                (v as FloatingActionButton).hide()
+                saveFabStatus(false)
 
-            toast?.cancel()
+                grid?.removeAllViews()
+                palette?.removeAllViews()
 
-            grid?.removeAllViews()
-            palette?.removeAllViews()
+                current.levelSolved = false
 
-            current.levelSolved = false
+                selectNextLevel()
+                saveCurrentSelectedLevel()
 
-            selectNextLevel()
-            saveCurrentSelectedLevel()
+                packs[current.pack].puzzles[current.level].refresh()
+                savePartition()
 
-            packs[current.pack].puzzles[current.level].refresh()
-            savePartition()
+                paintColor = packs[current.pack].puzzles[current.level].parts / 2
+                savePaletteStatus()
 
-            paintColor = packs[current.pack].puzzles[current.level].parts / 2
-            savePaletteStatus()
-
-            onLayoutLoad()
-        }
+                onLayoutLoad()
+            }
     }
 
     private val onShownFabListener = object : FloatingActionButton.OnVisibilityChangedListener() {
         override fun onShown(fab: FloatingActionButton?) {
             super.onShown(fab)
             fabIsLocked = false
+
+            if (current.level == packSize - 1 && current.pack == packIds.size - 1) {
+                fab?.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_mail_fab))
+                fabIconChanged = true
+            }
         }
     }
 }

@@ -1,18 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
-    <color name="nav_text_selected">@android:color/black</color>
 
-    <color name="colorPrimary">#FFF5F5F5</color>
-    <color name="colorPrimaryDark">#FF757575</color>
-    <color name="colorAccent">#FF009688</color>
+    <color name="colorPrimary">#F5F5F5</color>
+    <color name="colorPrimaryDark">#757575</color>
+    <color name="colorAccent">#009688</color>
+
+    <color name="acitivityBackground">#101616</color>
+
+    <color name="colorStatusBar">#1a1e1d</color>
+    <color name="colorActionBar">#212727</color>
+    <color name="colorNavHeader">#101616</color>
+    <color name="colorNavBody">#1b2023</color>
+    <color name="colorNavSelectedItem">#22272a</color>
+    <color name="colorNavRipple">#2d3439</color>
+    <color name="colorLevelTileRipple">#32ecf3f9</color>
+
+    <color name="colorSolvedTile">#34739f</color>
+    <color name="colorUnsolvedTile">#223440</color>
+
+    <color name="colorCheckedSolvedTile">#2c6187</color>
+    <color name="colorCheckedUnSolvedTile">#1a2932</color>
 
     <color name="blue">#4285F4</color>
     <color name="red">#EA4335</color>
     <color name="yellow">#FBBC05</color>
     <color name="green">#34A853</color>
-    <color name="grey_800">#424242</color>
-    <color name="grey_400">#e0e0e0</color>
 
     <integer-array name="colors_for_2_parts">
         <item>@color/blue</item>
