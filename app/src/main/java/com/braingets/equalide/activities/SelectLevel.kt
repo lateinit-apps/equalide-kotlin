@@ -33,7 +33,7 @@ class SelectLevel : AppCompatActivity() {
     // Margin related
     private var horizontalMargin: Int = 0
     private var verticalMargin: Int = 0
-    private var primitiveMargin: Int = 0
+    private var tileMargin: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,11 +74,18 @@ class SelectLevel : AppCompatActivity() {
     private fun calculateViewsSizes() {
         val selectView = findViewById<LinearLayout>(R.id.activity_select_level)
 
-        tileSize = (0.195 * selectView.width).toInt()
-        primitiveMargin = ((0.2 / 14) * selectView.width).toInt()
+        tileSize = (0.2 * selectView.width).toInt()
+        val tileSizeByHeight = (0.14 * selectView.height).toInt()
 
-        horizontalMargin = (4 * (0.2 / 14) * selectView.width).toInt()
-        verticalMargin = (selectView.height - 6 * tileSize - 12 * primitiveMargin) / 2
+        if (tileSizeByHeight < tileSize) {
+            // Tiles can't fit to screen by height
+            tileSize = tileSizeByHeight
+            tileMargin = (0.01 * selectView.height).toInt()
+        } else
+            tileMargin = ((0.2 / 14) * selectView.width).toInt()
+
+        horizontalMargin = (selectView.width - 4 * tileSize - 8 * tileMargin) / 2
+        verticalMargin = (selectView.height - 6 * tileSize - 12 * tileMargin) / 2
     }
 
     private fun createGrid(levelData: String) {
@@ -102,7 +109,7 @@ class SelectLevel : AppCompatActivity() {
                 val params = GridLayout.LayoutParams()
                 params.width = tileSize
                 params.height = tileSize
-                params.setMargins(primitiveMargin, primitiveMargin, primitiveMargin, primitiveMargin)
+                params.setMargins(tileMargin, tileMargin, tileMargin, tileMargin)
                 tile.layoutParams = params
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
