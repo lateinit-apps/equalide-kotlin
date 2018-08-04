@@ -301,7 +301,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
         // Get user progress
-//        val packProgress = "ssssssdo"
+//        val packProgress = "ssssssss"
 //        val levelProgress = ("s".repeat(24) + "\n").repeat(7) + "s".repeat(23) + "o\n"
         val packProgress = preferences.getString("Pack progress", null)
         val levelProgress = preferences.getString("Level progress", null)
@@ -353,7 +353,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             // Open 9 pack
             if (packProgress.length == 8 && packProgress[7] != 'c' && packs[7].puzzles[21].solved) {
                 packs[8].opened = true
-                menu?.findItem(packIds[7])?.icon =
+                menu?.findItem(packIds[8])?.icon =
                         ContextCompat.getDrawable(this, R.drawable.ic_lock_open)
                 var forOpen = 0
                 for (i in 21 until 24)
@@ -362,6 +362,8 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
                 for (i in 0 until  forOpen)
                     packs[8].puzzles[i].opened = true
+
+                saveProgress()
             }
         }
 

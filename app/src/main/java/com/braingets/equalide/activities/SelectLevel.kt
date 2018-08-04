@@ -1,17 +1,18 @@
 package com.braingets.equalide.activities
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.content.Intent
 
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 
 import android.view.View
-import android.view.Gravity
 import android.view.MenuItem
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 
@@ -33,7 +34,7 @@ class SelectLevel : AppCompatActivity() {
     // Margin related
     private var horizontalMargin: Int = 0
     private var verticalMargin: Int = 0
-    private var primitiveMargin: Int = 0
+    private var tileMargin: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,11 +75,18 @@ class SelectLevel : AppCompatActivity() {
     private fun calculateViewsSizes() {
         val selectView = findViewById<LinearLayout>(R.id.activity_select_level)
 
-        tileSize = (0.195 * selectView.width).toInt()
-        primitiveMargin = ((0.2 / 14) * selectView.width).toInt()
+        tileSize = (0.2 * selectView.width).toInt()
+        val tileSizeByHeight = (0.14 * selectView.height).toInt()
 
-        horizontalMargin = (4 * (0.2 / 14) * selectView.width).toInt()
-        verticalMargin = (selectView.height - 6 * tileSize - 12 * primitiveMargin) / 2
+        if (tileSizeByHeight < tileSize) {
+            // Tiles can't fit to screen by height
+            tileSize = tileSizeByHeight
+            tileMargin = (0.01 * selectView.height).toInt()
+        } else
+            tileMargin = ((0.2 / 14) * selectView.width).toInt()
+
+        horizontalMargin = (selectView.width - 4 * tileSize - 8 * tileMargin) / 2
+        verticalMargin = (selectView.height - 6 * tileSize - 12 * tileMargin) / 2
     }
 
     private fun createGrid(levelData: String) {
@@ -94,7 +102,7 @@ class SelectLevel : AppCompatActivity() {
         val colorUnsolvedTile = ContextCompat.getColor(this, R.color.colorUnsolvedTile)
 
         for (i in 0 until rowCount)
-            for (j in 0 until columnCount){
+            for (j in 0 until columnCount) {
                 val tile = Button(this)
                 val level = i * columnCount + j
 
@@ -102,7 +110,7 @@ class SelectLevel : AppCompatActivity() {
                 val params = GridLayout.LayoutParams()
                 params.width = tileSize
                 params.height = tileSize
-                params.setMargins(primitiveMargin, primitiveMargin, primitiveMargin, primitiveMargin)
+                params.setMargins(tileMargin, tileMargin, tileMargin, tileMargin)
                 tile.layoutParams = params
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
@@ -112,38 +120,30 @@ class SelectLevel : AppCompatActivity() {
                         ContextCompat.getDrawable(this, R.drawable.level_tile) as RippleDrawable
                     val shape = drawable.findDrawableByLayerId(R.id.tile_layer) as GradientDrawable
 
-                    if (levelData[level] != 'c') {
-                        tile.gravity = Gravity.CENTER
-
-                        tile.text = (level + 1).toString()
-                        tile.textSize = 17.toFloat()
-
-                        tile.setTextColor(Color.WHITE)
+                    if (levelData[level] != 'c')
                         shape.setColor(
-                            if (levelData[level] == 's')
-                                colorSolvedTile else colorUnsolvedTile
-                        )
-                    } else
+                            if (levelData[level] == 's') colorSolvedTile else colorUnsolvedTile)
+                    else
                         shape.setColor(colorUnsolvedTile)
 
                     tile.background = drawable
                 } else {
                     // Without ripple effect
 
-                    if (levelData[level] != 'c') {
-                        tile.gravity = Gravity.CENTER
-
-                        tile.text = (level + 1).toString()
-                        tile.textSize = 17.toFloat()
-
-                        tile.setTextColor(Color.WHITE)
+                    if (levelData[level] != 'c')
                         tile.setBackgroundColor(
-                            if (levelData[level] == 's')
-                                colorSolvedTile else colorUnsolvedTile
-                        )
-                    } else
+                            if (levelData[level] == 's') colorSolvedTile else colorUnsolvedTile)
+                    else
                         tile.setBackgroundColor(colorUnsolvedTile)
                 }
+
+                // Set font
+                tile.setTextSize(TypedValue.COMPLEX_UNIT_PX, (tileSize * 0.3).toFloat())
+                tile.setTypeface(null, Typeface.BOLD)
+                tile.setTextColor(Color.WHITE)
+
+                if (levelData[level] != 'c')
+                    tile.text = (level + 1).toString()
 
                 tile.tag = level
 
