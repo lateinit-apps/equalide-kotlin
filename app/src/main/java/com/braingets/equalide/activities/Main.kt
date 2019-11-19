@@ -8,12 +8,12 @@ import android.content.Intent
 import android.content.Context
 import android.content.pm.PackageManager
 
-import android.support.v4.view.GravityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.design.widget.NavigationView
-import android.support.design.widget.FloatingActionButton
+import androidx.core.view.GravityCompat
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.ActionBarDrawerToggle
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
