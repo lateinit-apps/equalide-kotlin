@@ -1,5 +1,7 @@
-# Equalide (Unreleased)
+# Equalide game
 
-<img src="docs/img/icon.jpg" width="35%">
+<img src="docs/images/icon.jpg" width="35%">
 
-Root repository for kotlin build of [Equalide](https://play.google.com/store/apps/details?id=com.braingets.equalide) puzzle game.
+Kotlin build of Equalide puzzle game. The key goal is to separate a figure into equal parts.
+
+<img src="docs/images/game.png" width="33%"><img src="docs/images/menu.png" width="33%"><img src="docs/images/packs screen.png" width="33%">
