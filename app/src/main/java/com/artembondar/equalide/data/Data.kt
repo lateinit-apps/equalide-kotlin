@@ -1,7 +1,7 @@
-package com.braingets.equalide.data
+package com.artembondar.equalide.data
 
-import com.braingets.equalide.logic.Pack
-import com.braingets.equalide.logic.Puzzle
+import com.artembondar.equalide.logic.Pack
+import com.artembondar.equalide.logic.Puzzle
 
 class Data(val packs: Array<Pack>)
 

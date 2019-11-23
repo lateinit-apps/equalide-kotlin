@@ -1,4 +1,4 @@
-package com.braingets.equalide.logic
+package com.artembondar.equalide.logic
 
 // Contains puzzle with next representation:
 // '0-9' - colored cell

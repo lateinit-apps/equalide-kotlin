@@ -1,4 +1,4 @@
-package com.braingets.equalide
+package com.artembondar.equalide
 
 import org.junit.Test
 

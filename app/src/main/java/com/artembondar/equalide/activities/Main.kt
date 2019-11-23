@@ -1,4 +1,4 @@
-package com.braingets.equalide.activities
+package com.artembondar.equalide.activities
 
 import android.net.Uri
 import android.util.Log
@@ -16,7 +16,6 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 
 import android.text.SpannableString
@@ -33,10 +32,10 @@ import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_screen.*
 
-import com.braingets.equalide.R
-import com.braingets.equalide.logic.Pack
-import com.braingets.equalide.logic.Puzzle
-import com.braingets.equalide.data.packsData
+import com.artembondar.equalide.R
+import com.artembondar.equalide.logic.Pack
+import com.artembondar.equalide.logic.Puzzle
+import com.artembondar.equalide.data.packsData
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 

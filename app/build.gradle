@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.braingets.equalide"
+        applicationId "com.artembondar.equalide"
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 11
