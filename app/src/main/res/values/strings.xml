@@ -9,7 +9,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="nav_header_title">Equalide</string>
-    <string name="nav_header_subtitle">Early Access</string>
+    <string name="nav_header_subtitle">Lateinit Apps</string>
     <string name="nav_header_description">Navigation header</string>
 
     <string name="pack_01">Pack 1</string>
@@ -23,7 +23,7 @@
     <string name="pack_09">Pack 9</string>
 
     <string name="send_mail_icon_description">Contact developer</string>
-    <string name="contact_mail_address">equalide@gmail.com</string>
+    <string name="contact_mail_address">lateinit.apps@gmail.com</string>
     <string name="mail_chooser_title">Send mail</string>
     <string name="mail_title">Equalide feedback</string>
     <string name="mail_body">

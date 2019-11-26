@@ -13,7 +13,7 @@
     android:id="@+id/content_view"
     tools:showIn="@layout/main_screen">
 
-    <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <GridLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/puzzle_grid">
@@ -24,7 +24,7 @@
         android:layout_height="@dimen/puzzle_grid_margin_bottom">
     </View>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
