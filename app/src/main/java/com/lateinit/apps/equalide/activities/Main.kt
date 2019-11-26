@@ -32,7 +32,7 @@ import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_screen.*
 
-import com.lateinit.apps.R
+import com.lateinit.apps.equalide.R
 import com.lateinit.apps.equalide.logic.Pack
 import com.lateinit.apps.equalide.logic.Puzzle
 import com.lateinit.apps.equalide.data.packsData

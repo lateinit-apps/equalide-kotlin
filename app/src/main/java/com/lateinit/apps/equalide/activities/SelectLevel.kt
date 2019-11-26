@@ -20,7 +20,7 @@ import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 
-import com.lateinit.apps.R
+import com.lateinit.apps.equalide.R
 
 class SelectLevel : AppCompatActivity() {
 
