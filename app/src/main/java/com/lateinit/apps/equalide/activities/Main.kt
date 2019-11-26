@@ -1,4 +1,4 @@
-package com.artembondar.equalide.activities
+package com.lateinit.apps.equalide.activities
 
 import android.net.Uri
 import android.util.Log
@@ -32,10 +32,10 @@ import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.main_screen.*
 
-import com.artembondar.equalide.R
-import com.artembondar.equalide.logic.Pack
-import com.artembondar.equalide.logic.Puzzle
-import com.artembondar.equalide.data.packsData
+import com.lateinit.apps.R
+import com.lateinit.apps.equalide.logic.Pack
+import com.lateinit.apps.equalide.logic.Puzzle
+import com.lateinit.apps.equalide.data.packsData
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 

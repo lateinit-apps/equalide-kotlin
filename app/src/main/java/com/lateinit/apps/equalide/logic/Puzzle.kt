@@ -1,4 +1,4 @@
-package com.artembondar.equalide.logic
+package com.lateinit.apps.equalide.logic
 
 // Contains puzzle with next representation:
 // '0-9' - colored cell
@@ -79,14 +79,14 @@ class Puzzle(text: String, val parts: Int) {
             val lastOccurance = body.lastIndexOf(cell)
 
             result.add(
-                Element(
-                    body.substring(
-                        firstOccurance - firstOccurance % width,
-                        lastOccurance + width - lastOccurance % width
+                    Element(
+                            body.substring(
+                                    firstOccurance - firstOccurance % width,
+                                    lastOccurance + width - lastOccurance % width
+                            )
+                                    .replace(Regex("[^$cell]"), "e")
+                                    .replace(cell, 'c'), width
                     )
-                        .replace(Regex("[^$cell]"), "e")
-                        .replace(cell, 'c'), width
-                )
             )
         }
         return result

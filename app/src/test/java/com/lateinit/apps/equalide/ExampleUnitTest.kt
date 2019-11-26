@@ -1,4 +1,4 @@
-package com.artembondar.equalide
+package com.lateinit.apps.equalide
 
 import org.junit.Test
 

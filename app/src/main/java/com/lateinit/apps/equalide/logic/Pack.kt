@@ -1,4 +1,4 @@
-package com.artembondar.equalide.logic
+package com.lateinit.apps.equalide.logic
 
 class Pack(val puzzles: Array<Puzzle>) {
 

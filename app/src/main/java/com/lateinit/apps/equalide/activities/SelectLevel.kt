@@ -1,4 +1,4 @@
-package com.artembondar.equalide.activities
+package com.lateinit.apps.equalide.activities
 
 import android.os.Bundle
 import android.util.TypedValue
@@ -20,7 +20,7 @@ import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 
-import com.artembondar.equalide.R
+import com.lateinit.apps.R
 
 class SelectLevel : AppCompatActivity() {
 
