@@ -1,6 +1,6 @@
-# Equalide game
+# Equalide
 
- <a href="https://play.google.com/store/apps/details?id=com.lateinit.apps.equalide"><img border="0" alt="Equalide" src="docs/images/google-play-badge.png" width="50%" height="50%"></a>
+ <a href="https://play.google.com/store/apps/details?id=com.lateinit.apps.equalide"><img border="0" alt="Equalide" src="docs/images/google-play-badge.png" width="35%" height="35%"></a>
 
 Kotlin build of Equalide puzzle game.
 
