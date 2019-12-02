@@ -1,4 +1,4 @@
-package com.braingets.equalide.logic
+package com.lateinit.apps.equalide.logic
 
 // Puzzle related
 const val DEFAULT_DIRECTORY_INDEX = 0

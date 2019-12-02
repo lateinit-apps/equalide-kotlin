@@ -1,4 +1,4 @@
-package com.braingets.equalide.activities
+package com.lateinit.apps.equalide.activities
 
 import android.Manifest
 import android.os.Bundle
@@ -11,14 +11,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 
-import android.support.v4.app.ActivityCompat
-import android.support.v4.view.GravityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.design.widget.Snackbar
-import android.support.design.widget.NavigationView
-import android.support.design.widget.FloatingActionButton
+import androidx.core.app.ActivityCompat
+import androidx.core.view.GravityCompat
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.ActionBarDrawerToggle
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -34,12 +34,11 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 
 import android.widget.*
 
-import kotlinx.android.synthetic.main.main_screen.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.main_screen.*
 
-import com.braingets.equalide.R
-import com.braingets.equalide.logic.*
-import com.braingets.equalide.logic.LevelData
+import com.lateinit.apps.equalide.R
+import com.lateinit.apps.equalide.logic.*
 
 class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -441,7 +440,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     private fun parseFileFromIntent() {
-        val content = contentResolver.openInputStream(fileUri).bufferedReader().use { it.readText() }
+        val content = contentResolver.openInputStream(fileUri!!)!!.bufferedReader().use { it.readText() }
         loadLevelDataFrom(content)
         syncDirectoriesInNavigationDrawer()
     }
@@ -518,7 +517,7 @@ class Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             
             for (directoryIndex in 0 until hashes.size) {
                 val name = preferences.getString("Directory [${hashes[directoryIndex]}] name", "Broken directory")
-                loadDirectoryData(preferences, name, hashes[directoryIndex])
+                loadDirectoryData(preferences, name!!, hashes[directoryIndex])
             }
         }
     }

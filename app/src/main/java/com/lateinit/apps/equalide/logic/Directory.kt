@@ -1,4 +1,4 @@
-package com.braingets.equalide.logic
+package com.lateinit.apps.equalide.logic
 
 class Directory(val name: String) {
     private val packs = mutableListOf<Pack>()

@@ -1,4 +1,4 @@
-package com.braingets.equalide.activities
+package com.lateinit.apps.equalide.activities
 
 import java.io.File
 import java.io.FileOutputStream
@@ -8,7 +8,7 @@ import android.os.Environment
 import android.app.IntentService
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 
 class Exporter : IntentService("exporter") {
 
@@ -29,7 +29,7 @@ class Exporter : IntentService("exporter") {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-                intent.setClass(this, callerClass)
+                intent.setClass(this, callerClass!!)
                 intent.putExtra("no write permission", true)
                 startActivity(intent)
 

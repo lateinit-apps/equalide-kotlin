@@ -1,6 +1,6 @@
-package com.braingets.equalide.logic
+package com.lateinit.apps.equalide.logic
 
-import com.braingets.equalide.activities.Main.CurrentPuzzle
+import com.lateinit.apps.equalide.activities.Main.CurrentPuzzle
 
 class LevelData {
 

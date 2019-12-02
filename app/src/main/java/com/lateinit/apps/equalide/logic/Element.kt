@@ -1,4 +1,4 @@
-package com.braingets.equalide.logic
+package com.lateinit.apps.equalide.logic
 
 // Contains element with next representation:
 // 'c' - non-empty cell

@@ -1,4 +1,4 @@
-package com.braingets.equalide.activities
+package com.lateinit.apps.equalide.activities
 
 import android.Manifest
 import android.os.Bundle
@@ -9,9 +9,9 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
 
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 
 import android.view.View
 import android.view.Menu
@@ -23,8 +23,8 @@ import android.widget.*
 
 import kotlinx.android.synthetic.main.main_screen.*
 
-import com.braingets.equalide.R
-import com.braingets.equalide.logic.*
+import com.lateinit.apps.equalide.R
+import com.lateinit.apps.equalide.logic.*
 
 class EditPuzzle : AppCompatActivity() {
 

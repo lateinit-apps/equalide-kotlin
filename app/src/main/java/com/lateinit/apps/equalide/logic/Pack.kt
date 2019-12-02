@@ -1,4 +1,4 @@
-package com.braingets.equalide.logic
+package com.lateinit.apps.equalide.logic
 
 class Pack(private val puzzles: MutableList<Puzzle>) {
 

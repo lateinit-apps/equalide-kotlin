@@ -1,4 +1,4 @@
-package com.braingets.equalide
+package com.lateinit.apps.equalide
 
 import org.junit.Test
 
