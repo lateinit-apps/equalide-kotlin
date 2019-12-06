@@ -1,7 +1,7 @@
 # Built application files
 build/
 */build/
-app/market/
+app/production/
 app/internal/
 
 # Local configuration file
