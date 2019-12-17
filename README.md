@@ -1,6 +1,6 @@
 # Equalide
 
- <a href="https://play.google.com/store/apps/details?id=com.lateinit.apps.equalide"><img border="0" alt="Equalide" src="docs/images/google-play-badge.png" width="35%" height="35%"></a>
+<a href="https://play.google.com/store/apps/details?id=com.lateinit.apps.equalide"><img border="0" alt="Equalide" src="docs/images/google-play-badge.png" width="35%" height="35%"></a>
 
 Kotlin build of Equalide puzzle game.
 
@@ -18,11 +18,11 @@ As part of the project a tool to view/create/edit/export puzzles was created at
 
 ## Puzzle format to view/export
 
- - One puzzle under another through an empty string
- - The end of the line is uniform throughout the file
- - File extension is .eqld
+- One puzzle under another through an empty string
+- The end of the line is uniform throughout the file
+- File extension is .eqld
 
-```
+```txt
 010
 111
 010
