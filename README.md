@@ -11,7 +11,7 @@ Can you beat all 216 levels?
 
 <img src="docs/images/Screenshot_3.png" width="33%"><img src="docs/images/Screenshot_4.png" width="33%"><img src="docs/images/Screenshot_5.png" width="33%">
 
-# Internal tool
+## Internal tool
 
 As part of the project a tool to view/create/edit/export puzzles was created at 
 `internal-tool` branch. Support opening of .eqld files.
