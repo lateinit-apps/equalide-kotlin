@@ -4,8 +4,8 @@
 
 Kotlin build of Equalide puzzle game.
 
-Separate a figure into equal parts.
-Can you beat all 216 levels?
+> *Separate a figure into equal parts.
+Can you beat all 216 levels?*
 
 <img src="docs/images/Screenshot_1.png" width="33%"><img src="docs/images/Screenshot_2.png" width="33%">
 
@@ -13,8 +13,8 @@ Can you beat all 216 levels?
 
 ## Internal tool
 
-As part of the project a tool to view/create/edit/export puzzles was created at 
-`internal-tool` branch. Support opening of .eqld files.
+As part of the project a tool to view/create/edit/export puzzles was created at `internal-tool`
+branch, it supports opening of .eqld files.
 
 ## Puzzle format to view/export
 
